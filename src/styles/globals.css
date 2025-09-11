@@ -1,0 +1,6 @@
+/* 글로벌 확장 스타일 */
+@import "tailwindcss";
+
+:root {
+  --brand-color: #ff2b85;
+}
