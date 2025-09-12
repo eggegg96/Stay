@@ -1,11 +1,5 @@
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  Navigation,
-  Pagination,
-  Mousewheel,
-  Keyboard,
-  FreeMode,
-} from "swiper/modules";
+import { Navigation } from "swiper/modules";
 
 const HOTELS = [
   { id: 1, name: "제주 바다뷰 호텔", img: "/images/h1.jpg" },
@@ -15,16 +9,15 @@ const HOTELS = [
   { id: 5, name: "서울 신라 호텔", img: "/images/h5.jpg" },
   { id: 6, name: "Hayatt", img: "/images/h6.jpg" },
   { id: 7, name: "인터컨티넨탈 서울", img: "/images/h7.jpg" },
-  // 더 추가 가능
 ];
 
 export default function Hot() {
   return (
-    <section className="p-6">
-      <div className="text-2xl font-bold text-center">인기 숙소</div>
+    <section className="pl-40 pr-40 mt-5  ">
+      <div className="text-2xl font-bold">인기 숙소</div>
 
       <Swiper
-        modules={[Navigation, Pagination, Mousewheel, Keyboard, FreeMode]}
+        modules={[Navigation]}
         className="mt-4"
         spaceBetween={16}
         slidesPerView={1.1}
@@ -34,11 +27,6 @@ export default function Hot() {
           1280: { slidesPerView: 4 },
         }}
         navigation
-        pagination={{ clickable: true }}
-        mousewheel
-        keyboard
-        grabCursor
-        freeMode
       >
         {HOTELS.map((hotel) => (
           <SwiperSlide key={hotel.id}>
