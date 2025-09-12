@@ -13,7 +13,7 @@ const HOTELS = [
 
 export default function Hot() {
   return (
-    <section className="pl-40 pr-40 mt-5  ">
+    <section className="pl-40 pr-40 p-6 bg-white">
       <div className="text-2xl font-bold">인기 숙소</div>
 
       <Swiper

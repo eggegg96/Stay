@@ -9,7 +9,7 @@ export default function DefaultLayout() {
       <Header />
       <main className="flex-1">
         <Outlet />
-        <Hot />
+        {/* <Hot /> */}
       </main>
       <Footer />
     </div>
