@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Hot from "../components/HotAccommodation";
 
 export default function DefaultLayout() {
   return (
@@ -8,6 +9,7 @@ export default function DefaultLayout() {
       <Header />
       <main className="flex-1">
         <Outlet />
+        <Hot />
       </main>
       <Footer />
     </div>
