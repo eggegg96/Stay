@@ -19,7 +19,7 @@ export default function Home() {
   const [active, setActive] = useState("모텔"); // 기본 선택값
 
   return (
-    <section className="p-6">
+    <section className="pl-6 pr-6 pt-15 pb-20 bg-slate-100">
       <div className="text-2xl font-bold text-center">
         전주 한옥부터 서울 호텔까지, 여행할 땐 Stay
       </div>
