@@ -1,9 +1,0 @@
-@import "tailwindcss";
-
-.my-swiper {
-  --swiper-navigation-sides-offset: 20px; /* 기본은 10px */
-}
-
-.my-swiper .swiper-pagination {
-  bottom: -5px !important;
-}

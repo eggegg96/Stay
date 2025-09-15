@@ -28,9 +28,8 @@ export default function Event() {
       >
         {EVENTS.map((event) => (
           <SwiperSlide key={event.id}>
-            <div className="event m-5 justify-center items-center cursor-pointer hover:shadow-l border rounded-lg p-5">
+            <div className="event justify-center items-center cursor-pointer hover:shadow-l rounded-lg p-5">
               <img src={event.img} alt={event.name} />
-              <h2>{event.name}</h2>
             </div>
           </SwiperSlide>
         ))}
