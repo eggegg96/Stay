@@ -12,7 +12,10 @@ const EVENTS = [
 export default function Event() {
   return (
     <section className="bg-white">
-      <div className="text-2xl font-bold">이벤트</div>
+      <div className=" flex items-center justify-between">
+        <span className="text-2xl font-bold">이벤트</span>
+        <span className="text-blue-500 cursor-pointer">더보기</span>
+      </div>
 
       <Swiper
         modules={[Navigation, Pagination]}
@@ -21,10 +24,11 @@ export default function Event() {
         spaceBetween={0}
         slidesPerView={3}
         justifyContent="center"
+        className="my-swiper"
       >
         {EVENTS.map((event) => (
           <SwiperSlide key={event.id}>
-            <div className="event m-5 justify-center items-center cursor-pointer hover:shadow-lg ">
+            <div className="event m-5 justify-center items-center cursor-pointer hover:shadow-l border rounded-lg p-5">
               <img src={event.img} alt={event.name} />
               <h2>{event.name}</h2>
             </div>

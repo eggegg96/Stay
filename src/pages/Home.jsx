@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Hot from "../components/HotAccommodation";
 import Event from "../components/Event";
+import HotPoint from "../components/Hotpoint";
 
 export default function Home() {
   const categories = ["국내 숙소", "해외 숙소"];
@@ -64,14 +65,19 @@ export default function Home() {
       </section>
 
       <section className="pt-15">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-12">
+        <div className="mx-auto max-w-7xl">
           <Event />
         </div>
       </section>
 
       <section className="pt-15">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-12">
+        <div className="mx-auto max-w-7xl">
           <Hot />
+        </div>
+      </section>
+      <section className="pt-15">
+        <div className="mx-auto max-w-7xl">
+          <HotPoint />
         </div>
       </section>
     </>
