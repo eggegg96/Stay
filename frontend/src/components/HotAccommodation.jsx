@@ -84,15 +84,11 @@ export default function Hot() {
           modules={[Navigation, Grid]}
           className="mt-2"
           spaceBetween={16}
-          // 기본 4열 x 2행 = 8개
           slidesPerView={4}
           grid={{ rows: 2, fill: "row" }}
           breakpoints={{
-            // 모바일 2열 x 2행 = 4개
             0: { slidesPerView: 2, grid: { rows: 2, fill: "row" } },
-            // 태블릿 3열 x 2행 = 6개
             1024: { slidesPerView: 3, grid: { rows: 2, fill: "row" } },
-            // 데스크톱 4열 x 2행 = 8개
             1280: { slidesPerView: 4, grid: { rows: 2, fill: "row" } },
           }}
           navigation
@@ -100,7 +96,7 @@ export default function Hot() {
         >
           {filtered.map((hotel) => (
             <SwiperSlide key={hotel.id} className="cursor-pointer">
-              <a className="block overflow-hidden rounded-2xl border bg-white">
+              <a className="block overflow-hidden rounded-2xl shadow bg-white">
                 <div className="aspect-[4/3] overflow-hidden bg-slate-100">
                   <img
                     src={hotel.img}
