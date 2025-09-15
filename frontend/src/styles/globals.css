@@ -11,3 +11,49 @@
 .my-swiper .swiper-pagination {
   bottom: -5px !important;
 }
+
+/* 달력 전체 */
+.rdrCalendarWrapper {
+  border: none !important;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+/* 헤더 (년/월) */
+.rdrMonthAndYearPickers select {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.rdrMonthAndYearWrapper {
+  justify-content: center !important;
+  padding: 10px 0 !important;
+}
+
+/* 요일 헤더 */
+.rdrWeekDays {
+  font-size: 13px;
+  font-weight: 500;
+  color: #999;
+}
+
+/* 각 날짜 */
+.rdrDayNumber span {
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
+}
+
+/* 오늘 날짜 표시 없애기 */
+.rdrDayToday .rdrDayNumber span:after {
+  display: none !important;
+}
+
+/* 주말 */
+.rdrDayWeekend .rdrDayNumber span {
+  color: #e74c3c; /* 빨간색 */
+}
+
+.rdrDay:hover {
+  background: none !important;
+  border: none !important;
+}
