@@ -10,21 +10,6 @@ import Hot from "../components/HotAccommodation";
 import Event from "../components/Event";
 import HotPoint from "../components/Hotpoint";
 
-const CITY_SLUG = {
-  서울: "seoul",
-  제주도: "jeju",
-  부산: "busan",
-  강릉: "gangneung",
-  인천: "incheon",
-  경주: "gyeongju",
-  도쿄: "tokyo",
-  오사카: "osaka",
-  후쿠오카: "fukuoka",
-  다낭: "danang",
-  나트랑: "nha-trang",
-  괌: "guam",
-};
-
 export default function Home() {
   const categories = ["국내 숙소", "해외 숙소"];
   const [active, setActive] = useState("국내 숙소");
@@ -57,18 +42,27 @@ export default function Home() {
 
   const checkIn = format(range[0].startDate, "yyyy-MM-dd");
   const checkOut = format(range[0].endDate, "yyyy-MM-dd");
-  const isValid = !!CITY_SLUG[keyword.trim()] && !!checkIn;
+  const isValid = keyword.trim().length > 0; // ✅ 빈 문자열만 막기
+
+  function toSlug(s = "") {
+    return String(s)
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase()
+      .replace(/\s/g, "-");
+  }
 
   const handleSearch = () => {
     if (!isValid) return;
     const base = active === "해외 숙소" ? "overseas" : "domestic";
-    const slug = CITY_SLUG[keyword.trim()];
     const qs = new URLSearchParams({
-      city: slug,
+      city: keyword.trim(), // ✅ 사용자가 입력한 그대로 보냄
       checkIn,
       checkOut,
       adults,
       rooms,
+      // 필요하면 citySlug도 함께 보낼 수 있음:
+      // citySlug: toSlug(keyword.trim()),
     }).toString();
     nav(`/${base}?${qs}`);
   };
@@ -110,11 +104,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
                   {/* 도시 입력 */}
                   <input
-                    className={`col-span-2 p-3 border rounded-lg ${
-                      keyword && !CITY_SLUG[keyword.trim()]
-                        ? "border-red-500"
-                        : ""
-                    }`}
+                    className="col-span-2 p-3 border rounded-lg"
                     type="text"
                     placeholder="도시를 입력하세요 예) 서울 도쿄 부산"
                     value={keyword}
@@ -159,7 +149,7 @@ export default function Home() {
 
                   {/* 인원 선택 */}
                   <select
-                    className="p-3 border rounded-lg cursor-pointer hover:bg-gray-200"
+                    className="p-3 border rounded-lg cursor-pointer"
                     value={adults}
                     onChange={(e) => setAdults(e.target.value)}
                   >

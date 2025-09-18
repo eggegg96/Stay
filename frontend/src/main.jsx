@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import OAuthCallback from "./pages/OAuthCallback";
 import DomesticResultsPage from "./pages/DomesticResultsPage";
 import OverseasResultsPage from "./pages/OverseasResultsPage";
+import AccommodationDetailPage from "./pages/Accommodation-DetailPage";
 
 import "./styles/globals.css";
 import "swiper/css";
@@ -18,10 +19,12 @@ const router = createBrowserRouter([
     element: <DefaultLayout />,
     children: [
       { path: "/", element: <Home /> },
-      { path: "/Login", element: <Login /> },
+      { path: "/login", element: <Login /> },
       { path: "/oauth/callback", element: <OAuthCallback /> },
       { path: "/domestic", element: <DomesticResultsPage /> },
       { path: "/overseas", element: <OverseasResultsPage /> },
+      { path: "/domestic/:id", element: <AccommodationDetailPage /> },
+      { path: "/overseas/:id", element: <AccommodationDetailPage /> },
     ],
   },
 ]);
