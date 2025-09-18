@@ -19,7 +19,7 @@ export default function ResultList({ type, city }) {
   return (
     <div className="space-y-4">
       {MOCKS.map((h) => (
-        <HotelCard key={h.id} {...h} />
+        <HotelCard key={h.id} {...h} type={type} />
       ))}
     </div>
   );
