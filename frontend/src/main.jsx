@@ -7,6 +7,7 @@ import OAuthCallback from "./pages/OAuthCallback";
 import DomesticResultsPage from "./pages/DomesticResultsPage";
 import OverseasResultsPage from "./pages/OverseasResultsPage";
 import AccommodationDetailPage from "./pages/Accommodation-DetailPage";
+import { HeaderProvider } from "./contexts/HeaderContext";
 
 import "./styles/globals.css";
 import "swiper/css";
@@ -30,5 +31,7 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")).render(
-  <RouterProvider router={router} />
+  <HeaderProvider>
+    <RouterProvider router={router} />
+  </HeaderProvider>
 );

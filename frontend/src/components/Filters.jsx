@@ -1,4 +1,3 @@
-// src/components/Filters.jsx
 export default function Filters({ type }) {
   return (
     <aside className="bg-white p-4 rounded-xl shadow-sm">
