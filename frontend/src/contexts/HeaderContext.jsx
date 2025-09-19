@@ -24,7 +24,7 @@ export function HeaderProvider({ children }) {
           location: "",
           checkIn: "",
           checkOut: "",
-          adults: 2,
+          people: 2,
           rooms: 1,
         }),
     }),
