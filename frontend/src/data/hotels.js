@@ -5,6 +5,8 @@ export const HOTELS = [
     name: "길동 MARI-마리",
     citySlug: "seoul",
     location: "서울 강동구 길동 387-7",
+    lat: 37.536,
+    lng: 127.142,
     desc: "길동역 도보 3분 · 평점 9.3",
     images: [
       "/images/mari/main.webp",
