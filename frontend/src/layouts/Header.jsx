@@ -13,8 +13,8 @@ export default function Header() {
 
         <div className="ml-32 min-w-0 bg-gray-100 p-3 rounded-lg">
           <div className="text-sm font-semibold text-gray-600 truncate">
-            {header.title} | {header.checkIn} ~ {header.checkOut} | 성인{" "}
-            {header.adults}, 객실 {header.rooms}
+            {header.title} | {header.checkIn} ~ {header.checkOut} | 인원{" "}
+            {header.people}, 객실 {header.rooms}
           </div>
         </div>
 
