@@ -42,7 +42,7 @@ export default function Home() {
 
   const checkIn = format(range[0].startDate, "yyyy-MM-dd");
   const checkOut = format(range[0].endDate, "yyyy-MM-dd");
-  const isValid = keyword.trim().length > 0; // ✅ 빈 문자열만 막기
+  const isValid = keyword.trim().length > 0; // 빈 문자열만 막기
 
   function toSlug(s = "") {
     return String(s)
@@ -88,10 +88,10 @@ export default function Home() {
                     <span
                       key={cat}
                       onClick={() => setActive(cat)}
-                      className={`text-base md:text-lg p-2 pb-3 cursor-pointer rounded
+                      className={`text-base md:text-lg p-2 pb-3 cursor-pointer
                         ${
                           active === cat
-                            ? "border-b-2 border-black font-semibold"
+                            ? "border-b-2 text-blue-500 border-blue-500 font-semibold"
                             : "opacity-80 hover:opacity-100 hover:bg-gray-100"
                         }`}
                     >

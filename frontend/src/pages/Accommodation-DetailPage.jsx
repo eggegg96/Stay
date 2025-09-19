@@ -1,12 +1,16 @@
 import { useParams, useMatch, useSearchParams } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { HOTELS } from "../data/hotels";
+import { useHeader } from "../contexts/HeaderContext";
+
 import AmenityModal from "../components/AmenitiyModal";
+import KakaoMap from "../components/KakaoMap";
 
 export default function AccommodationDetailPage() {
   const { id } = useParams();
   const isDomestic = !!useMatch("/domestic/:id");
   const [params] = useSearchParams();
+  const { setHeader, resetHeader } = useHeader();
 
   const hotel = HOTELS.find(
     (h) =>
@@ -25,6 +29,20 @@ export default function AccommodationDetailPage() {
   const checkOut = params.get("checkOut") || "2025-10-15";
   const adults = params.get("adults") || 2;
   const rooms = params.get("rooms") || 1;
+
+  useEffect(() => {
+    setHeader({
+      mode: "detail",
+      title: hotel.name,
+      location: hotel.location,
+      checkIn,
+      checkOut,
+      adults,
+      rooms,
+    });
+
+    return () => resetHeader(); // 페이지 나가면 원상복구
+  }, [hotel, checkIn, checkOut, adults, rooms]);
 
   // 공통 스크롤 함수
   const scrollTo = (ref) => {
@@ -56,24 +74,15 @@ export default function AccommodationDetailPage() {
         })}
       </div>
 
-      {/* 입력 정보 */}
-      <div className="border-b border-slate-200 pb-4 mb-6">
-        <h1 className="text-3xl font-bold">{hotel.name}</h1>
-        <p className="text-gray-500">{hotel.location}</p>
-        <p className="text-sm text-gray-400 mt-1">
-          {checkIn} ~ {checkOut} · 성인 {adults}명 · 객실 {rooms}개
-        </p>
-      </div>
-
       {/* 숙소 설명 */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-2">숙소 정보</h2>
         <p className="text-gray-600">{hotel.desc}</p>
+        <h2 className="text-2xl font-bold mb-2">{hotel.name}</h2>
       </div>
 
       {/* 카드 3개 (부대시설, 리뷰, 위치) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {/* 1) 리뷰 섹션 이동 */}
+        {/* 리뷰 섹션 이동 */}
         <a
           href="#review"
           onClick={(e) => {
@@ -87,7 +96,8 @@ export default function AccommodationDetailPage() {
             {hotel.reviews?.length || 0}개 리뷰
           </div>
         </a>
-        {/* 1) 부대시설 → 모달 열기 */}
+
+        {/* 부대시설 → 모달 열기 */}
         <button
           type="button"
           onClick={() => setOpenAmenity(true)}
@@ -98,7 +108,8 @@ export default function AccommodationDetailPage() {
             스파 무선인터넷 주차장 등
           </div>
         </button>
-        {/* 3) 위치 섹션 이동 */}
+
+        {/* 위치 섹션 이동 */}
         <a
           href="#location"
           onClick={(e) => {
@@ -118,14 +129,6 @@ export default function AccommodationDetailPage() {
         onClose={() => setOpenAmenity(false)}
         items={hotel.amenities}
       />
-
-      {/* 리뷰 섹션 */}
-      <section id="review" ref={reviewRef} className="mt-12 outline-none">
-        <h2 className="text-xl font-bold mb-4">리뷰</h2>
-        <div className="h-40 bg-slate-50 rounded-lg flex items-center justify-center text-slate-200">
-          리뷰 내용 영역
-        </div>
-      </section>
 
       {/* 객실 타입 */}
       <div className="space-y-6 mt-12">
@@ -155,12 +158,26 @@ export default function AccommodationDetailPage() {
           </div>
         ))}
       </div>
+
+      {/* 리뷰 섹션 */}
+      <section id="review" ref={reviewRef} className="mt-12 outline-none">
+        <h2 className="text-xl font-bold mb-4">리뷰</h2>
+        <div className="h-40 bg-slate-50 rounded-lg flex items-center justify-center text-slate-200">
+          리뷰 내용 영역
+        </div>
+      </section>
+
       {/* 위치 섹션 */}
       <section id="location" ref={locationRef} className="mt-12 outline-none">
         <h2 className="text-xl font-bold mb-4">위치 정보</h2>
-        <div className="h-56 bg-slate-50 rounded-lg flex items-center justify-center text-slate-200">
-          지도 표시 영역
-        </div>
+        <KakaoMap
+          query={hotel.name} // 예: "길동 MARI-마리"
+          lat={hotel.lat} // 검색 실패 대비 fallback
+          lng={hotel.lng}
+          level={3}
+          className="w-full h-[420px] rounded-lg border"
+        />
+        <p className="text-sm text-gray-600 mt-2">{hotel.location}</p>
       </section>
     </section>
   );
