@@ -163,7 +163,7 @@ export default function Home() {
                   <button
                     onClick={handleSearch}
                     disabled={!isValid}
-                    className={`rounded-lg p-3 text-white ${
+                    className={`rounded-lg p-3 text-white cursor-pointer ${
                       isValid ? "bg-blue-500 hover:bg-blue-600" : "bg-blue-300"
                     }`}
                   >
