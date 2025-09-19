@@ -1,10 +1,13 @@
 import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useHeader } from "../contexts/HeaderContext";
+
 import ResultHeader from "../components/ResultHeader";
 import Filters from "../components/Filters";
 import SortBar from "../components/SortBar";
 import ResultList from "../components/ResultList";
+import KakaoMap from "../components/KakaoMap";
 
-// 내부용: 문자열을 슬러그로 변환
 function toSlug(s = "") {
   return String(s)
     .trim()
@@ -15,32 +18,48 @@ function toSlug(s = "") {
 
 export default function DomesticResultsPage() {
   const [params] = useSearchParams();
+  const { setHeader, resetHeader } = useHeader();
 
-  // 화면 표시는 사용자가 입력한 그대로
   const city = params.get("city") || "서울";
-  // 내부 처리(필터·API)만 슬러그 사용
   const citySlug = toSlug(city);
-
   const checkIn = params.get("checkIn") || "2025-10-14";
   const checkOut = params.get("checkOut") || "2025-10-15";
   const adults = Number(params.get("adults") || 2);
   const rooms = Number(params.get("rooms") || 1);
 
+  useEffect(() => {
+    setHeader({
+      mode: "detail",
+      title: city, // 상단 굵은 제목
+      location: "국내 숙소", // 서브 라인 (원하면 시/도 등으로 변경)
+      checkIn,
+      checkOut,
+      adults,
+      rooms,
+    });
+    return () => resetHeader();
+  }, [city, checkIn, checkOut, adults, rooms]);
+
   return (
-    <section className="max-w-6xl mx-auto p-6">
-      <ResultHeader
-        city={city} // ← 그대로 노출: "도쿄" 입력하면 "도쿄"로 보임
-        checkIn={checkIn}
-        checkOut={checkOut}
-        adults={adults}
-        rooms={rooms}
-      />
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-        <Filters type="domestic" />
-        <div>
+    <section className="max-w-7xl mx-auto p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
+        {/* 왼쪽 사이드: 지도 -> 필터 */}
+        <aside className="order-2 lg:order-1">
+          <KakaoMap
+            className="w-full h-[180px] rounded-lg border border-slate-200"
+            level={4}
+            query={city}
+          />
+          <div className="mt-4">
+            <Filters type="domestic" />
+          </div>
+        </aside>
+
+        {/* 오른쪽 결과 영역 */}
+        <section className="order-1 lg:order-2">
           <SortBar total={120} />
           <ResultList type="domestic" city={citySlug} cityLabel={city} />
-        </div>
+        </section>
       </div>
     </section>
   );

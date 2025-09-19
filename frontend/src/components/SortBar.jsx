@@ -1,4 +1,3 @@
-// src/components/SortBar.jsx
 export default function SortBar({ total }) {
   return (
     <div className="flex justify-between items-center mb-4">
