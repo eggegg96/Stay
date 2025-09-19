@@ -1,25 +1,23 @@
 import HotelCard from "./HotelCard";
+import { HOTELS } from "../data/hotels";
 
-const MOCKS = [
-  {
-    id: 1,
-    name: "신라호텔 서울",
-    location: "서울 중구 · 5성급 호텔",
-    desc: "럭셔리 호텔",
-  },
-  {
-    id: 2,
-    name: "롯데시티호텔 명동",
-    location: "서울 중구 · 4성급 호텔",
-    desc: "비즈니스 호텔",
-  },
-];
+export default function ResultList({ type, city, cityLabel }) {
+  const list = HOTELS.filter(
+    (h) => h.type === type && h.location.toLowerCase().includes(city)
+  );
 
-export default function ResultList({ type, city }) {
+  if (list.length === 0) {
+    return (
+      <div className="p-6 text-center">
+        <span className="font-bold">{cityLabel}에 검색된 숙소가 없습니다</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {MOCKS.map((h) => (
-        <HotelCard key={h.id} {...h} type={type} />
+      {list.map((hotel) => (
+        <HotelCard key={hotel.id} {...hotel} />
       ))}
     </div>
   );

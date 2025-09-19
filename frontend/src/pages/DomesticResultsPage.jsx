@@ -39,7 +39,7 @@ export default function DomesticResultsPage() {
         <Filters type="domestic" />
         <div>
           <SortBar total={120} />
-          <ResultList type="domestic" city={citySlug} /> {/* 내부용 */}
+          <ResultList type="domestic" city={citySlug} cityLabel={city} />
         </div>
       </div>
     </section>

@@ -36,7 +36,7 @@ export default function OverseasResultsPage() {
         <Filters type="overseas" />
         <div>
           <SortBar total={85} /> {/* 총 숙소 개수는 임의로 넣음 */}
-          <ResultList type="overseas" city={citySlug} />
+          <ResultList type="overseas" city={citySlug} cityLabel={city} />
         </div>
       </div>
     </section>
