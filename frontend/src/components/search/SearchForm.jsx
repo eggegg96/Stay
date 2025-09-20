@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateRange } from "react-date-range";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import GuestsPopover from "./GuestsPopover";
+import { formatRangeKR } from "../../utils/dateText";
 
 export default function SearchForm({
-  state, // useHomeSearchState() 리턴값
-  onSubmit, // (payload) => void
-  variant = "hero", // "hero" | "compact"
-  area = "domestic", // "domestic" | "overseas"
+  state,
+  onSubmit,
+  area = "domestic",
+  initialActive = "place",
 }) {
   const {
     keyword,
@@ -26,34 +27,19 @@ export default function SearchForm({
 
   const [openGuests, setOpenGuests] = useState(false);
 
-  const wrapCls =
-    variant === "compact"
-      ? "grid grid-cols-[1.2fr_1fr_1fr_auto] items-center rounded-full border border-slate-300 overflow-hidden"
-      : "grid grid-cols-1 sm:grid-cols-5 gap-2 bg-[#FFFFFF]";
+  useEffect(() => {
+    if (initialActive === "date") {
+      setOpen(true);
+      setOpenGuests(false);
+    } else if (initialActive === "guests") {
+      setOpen(false);
+      setOpenGuests(true);
+    } else {
+      setOpen(false);
+      setOpenGuests(false);
+    }
+  }, [initialActive, setOpen]);
 
-  const inputCls =
-    variant === "compact"
-      ? "h-11 px-4 text-sm outline-none border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-300 bg-[#EBEBEB] focus:bg-white rounded-lg"
-      : "col-span-2 p-3 rounded-lg bg-[#EBEBEB] outline-none border border-transparent focus:ring-1 focus:ring-black-300 focus:bg-white";
-
-  const dateBtnCls =
-    variant === "compact"
-      ? "h-11 px-4 text-left border-l border-slate-200 hover:bg-gray-50 cursor-pointer"
-      : "w-full p-3 rounded-lg text-left bg-[#EBEBEB] cursor-pointer outline-none border border-transparent focus:ring-1 focus:ring-black-300 focus:bg-white";
-
-  const peopleCls =
-    variant === "compact"
-      ? "h-11 px-4 border-l border-slate-200 cursor-pointer text-left"
-      : "w-full p-3 rounded-lg cursor-pointer text-left bg-[#EBEBEB] outline-none border border-transparent focus:ring-1 focus:ring-black-300 focus:bg-white";
-  const btnCls =
-    variant === "compact"
-      ? "h-11 mx-2 my-2 px-5 rounded-full bg-blue-500 text-white font-semibold disabled:bg-blue-300"
-      : "rounded-lg p-3 text-white bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300";
-
-  const nights = Math.max(
-    1,
-    (range[0].endDate - range[0].startDate) / 86400000 // 1000*60*60*24
-  );
   const isValid = keyword.trim().length > 0;
 
   const submit = () => {
@@ -64,14 +50,14 @@ export default function SearchForm({
       checkIn: format(range[0].startDate, "yyyy-MM-dd"),
       checkOut: format(range[0].endDate, "yyyy-MM-dd"),
       people,
-      rooms: "1",
+      rooms: 1,
     });
   };
 
   return (
-    <div className={wrapCls}>
+    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 bg-white">
       <input
-        className={inputCls}
+        className="col-span-2 p-3 rounded-lg bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
         type="text"
         placeholder="도시를 입력하세요 예) 서울 도쿄 부산"
         value={keyword}
@@ -85,15 +71,15 @@ export default function SearchForm({
             setOpen(!open);
             setOpenGuests(false);
           }}
-          className={dateBtnCls}
+          className="w-full p-3 rounded-lg text-left bg-gray-100 cursor-pointer outline-none focus:ring-1 focus:ring-black-300 focus:bg-white whitespace-nowrap overflow-hidden text-ellipsis"
         >
-          {format(range[0].startDate, "MM.dd")} -{" "}
-          {format(range[0].endDate, "MM.dd")} ({nights}박)
+          {formatRangeKR(range[0].startDate, range[0].endDate)}
         </button>
+
         {open && (
           <div
             ref={pickerRef}
-            className="absolute top-12 z-50 bg-white border rounded-xl shadow-xl"
+            className="absolute top-15 border border-slate-200 rounded-xl text-left bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
           >
             <DateRange
               ranges={range}
@@ -109,17 +95,19 @@ export default function SearchForm({
           </div>
         )}
       </div>
+
       <div className="relative">
         <button
           type="button"
           onClick={() => {
-            setOpenGuests((v) => !v);
             setOpen(false);
+            setOpenGuests((v) => !v);
           }}
-          className={peopleCls}
+          className="w-full p-3 rounded-lg text-left bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
         >
           인원 {people}
         </button>
+
         <GuestsPopover
           open={openGuests}
           onClose={() => setOpenGuests(false)}
@@ -127,8 +115,14 @@ export default function SearchForm({
           setPeople={setPeople}
         />
       </div>
-      <button onClick={submit} disabled={!isValid} className={btnCls}>
-        {variant === "compact" ? "검색" : "숙소 찾기"}
+
+      <button
+        type="button"
+        onClick={submit}
+        disabled={!isValid}
+        className="rounded-lg p-3 text-white bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 cursor-pointer"
+      >
+        검색
       </button>
     </div>
   );
