@@ -14,6 +14,7 @@ export const ACCOMMODATIONS = [
       { name: "풀빌라 A", dayUse: 90000, stay: 180000 },
       { name: "풀빌라 B", dayUse: 120000, stay: 250000 },
     ],
+    amenities: ["수영장", "조식제공", "무료주차"],
   },
   {
     id: "osaka-0",
@@ -30,11 +31,12 @@ export const ACCOMMODATIONS = [
       { name: "도미토리룸", stay: 30000 },
       { name: "프라이빗룸", stay: 70000 },
     ],
+    amenities: ["주방/식당", "건조기", "무료주차"],
   },
   {
     id: "seoul-1",
     type: "domestic",
-    category: "호텔·리조트",
+    category: "모텔",
     name: "길동 MARI-마리",
     citySlug: "seoul",
     location: "서울 강동구 길동 387-7",
@@ -52,6 +54,7 @@ export const ACCOMMODATIONS = [
       { name: "B-타입", dayUse: 22000, stay: 70000 },
       { name: "A-타입", dayUse: 27000, stay: 80000 },
     ],
+    amenities: ["무료주차", "조식제공", "스파/월풀"],
   },
   {
     id: "tokyo-1",
@@ -70,6 +73,7 @@ export const ACCOMMODATIONS = [
       "/images/tokyo/3.jpg",
     ],
     rooms: [{ name: "스탠다드룸", dayUse: 45000, stay: 120000 }],
+    amenities: ["조식제공", "피트니스", "무료주차"],
   },
   {
     id: "jeju-1",
@@ -86,6 +90,7 @@ export const ACCOMMODATIONS = [
       { name: "스탠다드룸", stay: 120000 },
       { name: "오션뷰룸", stay: 180000 },
     ],
+    amenities: ["수영장", "조식제공", "무료주차"],
   },
   {
     id: "busan-1",
@@ -102,6 +107,7 @@ export const ACCOMMODATIONS = [
       { name: "더블룸", stay: 100000 },
       { name: "트윈룸", stay: 150000 },
     ],
+    amenities: ["조식제공", "무료주차"],
   },
   {
     id: "seoul-2",
@@ -118,6 +124,7 @@ export const ACCOMMODATIONS = [
       { name: "스탠다드룸", stay: 110000 },
       { name: "프리미엄룸", stay: 170000 },
     ],
+    amenities: ["피트니스", "무료주차"],
   },
   {
     id: "yeosu-1",
@@ -134,6 +141,7 @@ export const ACCOMMODATIONS = [
       { name: "디럭스룸", stay: 130000 },
       { name: "스위트룸", stay: 200000 },
     ],
+    amenities: ["수영장", "스파/월풀", "무료주차"],
   },
   {
     id: "seoul-3",
@@ -150,6 +158,7 @@ export const ACCOMMODATIONS = [
       { name: "디럭스룸", stay: 250000 },
       { name: "스위트룸", stay: 400000 },
     ],
+    amenities: ["수영장", "스파/월풀", "피트니스", "무료주차"],
   },
   {
     id: "seoul-4",
@@ -157,15 +166,16 @@ export const ACCOMMODATIONS = [
     category: "호텔·리조트",
     name: "Hayatt",
     citySlug: "seoul",
-    location: "서울특별시 강남구 언주로 721",
-    lat: 37.5092,
-    lng: 127.0515,
+    location: "서울특별시 용산구 소월로 322",
+    lat: 37.5392,
+    lng: 126.9971,
     desc: "비즈니스 호텔 · 평점 8.8",
     images: ["/images/h6.jpg"],
     rooms: [
       { name: "스탠다드룸", stay: 200000 },
       { name: "이그제큐티브룸", stay: 350000 },
     ],
+    amenities: ["피트니스", "무료주차", "라운지"],
   },
   {
     id: "seoul-5",
@@ -182,6 +192,7 @@ export const ACCOMMODATIONS = [
       { name: "디럭스룸", stay: 280000 },
       { name: "스위트룸", stay: 450000 },
     ],
+    amenities: ["수영장", "피트니스", "무료주차"],
   },
   {
     id: "seoul-6",
@@ -198,6 +209,7 @@ export const ACCOMMODATIONS = [
       { name: "스탠다드룸", stay: 180000 },
       { name: "프리미엄룸", stay: 300000 },
     ],
+    amenities: ["스파/월풀", "피트니스", "무료주차"],
   },
   {
     id: "seoul-7",
@@ -214,6 +226,7 @@ export const ACCOMMODATIONS = [
       { name: "디럭스룸", stay: 270000 },
       { name: "스위트룸", stay: 420000 },
     ],
+    amenities: ["수영장", "조식제공", "무료주차"],
   },
   {
     id: "seoul-8",
@@ -230,5 +243,6 @@ export const ACCOMMODATIONS = [
       { name: "한옥 스탠다드룸", stay: 150000 },
       { name: "한옥 스위트룸", stay: 280000 },
     ],
+    amenities: ["정원", "무료주차"],
   },
 ];

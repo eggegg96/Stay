@@ -5,6 +5,7 @@ import { useHeader } from "../contexts/HeaderContext";
 
 import AmenityModal from "../components/AmenitiyModal";
 import KakaoMap from "../components/KakaoMap";
+import { formatRangeKR, nightsBetween } from "../utils/dateText";
 
 function formatKRW(n) {
   return typeof n === "number" ? n.toLocaleString() : null;
@@ -31,22 +32,28 @@ export default function AccommodationDetailPage() {
   // 검색 조건 표시용
   const checkIn = params.get("checkIn") || "2025-10-14";
   const checkOut = params.get("checkOut") || "2025-10-15";
-  const adults = params.get("adults") || 2;
+  const people = params.get("people") || 2;
   const rooms = params.get("rooms") || 1;
 
   useEffect(() => {
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const nights = nightsBetween(start, end);
+    const dateText = formatRangeKR(start, end, nights);
+
     setHeader({
       mode: "detail",
       title: accommodation.name,
       location: accommodation.location,
       checkIn,
       checkOut,
-      adults,
+      people,
       rooms,
+      dateText,
     });
 
     return () => resetHeader(); // 페이지 나가면 원상복구
-  }, [accommodation, checkIn, checkOut, adults, rooms]);
+  }, [accommodation, checkIn, checkOut, people, rooms]);
 
   // 공통 스크롤 함수
   const scrollTo = (ref) => {

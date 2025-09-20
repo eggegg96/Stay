@@ -1,4 +1,3 @@
-// src/components/AccommodationCard.jsx
 import { Link } from "react-router-dom";
 
 function formatKRW(n) {

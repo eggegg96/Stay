@@ -1,18 +1,46 @@
-// src/components/ResultList.jsx
 import AccommodationCard from "./AccommodationCard";
 import { ACCOMMODATIONS } from "../data/accommodations";
+import { useLocation } from "react-router-dom";
+import { CATEGORY_OPTIONS, PRICE_MIN, PRICE_MAX } from "../constants/filters";
 
 export default function ResultList({ type, city, cityLabel }) {
-  // type: "domestic" | "overseas"
-  // city: "seoul" 같은 슬러그가 들어옴 (DomesticResultsPage에서 citySlug 전달)
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
 
-  // 안전 필터: type, citySlug 우선. location에 도시명 포함 매칭은 보조로만.
+  const category = params.get("category") || "";
+  const minPrice = Number(params.get("minPrice")) || PRICE_MIN;
+  const maxPrice = Number(params.get("maxPrice")) || PRICE_MAX;
+  const amenities = params.get("amenities")?.split(",").filter(Boolean) || [];
+
+  // 필터 적용
   const results = ACCOMMODATIONS.filter((a) => {
+    // 국내/해외 타입
     if (a.type !== type) return false;
 
+    // 도시 필터
     const bySlug = a.citySlug === city; // 권장
     const byLabel = cityLabel && a.location?.includes?.(cityLabel);
-    return bySlug || byLabel; // 슬러그 매칭이 우선, 보조로 라벨 포함 허용
+    if (!(bySlug || byLabel)) return false;
+
+    // 카테고리 필터
+    if (category) {
+      const catOpt = CATEGORY_OPTIONS.find((c) => c.value === category);
+      if (!catOpt?.match?.includes(a.category)) return false;
+    }
+
+    // 가격 필터 (숙박 기준)
+    const prices = a.rooms.map((r) => r.stay).filter(Boolean);
+    const minRoomPrice = Math.min(...prices);
+    const maxRoomPrice = Math.max(...prices);
+    if (minRoomPrice > maxPrice || maxRoomPrice < minPrice) return false;
+
+    // 시설 필터 (모든 선택된 시설을 포함해야 함)
+    if (amenities.length > 0) {
+      const hasAll = amenities.every((am) => a.amenities?.includes(am));
+      if (!hasAll) return false;
+    }
+
+    return true;
   });
 
   if (results.length === 0) {
