@@ -19,7 +19,7 @@ export default function GuestsPopover({ open, onClose, people, setPeople }) {
   return (
     <div
       ref={ref}
-      className="absolute top-12 right-0 z-50 w-[320px] rounded-2xl bg-white shadow p-6 focus:border-slate-500"
+      className="absolute top-14 right-0 z-50 w-[330px] border border-slate-200 rounded-2xl bg-white p-6 pr-8 focus:border-slate-500"
     >
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-[160px]">
@@ -32,7 +32,7 @@ export default function GuestsPopover({ open, onClose, people, setPeople }) {
           <button
             type="button"
             onClick={dec}
-            className="w-8 h-8 rounded-full shadow text-lg leading-none cursor-pointer"
+            className="w-8 h-8 rounded-full border border-slate-200 text-lg leading-none cursor-pointer"
             aria-label="감소"
           >
             −
@@ -43,7 +43,7 @@ export default function GuestsPopover({ open, onClose, people, setPeople }) {
           <button
             type="button"
             onClick={inc}
-            className="w-8 h-8 rounded-full shadow text-lg leading-none cursor-pointer"
+            className="w-8 h-8 rounded-full border border-slate-200 text-lg leading-none cursor-pointer"
             aria-label="증가"
           >
             +
