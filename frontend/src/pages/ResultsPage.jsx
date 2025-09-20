@@ -3,9 +3,17 @@ import Filters from "../components/Filters";
 import SortBar from "../components/SortBar";
 import ResultList from "../components/ResultList";
 import KakaoMap from "../components/KakaoMap";
+import { ACCOMMODATIONS } from "../data/accommodations";
 
-export default function DomesticResultsPage() {
-  const { city, citySlug } = useResultsHeader("domestic", "국내 숙소");
+export default function ResultsPage({ type, title }) {
+  const { city, citySlug } = useResultsHeader(type, title);
+
+  // 실제 결과 개수 계산
+  const listForCount = ACCOMMODATIONS.filter(
+    (a) =>
+      a.type === type &&
+      (a.citySlug === citySlug || a.location?.includes?.(city))
+  );
 
   return (
     <section className="max-w-7xl mx-auto p-6">
@@ -17,13 +25,13 @@ export default function DomesticResultsPage() {
             query={city}
           />
           <div className="mt-4">
-            <Filters type="domestic" />
+            <Filters type={type} />
           </div>
         </aside>
 
         <section className="order-1 lg:order-2">
-          <SortBar total={120} />
-          <ResultList type="domestic" city={citySlug} cityLabel={city} />
+          <SortBar total={listForCount.length} />
+          <ResultList type={type} city={citySlug} cityLabel={city} />
         </section>
       </div>
     </section>

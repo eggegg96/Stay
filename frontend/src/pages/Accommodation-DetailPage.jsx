@@ -1,10 +1,14 @@
 import { useParams, useMatch, useSearchParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { HOTELS } from "../data/hotels";
+import { ACCOMMODATIONS } from "../data/accommodations";
 import { useHeader } from "../contexts/HeaderContext";
 
 import AmenityModal from "../components/AmenitiyModal";
 import KakaoMap from "../components/KakaoMap";
+
+function formatKRW(n) {
+  return typeof n === "number" ? n.toLocaleString() : null;
+}
 
 export default function AccommodationDetailPage() {
   const { id } = useParams();
@@ -12,9 +16,9 @@ export default function AccommodationDetailPage() {
   const [params] = useSearchParams();
   const { setHeader, resetHeader } = useHeader();
 
-  const hotel = HOTELS.find(
+  const accommodation = ACCOMMODATIONS.find(
     (h) =>
-      h.id === id &&
+      String(h.id) === String(id) &&
       (isDomestic ? h.type === "domestic" : h.type === "overseas")
   );
 
@@ -22,7 +26,7 @@ export default function AccommodationDetailPage() {
   const reviewRef = useRef(null);
   const locationRef = useRef(null);
 
-  if (!hotel) return null;
+  if (!accommodation) return null;
 
   // 검색 조건 표시용
   const checkIn = params.get("checkIn") || "2025-10-14";
@@ -33,8 +37,8 @@ export default function AccommodationDetailPage() {
   useEffect(() => {
     setHeader({
       mode: "detail",
-      title: hotel.name,
-      location: hotel.location,
+      title: accommodation.name,
+      location: accommodation.location,
       checkIn,
       checkOut,
       adults,
@@ -42,7 +46,7 @@ export default function AccommodationDetailPage() {
     });
 
     return () => resetHeader(); // 페이지 나가면 원상복구
-  }, [hotel, checkIn, checkOut, adults, rooms]);
+  }, [accommodation, checkIn, checkOut, adults, rooms]);
 
   // 공통 스크롤 함수
   const scrollTo = (ref) => {
@@ -56,18 +60,18 @@ export default function AccommodationDetailPage() {
       {/* 이미지 갤러리 */}
       <div className="mb-8 grid grid-cols-4 grid-rows-2 gap-1 w-full h-[520px]">
         <img
-          src={hotel.images?.[0]}
-          alt={hotel.name}
+          src={accommodation.images?.[0]}
+          alt={accommodation.name}
           className="col-span-2 row-span-2 h-full w-full object-cover rounded-l-2xl"
         />
         {[1, 2, 3, 4].map((idx, i) => {
           const corner =
             i === 1 ? "rounded-tr-2xl" : i === 3 ? "rounded-br-2xl" : "";
-          return hotel.images?.[idx] ? (
+          return accommodation.images?.[idx] ? (
             <img
               key={idx}
-              src={hotel.images[idx]}
-              alt={`${hotel.name} 이미지 ${idx + 1}`}
+              src={accommodation.images[idx]}
+              alt={`${accommodation.name} 이미지 ${idx + 1}`}
               className={`h-full w-full object-cover ${corner}`}
             />
           ) : null;
@@ -76,8 +80,8 @@ export default function AccommodationDetailPage() {
 
       {/* 숙소 설명 */}
       <div className="mb-8">
-        <p className="text-gray-600">{hotel.desc}</p>
-        <h2 className="text-2xl font-bold mb-2">{hotel.name}</h2>
+        <p className="text-gray-600">{accommodation.desc}</p>
+        <h2 className="text-2xl font-bold mb-2">{accommodation.name}</h2>
       </div>
 
       {/* 카드 3개 (부대시설, 리뷰, 위치) */}
@@ -93,7 +97,7 @@ export default function AccommodationDetailPage() {
         >
           <div className="font-semibold">평점 및 리뷰</div>
           <div className="mt-2 text-sm text-slate-500">
-            {hotel.reviews?.length || 0}개 리뷰
+            {accommodation.reviews?.length || 0}개 리뷰
           </div>
         </a>
 
@@ -119,7 +123,9 @@ export default function AccommodationDetailPage() {
           className="rounded-2xl border border-slate-200 p-4 hover:shadow transition"
         >
           <div className="font-semibold">위치 정보</div>
-          <div className="mt-2 text-sm text-slate-500">{hotel.location}</div>
+          <div className="mt-2 text-sm text-slate-500">
+            {accommodation.location}
+          </div>
         </a>
       </div>
 
@@ -127,36 +133,42 @@ export default function AccommodationDetailPage() {
       <AmenityModal
         open={openAmenity}
         onClose={() => setOpenAmenity(false)}
-        items={hotel.amenities}
+        items={accommodation.amenities}
       />
 
       {/* 객실 타입 */}
       <div className="space-y-6 mt-12">
         <h2 className="text-xl font-bold">객실 선택</h2>
-        {hotel.rooms.map((room, idx) => (
-          <div
-            key={idx}
-            className="border border-slate-300 rounded-lg p-4 shadow-sm hover:shadow-md transition"
-          >
-            <h3 className="text-lg font-semibold">{room.name}</h3>
-            <div className="mt-3 flex justify-between items-center">
-              <span className="text-gray-600">
-                대실 {room.dayUse.toLocaleString()}원
-              </span>
-              <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
-                예약
-              </button>
+        {accommodation.rooms.map((room, idx) => {
+          const day = formatKRW(room?.dayUse);
+          const stay = formatKRW(room?.stay);
+          return (
+            <div
+              key={idx}
+              className="border border-slate-300 rounded-lg p-4 shadow-sm hover:shadow-md transition"
+            >
+              <h3 className="text-lg font-semibold">{room.name}</h3>
+
+              <div className="mt-3 flex justify-between items-center">
+                <span className="text-gray-600">
+                  {day ? `대실 ${day}원` : "대실 정보 없음"}
+                </span>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
+                  예약
+                </button>
+              </div>
+
+              <div className="mt-2 flex justify-between items-center">
+                <span className="text-gray-600">
+                  {stay ? `숙박 ${stay}원` : "숙박 정보 없음"}
+                </span>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
+                  예약
+                </button>
+              </div>
             </div>
-            <div className="mt-2 flex justify-between items-center">
-              <span className="text-gray-600">
-                숙박 {room.stay.toLocaleString()}원
-              </span>
-              <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
-                예약
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 리뷰 섹션 */}
@@ -171,13 +183,13 @@ export default function AccommodationDetailPage() {
       <section id="location" ref={locationRef} className="mt-12 outline-none">
         <h2 className="text-xl font-bold mb-4">위치 정보</h2>
         <KakaoMap
-          query={hotel.name} // 예: "길동 MARI-마리"
-          lat={hotel.lat} // 검색 실패 대비 fallback
-          lng={hotel.lng}
+          query={accommodation.name} // 예: "길동 MARI-마리"
+          lat={accommodation.lat} // 검색 실패 대비 fallback
+          lng={accommodation.lng}
           level={3}
           className="w-full h-[420px] rounded-lg border"
         />
-        <p className="text-sm text-gray-600 mt-2">{hotel.location}</p>
+        <p className="text-sm text-gray-600 mt-2">{accommodation.location}</p>
       </section>
     </section>
   );
