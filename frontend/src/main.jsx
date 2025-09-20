@@ -4,8 +4,7 @@ import DefaultLayout from "./layouts/DefaultLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import OAuthCallback from "./pages/OAuthCallback";
-import DomesticResultsPage from "./pages/DomesticResultsPage";
-import OverseasResultsPage from "./pages/OverseasResultsPage";
+import ResultsPage from "./pages/ResultsPage";
 import AccommodationDetailPage from "./pages/Accommodation-DetailPage";
 import { HeaderProvider } from "./contexts/HeaderContext";
 
@@ -22,8 +21,18 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/oauth/callback", element: <OAuthCallback /> },
-      { path: "/domestic", element: <DomesticResultsPage /> },
-      { path: "/overseas", element: <OverseasResultsPage /> },
+
+      // ResultsPage를 재사용
+      {
+        path: "/domestic",
+        element: <ResultsPage type="domestic" title="국내 숙소" />,
+      },
+      {
+        path: "/overseas",
+        element: <ResultsPage type="overseas" title="해외 숙소" />,
+      },
+
+      // 상세 페이지
       { path: "/domestic/:id", element: <AccommodationDetailPage /> },
       { path: "/overseas/:id", element: <AccommodationDetailPage /> },
     ],
