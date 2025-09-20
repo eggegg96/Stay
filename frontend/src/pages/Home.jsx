@@ -17,7 +17,7 @@ export default function Home() {
       city: p.city,
       checkIn: p.checkIn,
       checkOut: p.checkOut,
-      adults: p.adults,
+      people: p.people,
       rooms: p.rooms,
     }).toString();
     nav(`/${p.base}?${qs}`);
@@ -37,7 +37,7 @@ export default function Home() {
                 전주 한옥부터 서울 호텔까지 여행할 땐 Stay
               </h1>
 
-              <div className="mt-6 rounded-2xl border-slate-200 bg-white/95 backdrop-blur p-6 pt-4 shadow-xl">
+              <div className="mt-6 rounded-2xl border-slate-200 bg-white backdrop-blur p-6 pt-4 shadow-xl">
                 {/* 국내 해외 선택 */}
                 <div className="mb-3 flex flex-wrap">
                   {categories.map((cat) => (
