@@ -1,9 +1,9 @@
 import useResultsHeader from "../hooks/useResultsHeader";
-import Filters from "../components/Filters";
 import SortBar from "../components/SortBar";
-import ResultList from "../components/ResultList";
+import Filters from "../components/filters";
 import KakaoMap from "../components/KakaoMap";
 import { ACCOMMODATIONS } from "../data/accommodations";
+import ResultList from "../components/ResultList";
 
 export default function ResultsPage({ type, title }) {
   const { city, citySlug } = useResultsHeader(type, title);
