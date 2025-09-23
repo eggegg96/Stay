@@ -11,22 +11,75 @@ function toSlug(s = "") {
     .replace(/\s/g, "-");
 }
 
-/**
- * @param {"domestic"|"overseas"} type   결과 페이지 타입
- * @param {string} locationLabel         헤더 서브라인 (예: "국내 숙소", "해외 숙소")
- */
 export default function useResultsHeader(type, locationLabel) {
   const [params] = useSearchParams();
-  const { setHeader, resetHeader } = useHeader();
+  const { setHeader } = useHeader();
 
-  // URL 파라미터
-  const city = params.get("city") || (type === "overseas" ? "도쿄" : "서울");
-  const checkIn = params.get("checkIn") || "2025-10-14";
-  const checkOut = params.get("checkOut") || "2025-10-15";
-  const people = Number(params.get("people") || params.get("adults") || 2);
-  const rooms = Number(params.get("rooms") || 1);
+  useEffect(() => {
+    console.log("useResultsHeader useEffect 실행됨");
 
-  // 파생값
+    // 첫 번째 시도: useSearchParams
+    let keywordParam = params.get("keyword") || params.get("city");
+    let checkInParam = params.get("checkIn");
+    let checkOutParam = params.get("checkOut");
+    let peopleParam = params.get("people");
+    let roomsParam = params.get("rooms");
+
+    console.log("useResultsHeader values:", {
+      keywordParam,
+      checkInParam,
+      checkOutParam,
+      peopleParam,
+      dateText,
+    });
+
+    // 두 번째 시도: window.location.search (새로고침 대응)
+    if (!keywordParam) {
+      const urlParams = new URLSearchParams(window.location.search);
+      keywordParam = urlParams.get("keyword");
+      checkInParam = urlParams.get("checkIn");
+      checkOutParam = urlParams.get("checkOut");
+      peopleParam = urlParams.get("people");
+      roomsParam = urlParams.get("rooms");
+    }
+
+    // URL 파라미터가 있으면 HeaderContext 설정
+    if (keywordParam && checkInParam) {
+      console.log("HeaderContext 업데이트:", {
+        keyword: keywordParam,
+        checkIn: checkInParam,
+        checkOut: checkOutParam,
+        people: Number(peopleParam || 2),
+      });
+
+      setHeader({
+        mode: "detail",
+        keyword: keywordParam,
+        checkIn: checkInParam,
+        checkOut: checkOutParam || "2025-10-15",
+        people: Number(peopleParam || 2),
+        rooms: Number(roomsParam || 1),
+        dateText,
+      });
+    }
+  }, []); // 마운트 시 한 번만 실행
+
+  // 직접 URL에서 파라미터 추출
+  const urlParams = new URLSearchParams(window.location.search);
+  const keywordParam = urlParams.get("keyword");
+  const checkInParam = urlParams.get("checkIn") || "2025-10-14";
+  const checkOutParam = urlParams.get("checkOut") || "2025-10-15";
+  const peopleParam = Number(urlParams.get("people") || 2);
+  const roomsParam = Number(urlParams.get("rooms") || 1);
+
+  // 계산된 값들
+  const keyword = keywordParam || (type === "overseas" ? "도쿄" : "서울");
+  const checkIn = checkInParam;
+  const checkOut = checkOutParam;
+  const people = peopleParam;
+  const rooms = roomsParam;
+
+  // 파생값들
   const start = useMemo(() => new Date(checkIn), [checkIn]);
   const end = useMemo(() => new Date(checkOut), [checkOut]);
   const nights = useMemo(() => nightsBetween(start, end), [start, end]);
@@ -34,32 +87,15 @@ export default function useResultsHeader(type, locationLabel) {
     () => formatRangeKR(start, end, nights),
     [start, end, nights]
   );
-  const citySlug = useMemo(() => toSlug(city), [city]);
+  const keywordSlug = useMemo(() => toSlug(keyword), [keyword]);
 
-  // 헤더 요약 즉시 반영
-  useEffect(() => {
-    setHeader({
-      mode: "detail",
-      title: city,
-      location: locationLabel,
-      checkIn,
-      checkOut,
-      people,
-      rooms,
-      dateText,
-    });
-    return () => resetHeader();
-  }, [
-    city,
+  return {
+    keyword,
+    keywordSlug,
     checkIn,
     checkOut,
     people,
     rooms,
-    dateText,
-    locationLabel,
-    setHeader,
-    resetHeader,
-  ]);
-
-  return { city, citySlug, checkIn, checkOut, people, rooms, nights };
+    nights,
+  };
 }
