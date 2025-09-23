@@ -1,9 +1,9 @@
-import useResultsHeader from "../hooks/useResultsHeader";
-import useFilteredAccommodations from "../hooks/useFilteredAccommodations";
-import SortBar from "../components/SortBar";
-import Filters from "../components/filters";
-import KakaoMap from "../components/KakaoMap";
-import ResultList from "../components/ResultList";
+import useResultsHeader from "@hooks/useResultsHeader";
+import useFilteredAccommodations from "@hooks/useFilteredAccommodations";
+import SortBar from "@accommodation/SortBar";
+import Filters from "@filters";
+import KakaoMap from "@common/KakaoMap";
+import ResultList from "@accommodation/ResultList";
 
 export default function ResultsPage({ type, title }) {
   const { keyword, keywordSlug } = useResultsHeader(type, title);

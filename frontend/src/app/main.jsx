@@ -1,14 +1,14 @@
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import DefaultLayout from "./layouts/DefaultLayout";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import OAuthCallback from "./pages/OAuthCallback";
-import ResultsPage from "./pages/ResultsPage";
-import AccommodationDetailPage from "./pages/Accommodation-DetailPage";
-import { HeaderProvider } from "./contexts/HeaderContext";
+import DefaultLayout from "@layouts/DefaultLayout";
+import Home from "@pages/Home";
+import Login from "@pages/Login";
+import OAuthCallback from "@pages/OAuthCallback";
+import ResultsPage from "@pages/ResultsPage";
+import AccommodationDetailPage from "@pages/Accommodation-DetailPage";
+import { HeaderProvider } from "@contexts/HeaderContext";
 
-import "./styles/globals.css";
+import "@styles/globals.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";

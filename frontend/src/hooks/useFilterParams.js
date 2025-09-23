@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { PRICE_MIN, PRICE_MAX } from "../constants/filters";
+import { PRICE_MIN, PRICE_MAX } from "@constants/filters";
 
 export default function useFilterParams() {
   const navigate = useNavigate();
