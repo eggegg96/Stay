@@ -1,11 +1,11 @@
 import { useParams, useMatch, useSearchParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { ACCOMMODATIONS } from "../data/accommodations";
-import { useHeader } from "../contexts/HeaderContext";
-import { formatRangeKR, nightsBetween } from "../utils/dateText";
+import { ACCOMMODATIONS } from "@data/accommodations";
+import { useHeader } from "@contexts/HeaderContext";
+import { formatRangeKR, nightsBetween } from "@/utils/dateText";
 
-import AmenityModal from "../components/AmenitiyModal";
-import KakaoMap from "../components/KakaoMap";
+import AmenityModal from "@accommodation/AmenitiyModal";
+import KakaoMap from "@common/KakaoMap";
 
 function formatKRW(n) {
   return typeof n === "number" ? n.toLocaleString() : null;

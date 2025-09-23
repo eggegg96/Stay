@@ -1,4 +1,4 @@
-import useFilterParams from "../../hooks/useFilterParams";
+import useFilterParams from "@hooks/useFilterParams";
 import CategoryFilter from "./CategoryFilter";
 import PriceFilter from "./PriceFilter";
 import AmenitiesFilter from "./AmenitiesFilter";

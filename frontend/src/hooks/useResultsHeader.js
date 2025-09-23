@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useHeader } from "../contexts/HeaderContext";
-import { formatRangeKR, nightsBetween } from "../utils/dateText";
+import { useHeader } from "@contexts/HeaderContext";
+import { formatRangeKR, nightsBetween } from "@utils/dateText";
 
 function toSlug(s = "") {
   return String(s)
