@@ -1,10 +1,10 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMemo, useState, useEffect } from "react";
-import { useHeader } from "../contexts/HeaderContext";
-import useHomeSearchState from "../hooks/useHomeSearchState";
-import SummaryBar from "../components/search/SummaryBar";
-import ExpandedHeaderSearch from "../components/search/ExpandedHeaderSearch";
-import { formatRangeKR, nightsBetween } from "../utils/dateText";
+import { useHeader } from "@contexts/HeaderContext";
+import useHomeSearchState from "@hooks/useHomeSearchState";
+import SummaryBar from "@search/SummaryBar";
+import ExpandedHeaderSearch from "@search/ExpandedHeaderSearch";
+import { formatRangeKR, nightsBetween } from "@utils/dateText";
 
 export default function Header() {
   console.log("Header 컴포넌트가 새 버전으로 로드됨 - 테스트");

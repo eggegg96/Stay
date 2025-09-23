@@ -5,7 +5,7 @@ import { ko } from "date-fns/locale";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import GuestsPopover from "./GuestsPopover";
-import { formatRangeKR } from "../../utils/dateText";
+import { formatRangeKR } from "@utils/dateText";
 
 export default function SearchForm({
   state,

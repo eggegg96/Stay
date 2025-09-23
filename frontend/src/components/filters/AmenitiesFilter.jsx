@@ -1,4 +1,4 @@
-import { AMENITY_GROUPS } from "../../constants/filters";
+import { AMENITY_GROUPS } from "@constants/filters";
 
 export default function AmenitiesFilter({ amenities, onToggleAmenity }) {
   return (
