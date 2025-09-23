@@ -1,4 +1,4 @@
-import { CATEGORY_OPTIONS } from "../../constants/filters";
+import { CATEGORY_OPTIONS } from "@constants/filters";
 
 export default function CategoryFilter({ category, setCategory }) {
   return (

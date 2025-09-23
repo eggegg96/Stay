@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Hot from "../components/HotAccommodation";
-import Event from "../components/Event";
-import HotPoint from "../components/Hotpoint";
-import useHomeSearchState from "../hooks/useHomeSearchState";
-import SearchForm from "../components/search/SearchForm";
+import Hot from "@accommodation/HotAccommodation";
+import Event from "@ui/Event";
+import HotPoint from "@accommodation/HotPoint";
+import useHomeSearchState from "@hooks/useHomeSearchState";
+import SearchForm from "@search/SearchForm";
 
 export default function Home() {
   const categories = ["국내 숙소", "해외 숙소"];

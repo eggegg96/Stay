@@ -1,5 +1,5 @@
 import { Range } from "react-range";
-import { PRICE_MIN, PRICE_MAX, STEP } from "../../constants/filters";
+import { PRICE_MIN, PRICE_MAX, STEP } from "@constants/filters";
 
 export default function PriceFilter({ priceRange, setPriceRange }) {
   const displayPrice = (() => {

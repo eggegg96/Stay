@@ -1,4 +1,4 @@
-import { useHeader } from "../../contexts/HeaderContext";
+import { useHeader } from "@contexts/HeaderContext";
 
 export default function SummaryBar({ onOpen }) {
   const { header } = useHeader();
