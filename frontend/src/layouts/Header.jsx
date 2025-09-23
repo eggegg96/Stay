@@ -7,6 +7,7 @@ import ExpandedHeaderSearch from "../components/search/ExpandedHeaderSearch";
 import { formatRangeKR, nightsBetween } from "../utils/dateText";
 
 export default function Header() {
+  console.log("Header 컴포넌트가 새 버전으로 로드됨 - 테스트");
   const navigate = useNavigate();
   const location = useLocation();
   const { header, setHeader } = useHeader();
@@ -17,54 +18,49 @@ export default function Header() {
   const [area, setArea] = useState("domestic");
 
   // 확장 허용 경로: /domestic, /overseas, /accommodation/:id
-  const canExpand = /^(\/domestic|\/overseas|\/accommodation\/)/.test(
-    location.pathname
-  );
+  const canExpand =
+    /^\/domestic(?:\/|$)|^\/overseas(?:\/|$)|^\/accommodation\/\d+/.test(
+      location.pathname
+    );
 
   // 경로가 바뀌어 확장 허용이 아니면 자동으로 닫기
   useEffect(() => {
     if (!canExpand && expanded) setExpanded(false);
   }, [canExpand, expanded]);
 
-  // ESC 키로 닫기
-  useEffect(() => {
-    if (!expanded) return;
-    const onKey = (e) => e.key === "Escape" && setExpanded(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [expanded]);
-
-  const summary = useMemo(
-    () => ({
-      place: header.title || "어디로",
-      dateText: header.dateText || "날짜",
-      guestsText:
-        header.people && header.rooms
-          ? `성인 ${header.people} · 객실 ${header.rooms}`
-          : "인원",
-    }),
-    [header]
-  );
+  // HeaderContext 동기화 useEffect는 완전히 제거
+  // 검색 결과 페이지에서는 useResultsHeader가 관리하고
+  // 홈페이지에서는 필요할 때만 수동으로 업데이트
 
   const openExpanded = (tab) => {
-    if (!canExpand) return; // 홈 등에서는 열리지 않음
+    if (!canExpand) return;
+
+    // HeaderContext의 현재 값을 검색 폼에 설정
+    if (header.keyword) {
+      state.updateState({
+        keyword: header.keyword,
+        people: String(header.people || 2),
+        startDate: header.checkIn ? new Date(header.checkIn) : new Date(),
+        endDate: header.checkOut
+          ? new Date(header.checkOut)
+          : new Date(Date.now() + 86400000),
+      });
+    }
+
     setInitialActive(tab);
     setExpanded(true);
   };
 
   const handleSubmit = (payload) => {
     const params = new URLSearchParams({
-      city: payload.city,
+      keyword: payload.keyword,
       checkIn: payload.checkIn,
       checkOut: payload.checkOut,
       people: String(payload.people),
       rooms: String(payload.rooms ?? 1),
     }).toString();
 
-    // 현재 선택된 탭에 따라 경로 전환
-    navigate({ pathname: `/${area}`, search: `?${params}` }, { replace: true });
-
-    // 요약바 즉시 반영
+    // HeaderContext 업데이트 (검색할 때만)
     const start = new Date(payload.checkIn);
     const end = new Date(payload.checkOut);
     const nights = nightsBetween(start, end);
@@ -72,7 +68,7 @@ export default function Header() {
 
     setHeader({
       mode: "detail",
-      title: payload.city,
+      keyword: payload.keyword,
       checkIn: payload.checkIn,
       checkOut: payload.checkOut,
       people: payload.people,
@@ -80,6 +76,9 @@ export default function Header() {
       dateText,
     });
 
+    setTimeout(() => {
+      navigate({ pathname: `/${area}`, search: `?${params}` });
+    }, 0);
     setExpanded(false);
   };
 
@@ -90,10 +89,7 @@ export default function Header() {
           Stay
         </Link>
 
-        {!expanded && header.mode === "detail" && (
-          <SummaryBar summary={summary} onOpen={openExpanded} />
-        )}
-
+        {!expanded && canExpand && <SummaryBar onOpen={openExpanded} />}
         {expanded && canExpand && (
           <nav className="flex gap-6 text-lg font-semibold ml-auto">
             <button

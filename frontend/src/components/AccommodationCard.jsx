@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 function formatKRW(n) {
   if (typeof n !== "number") return null;
   return n.toLocaleString();
@@ -13,7 +11,18 @@ export default function AccommodationCard({
   type,
   images,
   rooms,
+  search = "", // ResultList에서 받은 현재 URL의 쿼리스트
 }) {
+  const detailPath = `${
+    type === "domestic" ? "/domestic" : "/overseas"
+  }/${id}${search}`;
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    // 새 창으로 열기
+    window.open(detailPath, "_blank", "noopener,noreferrer");
+  };
+
   // 대표가: rooms 배열에서 최저가를 뽑아 표시
   const dayUseMin = rooms
     ?.map((r) => r.dayUse)
@@ -27,9 +36,9 @@ export default function AccommodationCard({
   const hasStay = Number.isFinite(stayMin);
 
   return (
-    <Link
-      to={`/${type}/${id}`}
-      className="flex pb-4 border-b border-slate-200 shadow transition gap-4"
+    <div
+      onClick={handleClick}
+      className="flex gap-4 rounded-xl border border-slate-200 p-3 hover:shadow transition cursor-pointer"
     >
       <img
         src={images?.[0]}
@@ -53,6 +62,6 @@ export default function AccommodationCard({
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 }

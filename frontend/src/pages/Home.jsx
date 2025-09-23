@@ -13,13 +13,17 @@ export default function Home() {
   const s = useHomeSearchState();
 
   const go = (p) => {
+    // HeaderContext 업데이트 제거 - Header의 handleSubmit에서 처리하도록 함
+
+    // URL 이동만 수행
     const qs = new URLSearchParams({
-      city: p.city,
+      keyword: p.keyword,
       checkIn: p.checkIn,
       checkOut: p.checkOut,
       people: p.people,
       rooms: p.rooms,
     }).toString();
+
     nav(`/${p.base}?${qs}`);
   };
 
