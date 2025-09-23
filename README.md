@@ -27,3 +27,7 @@ React + Spring 기반 웹 애플리케이션 개발 프로젝트입니다.
 - TailwindCSS를 활용한 반응형 디자인
 - Spring Boot 기반 REST API 서버 구축
 - 프론트엔드와 백엔드 분리형 아키텍처 설계
+
+## 📄 관련 문서
+
+- [프로젝트 명세서](./PROJECT_SPEC.md)
