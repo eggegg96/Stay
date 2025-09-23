@@ -44,14 +44,18 @@ export default function SearchForm({
 
   const submit = () => {
     if (!isValid) return;
-    onSubmit({
+
+    const payload = {
       base: area === "overseas" ? "overseas" : "domestic",
-      city: keyword.trim(),
+      keyword: keyword.trim(),
       checkIn: format(range[0].startDate, "yyyy-MM-dd"),
       checkOut: format(range[0].endDate, "yyyy-MM-dd"),
       people,
       rooms: 1,
-    });
+    };
+
+    console.log("SearchForm submit payload:", payload); // 디버깅용 로그
+    onSubmit(payload);
   };
 
   return (

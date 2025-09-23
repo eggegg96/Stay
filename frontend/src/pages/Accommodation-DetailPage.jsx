@@ -2,10 +2,10 @@ import { useParams, useMatch, useSearchParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { ACCOMMODATIONS } from "../data/accommodations";
 import { useHeader } from "../contexts/HeaderContext";
+import { formatRangeKR, nightsBetween } from "../utils/dateText";
 
 import AmenityModal from "../components/AmenitiyModal";
 import KakaoMap from "../components/KakaoMap";
-import { formatRangeKR, nightsBetween } from "../utils/dateText";
 
 function formatKRW(n) {
   return typeof n === "number" ? n.toLocaleString() : null;
@@ -15,7 +15,7 @@ export default function AccommodationDetailPage() {
   const { id } = useParams();
   const isDomestic = !!useMatch("/domestic/:id");
   const [params] = useSearchParams();
-  const { setHeader, resetHeader } = useHeader();
+  const { header, setHeader, resetHeader } = useHeader();
 
   const accommodation = ACCOMMODATIONS.find(
     (h) =>
@@ -29,11 +29,11 @@ export default function AccommodationDetailPage() {
 
   if (!accommodation) return null;
 
-  // 검색 조건 표시용
-  const checkIn = params.get("checkIn") || "2025-10-14";
-  const checkOut = params.get("checkOut") || "2025-10-15";
-  const people = params.get("people") || 2;
-  const rooms = params.get("rooms") || 1;
+  // URL 파라미터가 없으면 HeaderContext에서 가져오기
+  const checkIn = params.get("checkIn") || header.checkIn || "2025-10-14";
+  const checkOut = params.get("checkOut") || header.checkOut || "2025-10-15";
+  const people = params.get("people") || header.people || 2;
+  const rooms = params.get("rooms") || header.rooms || 1;
 
   useEffect(() => {
     const start = new Date(checkIn);
@@ -43,17 +43,23 @@ export default function AccommodationDetailPage() {
 
     setHeader({
       mode: "detail",
-      title: accommodation.name,
-      location: accommodation.location,
+      keyword: accommodation.name,
       checkIn,
       checkOut,
-      people,
-      rooms,
+      people: Number(people), // 타입 일치시키기
+      rooms: Number(rooms), // 타입 일치시키기
       dateText,
     });
 
-    return () => resetHeader(); // 페이지 나가면 원상복구
-  }, [accommodation, checkIn, checkOut, people, rooms]);
+    return () => {
+      if (
+        !location.pathname.includes("/domestic/") &&
+        !location.pathname.includes("/overseas/")
+      ) {
+        resetHeader();
+      }
+    };
+  }, [accommodation.name, checkIn, checkOut, people, rooms]);
 
   // 공통 스크롤 함수
   const scrollTo = (ref) => {
