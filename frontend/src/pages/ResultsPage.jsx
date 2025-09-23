@@ -1,19 +1,13 @@
 import useResultsHeader from "../hooks/useResultsHeader";
+import useFilteredAccommodations from "../hooks/useFilteredAccommodations";
 import SortBar from "../components/SortBar";
 import Filters from "../components/filters";
 import KakaoMap from "../components/KakaoMap";
-import { ACCOMMODATIONS } from "../data/accommodations";
 import ResultList from "../components/ResultList";
 
 export default function ResultsPage({ type, title }) {
-  const { keyword, keywordSlug } = useResultsHeader(type, title); // city, citySlug → keyword, keywordSlug
-
-  // 실제 결과 개수 계산
-  const listForCount = ACCOMMODATIONS.filter(
-    (a) =>
-      a.type === type &&
-      (a.citySlug === keywordSlug || a.location?.includes?.(keyword)) // city → keyword, citySlug → keywordSlug
-  );
+  const { keyword, keywordSlug } = useResultsHeader(type, title);
+  const { totalCount } = useFilteredAccommodations(type, keyword, keywordSlug);
 
   return (
     <section className="max-w-7xl mx-auto p-6">
@@ -22,7 +16,7 @@ export default function ResultsPage({ type, title }) {
           <KakaoMap
             className="w-full h-[180px] rounded-lg border border-slate-200"
             level={4}
-            query={keyword} // city → keyword
+            query={keyword}
           />
           <div className="mt-4">
             <Filters type={type} />
@@ -30,7 +24,7 @@ export default function ResultsPage({ type, title }) {
         </aside>
 
         <section className="order-1 lg:order-2">
-          <SortBar total={listForCount.length} />
+          <SortBar total={totalCount} />
           <ResultList type={type} keywordSlug={keywordSlug} keyword={keyword} />
         </section>
       </div>

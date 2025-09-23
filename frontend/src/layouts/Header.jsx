@@ -17,20 +17,21 @@ export default function Header() {
   const [initialActive, setInitialActive] = useState("place");
   const [area, setArea] = useState("domestic");
 
+  // 디테일 페이지 감지
+  const isDetailPage = /^\/(?:domestic|overseas)\/[^/]+$/.test(
+    location.pathname
+  );
+
   // 확장 허용 경로: /domestic, /overseas, /accommodation/:id
   const canExpand =
     /^\/domestic(?:\/|$)|^\/overseas(?:\/|$)|^\/accommodation\/\d+/.test(
       location.pathname
-    );
+    ) || isDetailPage;
 
   // 경로가 바뀌어 확장 허용이 아니면 자동으로 닫기
   useEffect(() => {
     if (!canExpand && expanded) setExpanded(false);
   }, [canExpand, expanded]);
-
-  // HeaderContext 동기화 useEffect는 완전히 제거
-  // 검색 결과 페이지에서는 useResultsHeader가 관리하고
-  // 홈페이지에서는 필요할 때만 수동으로 업데이트
 
   const openExpanded = (tab) => {
     if (!canExpand) return;
@@ -60,7 +61,7 @@ export default function Header() {
       rooms: String(payload.rooms ?? 1),
     }).toString();
 
-    // HeaderContext 업데이트 (검색할 때만)
+    // HeaderContext 업데이트
     const start = new Date(payload.checkIn);
     const end = new Date(payload.checkOut);
     const nights = nightsBetween(start, end);
@@ -76,6 +77,23 @@ export default function Header() {
       dateText,
     });
 
+    // 디테일 페이지에서 키워드 변경 여부 체크
+    if (isDetailPage) {
+      const currentKeyword = header.keyword || "";
+      const newKeyword = payload.keyword || "";
+
+      // 키워드가 변경되지 않았으면 현재 페이지에서 URL 파라미터만 업데이트
+      if (currentKeyword.trim() === newKeyword.trim()) {
+        const newUrl = `${location.pathname}?${params}`;
+        window.history.pushState({}, "", newUrl);
+        setExpanded(false);
+        return;
+      }
+
+      // 키워드가 변경되었으면 검색 결과 페이지로 이동
+    }
+
+    // 검색 결과 페이지로 이동
     setTimeout(() => {
       navigate({ pathname: `/${area}`, search: `?${params}` });
     }, 0);
@@ -137,6 +155,7 @@ export default function Header() {
               initialActive={initialActive}
               state={state}
               onSubmit={handleSubmit}
+              isDetailPage={isDetailPage}
             />
           </div>
         </div>

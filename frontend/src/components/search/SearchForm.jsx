@@ -12,6 +12,7 @@ export default function SearchForm({
   onSubmit,
   area = "domestic",
   initialActive = "place",
+  isDetailPage = false,
 }) {
   const {
     keyword,
@@ -40,7 +41,7 @@ export default function SearchForm({
     }
   }, [initialActive, setOpen]);
 
-  const isValid = keyword.trim().length > 0;
+  const isValid = isDetailPage ? true : keyword.trim().length > 0;
 
   const submit = () => {
     if (!isValid) return;
@@ -54,16 +55,21 @@ export default function SearchForm({
       rooms: 1,
     };
 
-    console.log("SearchForm submit payload:", payload); // 디버깅용 로그
+    console.log("SearchForm submit payload:", payload);
     onSubmit(payload);
   };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 bg-white">
+      {/* 키워드 입력 필드 - 디테일 페이지에서도 수정 가능 */}
       <input
         className="col-span-2 p-3 rounded-lg bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
         type="text"
-        placeholder="도시를 입력하세요 예) 서울 도쿄 부산"
+        placeholder={
+          isDetailPage
+            ? "다른 숙소 검색하기"
+            : "도시를 입력하세요 예) 서울 도쿄 부산"
+        }
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
       />
@@ -124,7 +130,7 @@ export default function SearchForm({
         type="button"
         onClick={submit}
         disabled={!isValid}
-        className="rounded-lg p-3 text-white bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 cursor-pointer"
+        className="rounded-lg p-3 text-white cursor-pointer bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300"
       >
         검색
       </button>
