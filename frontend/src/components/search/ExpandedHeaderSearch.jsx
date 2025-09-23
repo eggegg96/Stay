@@ -5,6 +5,7 @@ export default function ExpandedHeaderSearch({
   initialActive,
   state,
   onSubmit,
+  isDetailPage = false,
 }) {
   const handleFormSubmit = (payload) => {
     console.log("ExpandedHeaderSearch received:", payload);
@@ -19,6 +20,7 @@ export default function ExpandedHeaderSearch({
           onSubmit={handleFormSubmit}
           area={area}
           initialActive={initialActive}
+          isDetailPage={isDetailPage}
         />
       </div>
     </div>
