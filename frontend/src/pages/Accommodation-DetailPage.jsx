@@ -14,7 +14,7 @@ function formatKRW(n) {
 export default function AccommodationDetailPage() {
   const { id } = useParams();
   const isDomestic = !!useMatch("/domestic/:id");
-  const [params] = useSearchParams();
+  const [params, setSearchParams] = useSearchParams();
   const { header, setHeader, resetHeader } = useHeader();
 
   const accommodation = ACCOMMODATIONS.find(
@@ -35,19 +35,27 @@ export default function AccommodationDetailPage() {
   const people = params.get("people") || header.people || 2;
   const rooms = params.get("rooms") || header.rooms || 1;
 
+  // 날짜 관련 계산
+  const startDate = new Date(checkIn);
+  const endDate = new Date(checkOut);
+  const nights = nightsBetween(startDate, endDate);
+
+  // 가격 계산 (숙박일수 기준)
+  const calculatePrice = (basePrice) => {
+    if (!basePrice) return null;
+    return basePrice * nights * Number(people);
+  };
+
   useEffect(() => {
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
-    const nights = nightsBetween(start, end);
-    const dateText = formatRangeKR(start, end, nights);
+    const dateText = formatRangeKR(startDate, endDate, nights);
 
     setHeader({
       mode: "detail",
       keyword: accommodation.name,
       checkIn,
       checkOut,
-      people: Number(people), // 타입 일치시키기
-      rooms: Number(rooms), // 타입 일치시키기
+      people: Number(people),
+      rooms: Number(rooms),
       dateText,
     });
 
@@ -59,6 +67,31 @@ export default function AccommodationDetailPage() {
         resetHeader();
       }
     };
+  }, [accommodation.name, checkIn, checkOut, people, rooms, nights]);
+
+  // URL 파라미터 변경 감지를 위한 useEffect
+  useEffect(() => {
+    const handlePopState = () => {
+      // 브라우저 뒤로가기/앞으로가기 시 헤더 상태 업데이트
+      const newParams = new URLSearchParams(window.location.search);
+      const newCheckIn = newParams.get("checkIn") || checkIn;
+      const newCheckOut = newParams.get("checkOut") || checkOut;
+      const newPeople = newParams.get("people") || people;
+      const newRooms = newParams.get("rooms") || rooms;
+
+      setHeader({
+        mode: "detail",
+        keyword: accommodation.name,
+        checkIn: newCheckIn,
+        checkOut: newCheckOut,
+        people: Number(newPeople),
+        rooms: Number(newRooms),
+        dateText: formatRangeKR(new Date(newCheckIn), new Date(newCheckOut)),
+      });
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, [accommodation.name, checkIn, checkOut, people, rooms]);
 
   // 공통 스크롤 함수
@@ -153,32 +186,54 @@ export default function AccommodationDetailPage() {
       <div className="space-y-6 mt-12">
         <h2 className="text-xl font-bold">객실 선택</h2>
         {accommodation.rooms.map((room, idx) => {
-          const day = formatKRW(room?.dayUse);
-          const stay = formatKRW(room?.stay);
+          const dayPrice = calculatePrice(room?.dayUse);
+          const stayPrice = calculatePrice(room?.stay);
+          const dayFormatted = formatKRW(dayPrice);
+          const stayFormatted = formatKRW(stayPrice);
+
           return (
             <div
               key={idx}
               className="border border-slate-300 rounded-lg p-4 shadow-sm hover:shadow-md transition"
             >
               <h3 className="text-lg font-semibold">{room.name}</h3>
-
-              <div className="mt-3 flex justify-between items-center">
-                <span className="text-gray-600">
-                  {day ? `대실 ${day}원` : "대실 정보 없음"}
-                </span>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
-                  예약
-                </button>
+              <div className="text-xs text-gray-500 mt-1">
+                {nights}박 기준 • {people}명
               </div>
 
-              <div className="mt-2 flex justify-between items-center">
-                <span className="text-gray-600">
-                  {stay ? `숙박 ${stay}원` : "숙박 정보 없음"}
-                </span>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
-                  예약
-                </button>
-              </div>
+              {/* 대실 (해외 숙소는 제외) */}
+              {accommodation.type === "domestic" && room.dayUse && (
+                <div className="mt-3 flex justify-between items-center">
+                  <div>
+                    <span className="text-gray-600">
+                      대실 {dayFormatted ? `${dayFormatted}원` : "정보 없음"}
+                    </span>
+                    <div className="text-xs text-gray-400">
+                      기본 {formatKRW(room.dayUse)}원 × {nights}박 × {people}명
+                    </div>
+                  </div>
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
+                    예약
+                  </button>
+                </div>
+              )}
+
+              {/* 숙박 */}
+              {room.stay && (
+                <div className="mt-3 flex justify-between items-center">
+                  <div>
+                    <span className="text-gray-600">
+                      숙박 {stayFormatted ? `${stayFormatted}원` : "정보 없음"}
+                    </span>
+                    <div className="text-xs text-gray-400">
+                      기본 {formatKRW(room.stay)}원 × {nights}박 × {people}명
+                    </div>
+                  </div>
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
+                    예약
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -196,8 +251,8 @@ export default function AccommodationDetailPage() {
       <section id="location" ref={locationRef} className="mt-12 outline-none">
         <h2 className="text-xl font-bold mb-4">위치 정보</h2>
         <KakaoMap
-          query={accommodation.name} // 예: "길동 MARI-마리"
-          lat={accommodation.lat} // 검색 실패 대비 fallback
+          query={accommodation.name}
+          lat={accommodation.lat}
           lng={accommodation.lng}
           level={3}
           className="w-full h-[420px] rounded-lg border"
