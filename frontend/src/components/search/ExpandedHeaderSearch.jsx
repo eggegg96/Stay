@@ -6,12 +6,17 @@ export default function ExpandedHeaderSearch({
   state,
   onSubmit,
 }) {
+  const handleFormSubmit = (payload) => {
+    console.log("ExpandedHeaderSearch received:", payload);
+    onSubmit(payload);
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 pb-4">
       <div className="bg-white rounded-2xl">
         <SearchForm
           state={state}
-          onSubmit={onSubmit}
+          onSubmit={handleFormSubmit}
           area={area}
           initialActive={initialActive}
         />
