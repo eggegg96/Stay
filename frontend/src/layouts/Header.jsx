@@ -7,7 +7,6 @@ import ExpandedHeaderSearch from "@search/ExpandedHeaderSearch";
 import { formatRangeKR, nightsBetween } from "@utils/dateText";
 
 export default function Header() {
-  console.log("Header 컴포넌트가 새 버전으로 로드됨 - 테스트");
   const navigate = useNavigate();
   const location = useLocation();
   const { header, setHeader } = useHeader();
@@ -15,12 +14,20 @@ export default function Header() {
 
   const [expanded, setExpanded] = useState(false);
   const [initialActive, setInitialActive] = useState("place");
-  const [area, setArea] = useState("domestic");
+
+  const isOverseasPage = /^\/overseas/.test(location.pathname);
+  const [area, setArea] = useState(isOverseasPage ? "overseas" : "domestic");
 
   // 디테일 페이지 감지
   const isDetailPage = /^\/(?:domestic|overseas)\/[^/]+$/.test(
     location.pathname
   );
+
+  // 페이지 변경 시 area 상태 동기화
+  useEffect(() => {
+    const isOverseas = /^\/overseas/.test(location.pathname);
+    setArea(isOverseas ? "overseas" : "domestic");
+  }, [location.pathname]);
 
   // 확장 허용 경로: /domestic, /overseas, /accommodation/:id
   const canExpand =
@@ -41,6 +48,8 @@ export default function Header() {
       state.updateState({
         keyword: header.keyword,
         people: String(header.people || 2),
+        children: String(header.children || 0),
+        rooms: String(header.rooms || 1),
         startDate: header.checkIn ? new Date(header.checkIn) : new Date(),
         endDate: header.checkOut
           ? new Date(header.checkOut)
@@ -58,46 +67,15 @@ export default function Header() {
       checkIn: payload.checkIn,
       checkOut: payload.checkOut,
       people: String(payload.people),
-      rooms: String(payload.rooms ?? 1),
-    }).toString();
-
-    // HeaderContext 업데이트
-    const start = new Date(payload.checkIn);
-    const end = new Date(payload.checkOut);
-    const nights = nightsBetween(start, end);
-    const dateText = formatRangeKR(start, end, nights);
-
-    setHeader({
-      mode: "detail",
-      keyword: payload.keyword,
-      checkIn: payload.checkIn,
-      checkOut: payload.checkOut,
-      people: payload.people,
-      rooms: payload.rooms ?? 1,
-      dateText,
+      rooms: String(payload.rooms),
     });
 
-    // 디테일 페이지에서 키워드 변경 여부 체크
-    if (isDetailPage) {
-      const currentKeyword = header.keyword || "";
-      const newKeyword = payload.keyword || "";
-
-      // 키워드가 변경되지 않았으면 현재 페이지에서 URL 파라미터만 업데이트
-      if (currentKeyword.trim() === newKeyword.trim()) {
-        const newUrl = `${location.pathname}?${params}`;
-        window.history.pushState({}, "", newUrl);
-        setExpanded(false);
-        return;
-      }
-
-      // 키워드가 변경되었으면 검색 결과 페이지로 이동
+    // 아동 정보가 있고 해외 숙소일 때만 추가
+    if (payload.children && payload.base === "overseas") {
+      params.set("children", payload.children);
     }
 
-    // 검색 결과 페이지로 이동
-    setTimeout(() => {
-      navigate({ pathname: `/${area}`, search: `?${params}` });
-    }, 0);
-    setExpanded(false);
+    navigate(`/${payload.base}?${params.toString()}`);
   };
 
   return (

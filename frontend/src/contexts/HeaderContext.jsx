@@ -14,6 +14,8 @@ const DEFAULT = {
   checkIn: "",
   checkOut: "",
   people: 2,
+  children: 0, // 아동 수
+  childrenAges: [], // 아동 연령 배열
   rooms: 1,
   dateText: "", // "09.20 토 - 09.21 일 (1박)" 같은 요약 텍스트
 };
@@ -31,7 +33,7 @@ export function HeaderProvider({ children }) {
       );
       setHeader((cur) => ({ ...cur, ...next }));
     },
-    [header]
+    [] // 의존성 배열 제거 - setHeader는 안정적인 함수이므로 불필요
   );
 
   const resetHeader = useCallback(() => {
