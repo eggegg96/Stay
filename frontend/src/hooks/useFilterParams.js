@@ -25,6 +25,7 @@ export default function useFilterParams() {
     const checkIn = currentParams.get("checkIn");
     const checkOut = currentParams.get("checkOut");
     const people = currentParams.get("people");
+    const children = currentParams.get("children");
     const rooms = currentParams.get("rooms");
 
     const p = new URLSearchParams();
@@ -34,6 +35,7 @@ export default function useFilterParams() {
     if (checkIn) p.set("checkIn", checkIn);
     if (checkOut) p.set("checkOut", checkOut);
     if (people) p.set("people", people);
+    if (children) p.set("children", children);
     if (rooms) p.set("rooms", rooms);
 
     // 필터 파라미터 추가

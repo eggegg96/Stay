@@ -12,18 +12,6 @@ export default function ResultList({ type, keywordSlug, keyword }) {
     keywordSlug
   );
 
-  // 디버깅용 로그 (개발 환경에서만)
-  if (
-    process.env.NODE_ENV === "development" &&
-    keyword &&
-    filteredAccommodations.length > 0
-  ) {
-    console.log(
-      "검색 결과 디버깅:",
-      getMatchDetails(filteredAccommodations[0], keyword, keywordSlug)
-    );
-  }
-
   if (filteredAccommodations.length === 0) {
     return (
       <div className="mt-2 text-sm text-slate-500">

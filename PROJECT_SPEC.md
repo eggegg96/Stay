@@ -208,7 +208,7 @@ frontend/src/
 │   ├── business/                # 사업자용 페이지 (예정)
 │   │   ├── BusinessDashboard.jsx    # 사업자 대시보드
 │   │   ├── AccommodationManagement.jsx  # 숙소 관리
-│   │   └── ReservationManagement.jsx    # 예약 관리
+│   │   └── ReservationManagement.jsx    # 예약 관리 (예정)
 │   ├── Login.jsx                # 로그인 페이지
 │   └── OAuthCallback.jsx        # OAuth 콜백 처리
 ├── layouts/                     # 레이아웃 컴포넌트

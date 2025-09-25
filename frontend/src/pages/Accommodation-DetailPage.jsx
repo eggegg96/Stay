@@ -1,8 +1,9 @@
-import { useParams, useMatch, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { ACCOMMODATIONS } from "@data/accommodations";
 import { useHeader } from "@contexts/HeaderContext";
 import { formatRangeKR, nightsBetween } from "@/utils/dateText";
+import { useAccommodationParams } from "@hooks/useAccommodationParams";
 
 import AmenityModal from "@accommodation/AmenitiyModal";
 import KakaoMap from "@common/KakaoMap";
@@ -13,10 +14,21 @@ function formatKRW(n) {
 
 export default function AccommodationDetailPage() {
   const { id } = useParams();
-  const isDomestic = !!useMatch("/domestic/:id");
-  const [params, setSearchParams] = useSearchParams();
-  const { header, setHeader, resetHeader } = useHeader();
+  const { setHeader, resetHeader } = useHeader();
 
+  // 커스텀 훅으로 파라미터 관리
+  const {
+    checkIn,
+    checkOut,
+    people,
+    children,
+    childrenAges,
+    rooms,
+    isOverseas,
+    isDomestic,
+  } = useAccommodationParams();
+
+  // 숙소 정보 찾기
   const accommodation = ACCOMMODATIONS.find(
     (h) =>
       String(h.id) === String(id) &&
@@ -29,23 +41,18 @@ export default function AccommodationDetailPage() {
 
   if (!accommodation) return null;
 
-  // URL 파라미터가 없으면 HeaderContext에서 가져오기
-  const checkIn = params.get("checkIn") || header.checkIn || "2025-10-14";
-  const checkOut = params.get("checkOut") || header.checkOut || "2025-10-15";
-  const people = params.get("people") || header.people || 2;
-  const rooms = params.get("rooms") || header.rooms || 1;
-
   // 날짜 관련 계산
   const startDate = new Date(checkIn);
   const endDate = new Date(checkOut);
   const nights = nightsBetween(startDate, endDate);
 
-  // 가격 계산 (숙박일수 기준)
+  // 가격 계산 (숙박일수 + 인원 기준)
   const calculatePrice = (basePrice) => {
     if (!basePrice) return null;
     return basePrice * nights * Number(people);
   };
 
+  // HeaderContext 업데이트
   useEffect(() => {
     const dateText = formatRangeKR(startDate, endDate, nights);
 
@@ -54,8 +61,10 @@ export default function AccommodationDetailPage() {
       keyword: accommodation.name,
       checkIn,
       checkOut,
-      people: Number(people),
-      rooms: Number(rooms),
+      people,
+      children,
+      childrenAges,
+      rooms,
       dateText,
     });
 
@@ -67,32 +76,64 @@ export default function AccommodationDetailPage() {
         resetHeader();
       }
     };
-  }, [accommodation.name, checkIn, checkOut, people, rooms, nights]);
+  }, [
+    accommodation.name,
+    checkIn,
+    checkOut,
+    people,
+    children,
+    childrenAges,
+    rooms,
+    nights,
+    setHeader,
+    resetHeader,
+  ]);
 
-  // URL 파라미터 변경 감지를 위한 useEffect
+  // URL 파라미터 변경 감지 (브라우저 뒤로가기/앞으로가기)
   useEffect(() => {
     const handlePopState = () => {
-      // 브라우저 뒤로가기/앞으로가기 시 헤더 상태 업데이트
       const newParams = new URLSearchParams(window.location.search);
       const newCheckIn = newParams.get("checkIn") || checkIn;
       const newCheckOut = newParams.get("checkOut") || checkOut;
-      const newPeople = newParams.get("people") || people;
-      const newRooms = newParams.get("rooms") || rooms;
+      const newPeople = Number(newParams.get("people") || people);
+      const newRooms = Number(newParams.get("rooms") || rooms);
+
+      // 아동 정보 파싱
+      const newChildrenParam = newParams.get("children");
+      let newChildren = 0;
+      let newChildrenAges = [];
+
+      if (newChildrenParam && isOverseas) {
+        newChildrenAges = newChildrenParam.split(",").filter(Boolean);
+        newChildren = newChildrenAges.length;
+      }
 
       setHeader({
         mode: "detail",
         keyword: accommodation.name,
         checkIn: newCheckIn,
         checkOut: newCheckOut,
-        people: Number(newPeople),
-        rooms: Number(newRooms),
+        people: newPeople,
+        children: newChildren,
+        childrenAges: newChildrenAges,
+        rooms: newRooms,
         dateText: formatRangeKR(new Date(newCheckIn), new Date(newCheckOut)),
       });
     };
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [accommodation.name, checkIn, checkOut, people, rooms]);
+  }, [
+    accommodation.name,
+    checkIn,
+    checkOut,
+    people,
+    children,
+    childrenAges,
+    rooms,
+    isOverseas,
+    setHeader,
+  ]);
 
   // 공통 스크롤 함수
   const scrollTo = (ref) => {
@@ -133,6 +174,7 @@ export default function AccommodationDetailPage() {
       {/* 카드 3개 (부대시설, 리뷰, 위치) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {/* 리뷰 섹션 이동 */}
+
         <a
           href="#review"
           onClick={(e) => {
@@ -160,6 +202,7 @@ export default function AccommodationDetailPage() {
         </button>
 
         {/* 위치 섹션 이동 */}
+
         <a
           href="#location"
           onClick={(e) => {
@@ -198,7 +241,8 @@ export default function AccommodationDetailPage() {
             >
               <h3 className="text-lg font-semibold">{room.name}</h3>
               <div className="text-xs text-gray-500 mt-1">
-                {nights}박 기준 • {people}명
+                {nights}박 기준 • 성인 {people}명
+                {isOverseas && children > 0 && ` • 아동 ${children}명`}
               </div>
 
               {/* 대실 (해외 숙소는 제외) */}
@@ -226,7 +270,8 @@ export default function AccommodationDetailPage() {
                       숙박 {stayFormatted ? `${stayFormatted}원` : "정보 없음"}
                     </span>
                     <div className="text-xs text-gray-400">
-                      기본 {formatKRW(room.stay)}원 × {nights}박 × {people}명
+                      기본 {formatKRW(room.stay)}원 × {nights}박 ×{" "}
+                      {people + children}명
                     </div>
                   </div>
                   <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
