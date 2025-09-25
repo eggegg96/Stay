@@ -11,8 +11,18 @@ export const ACCOMMODATIONS = [
     desc: "바다 전망 · 평점 8.8",
     images: ["/images/jeju/pension1.jpg"],
     rooms: [
-      { name: "풀빌라 A", dayUse: 90000, stay: 180000 },
-      { name: "풀빌라 B", dayUse: 120000, stay: 250000 },
+      {
+        name: "풀빌라 A",
+        dayUse: 90000,
+        stay: 180000,
+        maxOccupancy: 4, // 최대 수용 인원
+      },
+      {
+        name: "풀빌라 B",
+        dayUse: 120000,
+        stay: 250000,
+        maxOccupancy: 6,
+      },
     ],
     amenities: ["수영장", "조식제공", "무료주차"],
   },
@@ -28,8 +38,16 @@ export const ACCOMMODATIONS = [
     desc: "난바역 도보 3분 · 평점 8.5",
     images: ["/images/osaka/guesthouse1.jpg"],
     rooms: [
-      { name: "도미토리룸", stay: 30000 },
-      { name: "프라이빗룸", stay: 70000 },
+      {
+        name: "도미토리룸",
+        stay: 30000,
+        maxOccupancy: 1,
+      },
+      {
+        name: "프라이빗룸",
+        stay: 70000,
+        maxOccupancy: 2,
+      },
     ],
     amenities: ["주방/식당", "건조기", "무료주차"],
   },
@@ -51,8 +69,18 @@ export const ACCOMMODATIONS = [
       "/images/mari/4.webp",
     ],
     rooms: [
-      { name: "B-타입", dayUse: 22000, stay: 70000 },
-      { name: "A-타입", dayUse: 27000, stay: 80000 },
+      {
+        name: "B-타입",
+        dayUse: 22000,
+        stay: 70000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "A-타입",
+        dayUse: 27000,
+        stay: 80000,
+        maxOccupancy: 3,
+      },
     ],
     amenities: ["무료주차", "조식제공", "스파/월풀"],
   },
@@ -72,7 +100,14 @@ export const ACCOMMODATIONS = [
       "/images/tokyo/2.jpg",
       "/images/tokyo/3.jpg",
     ],
-    rooms: [{ name: "스탠다드룸", dayUse: 45000, stay: 120000 }],
+    rooms: [
+      {
+        name: "스탠다드룸",
+        dayUse: 45000,
+        stay: 120000,
+        maxOccupancy: 2,
+      },
+    ],
     amenities: ["조식제공", "피트니스", "무료주차"],
   },
   {
@@ -87,8 +122,16 @@ export const ACCOMMODATIONS = [
     desc: "바닷가 전망 · 평점 8.9",
     images: ["/images/h1.jpg"],
     rooms: [
-      { name: "스탠다드룸", stay: 120000 },
-      { name: "오션뷰룸", stay: 180000 },
+      {
+        name: "스탠다드룸",
+        stay: 120000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "오션뷰룸",
+        stay: 180000,
+        maxOccupancy: 4,
+      },
     ],
     amenities: ["수영장", "조식제공", "무료주차"],
   },
@@ -104,8 +147,16 @@ export const ACCOMMODATIONS = [
     desc: "광안대교 전망 · 평점 8.7",
     images: ["/images/h2.jpg"],
     rooms: [
-      { name: "더블룸", stay: 100000 },
-      { name: "트윈룸", stay: 150000 },
+      {
+        name: "더블룸",
+        stay: 100000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "트윈룸",
+        stay: 150000,
+        maxOccupancy: 4,
+      },
     ],
     amenities: ["조식제공", "무료주차"],
   },
@@ -121,8 +172,16 @@ export const ACCOMMODATIONS = [
     desc: "시내 중심 · 평점 8.6",
     images: ["/images/h3.jpg"],
     rooms: [
-      { name: "스탠다드룸", stay: 110000 },
-      { name: "프리미엄룸", stay: 170000 },
+      {
+        name: "스탠다드룸",
+        stay: 110000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "프리미엄룸",
+        stay: 170000,
+        maxOccupancy: 3,
+      },
     ],
     amenities: ["피트니스", "무료주차"],
   },
@@ -138,8 +197,16 @@ export const ACCOMMODATIONS = [
     desc: "바다 전망 · 평점 8.4",
     images: ["/images/h4.jpg"],
     rooms: [
-      { name: "디럭스룸", stay: 130000 },
-      { name: "스위트룸", stay: 200000 },
+      {
+        name: "디럭스룸",
+        stay: 130000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "스위트룸",
+        stay: 200000,
+        maxOccupancy: 6,
+      },
     ],
     amenities: ["수영장", "스파/월풀", "무료주차"],
   },
@@ -155,8 +222,16 @@ export const ACCOMMODATIONS = [
     desc: "럭셔리 호텔 · 평점 9.2",
     images: ["/images/h5.jpg"],
     rooms: [
-      { name: "디럭스룸", stay: 250000 },
-      { name: "스위트룸", stay: 400000 },
+      {
+        name: "디럭스룸",
+        stay: 250000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "스위트룸",
+        stay: 400000,
+        maxOccupancy: 4,
+      },
     ],
     amenities: ["수영장", "스파/월풀", "피트니스", "무료주차"],
   },
@@ -172,8 +247,16 @@ export const ACCOMMODATIONS = [
     desc: "비즈니스 호텔 · 평점 8.8",
     images: ["/images/h6.jpg"],
     rooms: [
-      { name: "스탠다드룸", stay: 200000 },
-      { name: "이그제큐티브룸", stay: 350000 },
+      {
+        name: "스탠다드룸",
+        stay: 200000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "이그제큐티브룸",
+        stay: 350000,
+        maxOccupancy: 3,
+      },
     ],
     amenities: ["피트니스", "무료주차", "라운지"],
   },
@@ -189,8 +272,16 @@ export const ACCOMMODATIONS = [
     desc: "글로벌 체인 · 평점 9.0",
     images: ["/images/h7.jpg"],
     rooms: [
-      { name: "디럭스룸", stay: 280000 },
-      { name: "스위트룸", stay: 450000 },
+      {
+        name: "디럭스룸",
+        stay: 280000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "스위트룸",
+        stay: 450000,
+        maxOccupancy: 4,
+      },
     ],
     amenities: ["수영장", "피트니스", "무료주차"],
   },
@@ -206,8 +297,16 @@ export const ACCOMMODATIONS = [
     desc: "럭셔리 부티크 호텔 · 평점 8.5",
     images: ["/images/h8.jpg"],
     rooms: [
-      { name: "스탠다드룸", stay: 180000 },
-      { name: "프리미엄룸", stay: 300000 },
+      {
+        name: "스탠다드룸",
+        stay: 180000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "프리미엄룸",
+        stay: 300000,
+        maxOccupancy: 3,
+      },
     ],
     amenities: ["스파/월풀", "피트니스", "무료주차"],
   },
@@ -223,8 +322,16 @@ export const ACCOMMODATIONS = [
     desc: "역사와 전통 · 평점 9.1",
     images: ["/images/h9.jpg"],
     rooms: [
-      { name: "디럭스룸", stay: 270000 },
-      { name: "스위트룸", stay: 420000 },
+      {
+        name: "디럭스룸",
+        stay: 270000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "스위트룸",
+        stay: 420000,
+        maxOccupancy: 4,
+      },
     ],
     amenities: ["수영장", "조식제공", "무료주차"],
   },
@@ -240,8 +347,16 @@ export const ACCOMMODATIONS = [
     desc: "한옥 컨셉 · 평점 8.3",
     images: ["/images/h10.jpg"],
     rooms: [
-      { name: "한옥 스탠다드룸", stay: 150000 },
-      { name: "한옥 스위트룸", stay: 280000 },
+      {
+        name: "한옥 스탠다드룸",
+        stay: 150000,
+        maxOccupancy: 2,
+      },
+      {
+        name: "한옥 스위트룸",
+        stay: 280000,
+        maxOccupancy: 4,
+      },
     ],
     amenities: ["정원", "무료주차"],
   },
