@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import GuestsPopover from "./GuestsPopover";
+import BookingPopover from "./BookingPopover";
 import { formatRangeKR } from "@utils/dateText";
 
 export default function SearchForm({
@@ -21,23 +21,29 @@ export default function SearchForm({
     setRange,
     people,
     setPeople,
+    children,
+    setChildren,
+    childrenAges,
+    updateChildAge,
+    rooms,
+    setRooms,
     open,
     setOpen,
     pickerRef,
   } = state;
 
-  const [openGuests, setOpenGuests] = useState(false);
+  const [openBooking, setOpenBooking] = useState(false);
 
   useEffect(() => {
     if (initialActive === "date") {
       setOpen(true);
-      setOpenGuests(false);
+      setOpenBooking(false);
     } else if (initialActive === "guests") {
       setOpen(false);
-      setOpenGuests(true);
+      setOpenBooking(true);
     } else {
       setOpen(false);
-      setOpenGuests(false);
+      setOpenBooking(false);
     }
   }, [initialActive, setOpen]);
 
@@ -46,40 +52,61 @@ export default function SearchForm({
   const submit = () => {
     if (!isValid) return;
 
+    const validChildrenAges = childrenAges
+      .filter((age) => age && age !== "" && !Array.isArray(age))
+      .filter(Boolean);
+
     const payload = {
       base: area === "overseas" ? "overseas" : "domestic",
       keyword: keyword.trim(),
       checkIn: format(range[0].startDate, "yyyy-MM-dd"),
       checkOut: format(range[0].endDate, "yyyy-MM-dd"),
-      people,
-      rooms: 1,
+      people: Number(people),
+      children: area === "overseas" ? validChildrenAges.join(",") : undefined, // 🔥 이 부분이 핵심!
+      rooms: Number(rooms),
     };
 
-    console.log("SearchForm submit payload:", payload);
+    childrenAges.forEach((age, index) => {
+      console.log(`[${index}]:`, age, typeof age, Array.isArray(age));
+    });
+
     onSubmit(payload);
   };
 
+  // 예약 옵션 텍스트 생성
+  const getBookingText = () => {
+    if (area === "overseas") {
+      const childrenText = Number(children) > 0 ? ` · 아동 ${children}명` : "";
+      return `성인 ${people}명${childrenText} · 객실 ${rooms}개`;
+    } else {
+      return `인원 ${people}명`;
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 bg-white">
-      {/* 키워드 입력 필드 - 디테일 페이지에서도 수정 가능 */}
+    <div className="grid grid-cols-1 col-span-3 sm:grid-cols-8 gap-2 bg-white">
+      {/* 키워드 입력 필드 */}
       <input
-        className="col-span-2 p-3 rounded-lg bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
+        className="col-span-3 p-3 rounded-lg bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
         type="text"
         placeholder={
           isDetailPage
             ? "다른 숙소 검색하기"
-            : "도시를 입력하세요 예) 서울 도쿄 부산"
+            : area === "overseas"
+            ? "도시를 입력하세요 예) 도쿄 오사카 후쿠오카"
+            : "도시를 입력하세요 예) 서울 제주도 부산"
         }
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
       />
 
-      <div className="relative">
+      {/* 날짜 선택 */}
+      <div className="relative col-span-2">
         <button
           type="button"
           onClick={() => {
             setOpen(!open);
-            setOpenGuests(false);
+            setOpenBooking(false);
           }}
           className="w-full p-3 rounded-lg text-left bg-gray-100 cursor-pointer outline-none focus:ring-1 focus:ring-black-300 focus:bg-white whitespace-nowrap overflow-hidden text-ellipsis"
         >
@@ -89,7 +116,7 @@ export default function SearchForm({
         {open && (
           <div
             ref={pickerRef}
-            className="absolute top-15 border border-slate-200 rounded-xl text-left bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
+            className="absolute top-15 border border-slate-200 rounded-xl text-left bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white z-50"
           >
             <DateRange
               ranges={range}
@@ -106,31 +133,40 @@ export default function SearchForm({
         )}
       </div>
 
-      <div className="relative">
+      {/* 인원/예약 선택 */}
+      <div className="relative col-span-2">
         <button
           type="button"
           onClick={() => {
             setOpen(false);
-            setOpenGuests((v) => !v);
+            setOpenBooking(!openBooking);
           }}
           className="w-full p-3 rounded-lg text-left bg-gray-100 outline-none focus:ring-1 focus:ring-black-300 focus:bg-white"
         >
-          인원 {people}
+          {getBookingText()}
         </button>
 
-        <GuestsPopover
-          open={openGuests}
-          onClose={() => setOpenGuests(false)}
+        <BookingPopover
+          open={openBooking}
+          onClose={() => setOpenBooking(false)}
           people={people}
           setPeople={setPeople}
+          children={children}
+          setChildren={setChildren}
+          childrenAges={childrenAges}
+          updateChildAge={updateChildAge}
+          rooms={rooms}
+          setRooms={setRooms}
+          area={area}
         />
       </div>
 
+      {/* 검색 버튼 */}
       <button
         type="button"
         onClick={submit}
         disabled={!isValid}
-        className="rounded-lg p-3 text-white cursor-pointer bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300"
+        className="rounded-lg p-3 col-span-1 text-white cursor-pointer bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300"
       >
         검색
       </button>

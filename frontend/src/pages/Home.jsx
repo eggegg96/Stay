@@ -21,7 +21,8 @@ export default function Home() {
       checkIn: p.checkIn,
       checkOut: p.checkOut,
       people: p.people,
-      rooms: p.rooms,
+      children: p.children || 0,
+      rooms: p.rooms || 1,
     }).toString();
 
     nav(`/${p.base}?${qs}`);

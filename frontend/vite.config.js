@@ -17,8 +17,7 @@ export default defineConfig({
         "./src/components/accommodation"
       ),
       "@filters": path.resolve(__dirname, "./src/components/filters"),
-      "@ui": path.resolve(__dirname, "./src/components/ui"),
-      "@pages": path.resolve(__dirname, "./src/pages"),
+      "@ui": path.resolve(__dirname, "./src/ui"),
       "@hooks": path.resolve(__dirname, "./src/hooks"),
       "@utils": path.resolve(__dirname, "./src/utils"),
       "@constants": path.resolve(__dirname, "./src/constants"),
