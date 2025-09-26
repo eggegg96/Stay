@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 
 const DOMESTIC_PLACES = [
-  { id: 1, name: "제주도", img: "/images/jeju.jpg" },
+  { id: 1, name: "제주", img: "/images/jeju.jpg" },
   { id: 2, name: "서울", img: "/images/seoul.jpg" },
   { id: 3, name: "부산", img: "/images/busan.jpg" },
   { id: 4, name: "강릉", img: "/images/gangneung.jpg" },
@@ -51,6 +51,11 @@ export default function HotPoint() {
     setTimeout(() => {
       navigate(`/${basePath}?${params.toString()}`);
       setClickedPlace(null);
+
+      // 페이지 이동 후 스크롤 상단으로 이동
+      setTimeout(() => {
+        window.scrollTo({ top: 0 });
+      }, 100);
     }, 150);
   };
 
@@ -76,8 +81,8 @@ export default function HotPoint() {
               alt={place.name}
               className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
             />
-            <div className="pointer-events-none absolute bottom-0 left-0 p-3">
-              <div className="inline-flex rounded-lg bg-white/70 px-3 py-1 text-sm font-semibold">
+            <div className="pointer-events-none absolute bottom-3 left-3">
+              <div className="inline-flex rounded-lg bg-white/60 px-3 py-1 text-sm font-semibold group-hover:bg-white/80 transition-all duration-200 backdrop-blur-md">
                 {place.name}
               </div>
             </div>
@@ -92,7 +97,12 @@ export default function HotPoint() {
       {/* 전체 화면 로딩 오버레이 */}
       {clickedPlace && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+          <div className="bg-white rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl">
+            <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">
+              검색 결과를 불러오는 중...
+            </p>
+          </div>
         </div>
       )}
 
