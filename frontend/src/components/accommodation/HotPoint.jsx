@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 
@@ -20,11 +22,83 @@ const OVERSEAS_PLACES = [
 ];
 
 export default function HotPoint() {
+  const navigate = useNavigate();
+  const [clickedPlace, setClickedPlace] = useState(null);
+
+  // 여행지 클릭 핸들러
+  const handlePlaceClick = (place, isOverseas = false) => {
+    // 고유 키로 클릭 상태 관리 (국내/해외 + ID 조합)
+    const uniqueKey = `${isOverseas ? "overseas" : "domestic"}-${place.id}`;
+    setClickedPlace(uniqueKey);
+
+    // 기본 검색 파라미터 설정
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const params = new URLSearchParams({
+      keyword: place.name,
+      checkIn: today.toISOString().split("T")[0],
+      checkOut: tomorrow.toISOString().split("T")[0],
+      people: "2",
+      rooms: "1",
+    });
+
+    // 국내/해외 구분해서 라우팅
+    const basePath = isOverseas ? "overseas" : "domestic";
+
+    // 약간의 딜레이로 클릭 피드백 보여주고 이동
+    setTimeout(() => {
+      navigate(`/${basePath}?${params.toString()}`);
+      setClickedPlace(null);
+    }, 150);
+  };
+
+  // 공통 슬라이드 렌더링 함수
+  const renderPlaceSlide = (place, isOverseas = false) => {
+    const uniqueKey = `${isOverseas ? "overseas" : "domestic"}-${place.id}`;
+    const isLoading = clickedPlace === uniqueKey;
+
+    return (
+      <SwiperSlide key={place.id}>
+        <button
+          onClick={() => handlePlaceClick(place, isOverseas)}
+          disabled={clickedPlace !== null} // 로딩 중일 때 다른 버튼 비활성화
+          className={`group block w-full overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-200 bg-white transition-all duration-200 ${
+            clickedPlace !== null
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:ring-2 hover:ring-slate-300"
+          } ${isLoading ? "scale-95 ring-2 ring-blue-400" : ""}`}
+        >
+          <div className="relative aspect-[4/3] cursor-pointer">
+            <img
+              src={place.img}
+              alt={place.name}
+              className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+            />
+            <div className="pointer-events-none absolute bottom-0 left-0 p-3">
+              <div className="inline-flex rounded-lg bg-white/70 px-3 py-1 text-sm font-semibold">
+                {place.name}
+              </div>
+            </div>
+          </div>
+        </button>
+      </SwiperSlide>
+    );
+  };
+
   return (
-    <section className=" bg-white">
+    <section className="bg-white relative">
+      {/* 전체 화면 로딩 오버레이 */}
+      {clickedPlace && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+
+      {/* 국내 인기 여행지 */}
       <div className="text-2xl font-bold">국내 인기 여행지</div>
       <div className="relative py-5">
-        {/* 화살표 버튼은 Swiper 기본 버튼 사용 */}
         <Swiper
           modules={[Navigation]}
           navigation
@@ -37,29 +111,11 @@ export default function HotPoint() {
           }}
           className="!py-2 my-swiper"
         >
-          {DOMESTIC_PLACES.map((p) => (
-            <SwiperSlide key={p.id}>
-              <a
-                href="#"
-                className="group block overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-200 bg-white"
-              >
-                <div className="relative aspect-[4/3]">
-                  <img
-                    src={p.img}
-                    alt={p.name}
-                    className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-                  />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
-                    <div className="inline-flex rounded-lg bg-white/90 px-3 py-1 text-sm font-semibold">
-                      {p.name}
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </SwiperSlide>
-          ))}
+          {DOMESTIC_PLACES.map((place) => renderPlaceSlide(place, false))}
         </Swiper>
       </div>
+
+      {/* 해외 인기 여행지 */}
       <div className="text-2xl font-bold">해외 인기 여행지</div>
       <div className="relative py-5">
         <Swiper
@@ -72,30 +128,9 @@ export default function HotPoint() {
             1024: { slidesPerView: 4, spaceBetween: 20 },
             1280: { slidesPerView: 5, spaceBetween: 24 },
           }}
-          className="!py-2"
+          className="!py-2 my-swiper"
         >
-          {OVERSEAS_PLACES.map((p) => (
-            <SwiperSlide key={p.id}>
-              <a
-                href="#"
-                className="group block overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-200 bg-white"
-              >
-                <div className="relative aspect-[4/3]">
-                  <img
-                    src={p.img}
-                    alt={p.name}
-                    className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-                  />
-                  {/* 라벨 영역 */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
-                    <div className="inline-flex rounded-lg bg-white/90 px-3 py-1 text-sm font-semibold">
-                      {p.name}
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </SwiperSlide>
-          ))}
+          {OVERSEAS_PLACES.map((place) => renderPlaceSlide(place, true))}
         </Swiper>
       </div>
     </section>

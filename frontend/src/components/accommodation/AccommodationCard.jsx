@@ -6,7 +6,7 @@ function formatKRW(n) {
 export default function AccommodationCard({
   id,
   name,
-  location,
+  citySlug,
   desc,
   type,
   images,
@@ -45,9 +45,9 @@ export default function AccommodationCard({
         alt={name}
         className="w-96 h-56 object-cover rounded-md"
       />
-      <div className="flex flex-col">
+      <div className="flex flex-col text-sm">
         <div className="text-lg font-bold">{name}</div>
-        <div className="text-slate-500">{location}</div>
+        <div className="text-slate-500">{citySlug}</div>
         <div className="text-sm text-gray-600">{desc}</div>
       </div>
       <div className="flex flex-col justify-end flex-grow pr-4">
