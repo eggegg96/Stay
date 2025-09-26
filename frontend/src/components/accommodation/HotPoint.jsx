@@ -97,12 +97,7 @@ export default function HotPoint() {
       {/* 전체 화면 로딩 오버레이 */}
       {clickedPlace && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl">
-            <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-700 font-medium">
-              검색 결과를 불러오는 중...
-            </p>
-          </div>
+          <div className="w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
 
