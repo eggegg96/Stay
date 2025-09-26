@@ -88,17 +88,19 @@ export const ACCOMMODATIONS = [
     id: "tokyo-1",
     type: "overseas",
     category: "호텔·리조트",
-    name: "도쿄 호텔",
+    name: "미츠이 가든 호텔 고탄다",
     citySlug: "tokyo",
-    location: "일본 도쿄 신주쿠",
+    location:
+      "일본 도쿄 Tokyo, Tokyo, 2-2-6, Higashi-Gotanda, Shingawa-ku, 히가시고탄다, 도쿄, 일본, 141-0022",
     lat: 35.6938,
     lng: 139.7034,
     desc: "신주쿠역 도보 5분 · 평점 8.9",
     images: [
-      "/images/tokyo/main.jpg",
-      "/images/tokyo/1.jpg",
-      "/images/tokyo/2.jpg",
-      "/images/tokyo/3.jpg",
+      "/images/mitsui/main.webp",
+      "/images/mitsui/1.webp",
+      "/images/mitsui/2.webp",
+      "/images/mitsui/3.webp",
+      "/images/mitsui/4.webp",
     ],
     rooms: [
       {
