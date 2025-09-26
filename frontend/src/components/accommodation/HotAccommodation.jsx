@@ -130,7 +130,7 @@ export default function Hot() {
                 "my-1 cursor-pointer rounded-full px-4 py-2 text-sm whitespace-nowrap transition-all duration-200",
                 selected
                   ? "bg-slate-900 text-white"
-                  : "border-1 text-black-700 hover:bg-slate-200",
+                  : "border border-gray-200 text-black-700 hover:bg-slate-200",
               ].join(" ")}
             >
               {tab.name}
