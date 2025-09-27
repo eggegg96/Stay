@@ -2,6 +2,11 @@
  * 검색 관련 유틸리티 함수들
  */
 
+import {
+  convertToLocationSlug,
+  ALL_LOCATION_ALIASES,
+} from "./locationAliases.js";
+
 // 텍스트 정규화 함수들
 export const normalizeText = {
   // 공백 제거
@@ -31,15 +36,45 @@ export const normalizeText = {
 // 매칭 점수 계산 상수
 export const MATCH_SCORES = {
   EXACT_NAME: 10, // 정확한 이름 매칭
-  SPACE_IGNORE_EXACT: 9, // 공백 무시 정확 매칭
-  SPACE_IGNORE_CONTAINS: 8, // 공백 무시 포함 매칭
-  NAME_PARTS_ALL: 7, // 모든 키워드 부분 포함
-  CITY_SLUG: 6, // 도시 코드 매칭
-  LOCATION_MATCH: 5, // 위치 매칭
-  NAME_PARTIAL: 4, // 부분 이름 매칭
-  CATEGORY_MATCH: 3, // 카테고리 매칭
+  ALIAS_EXACT: 9, // Alias 정확 매칭 🆕
+  SPACE_IGNORE_EXACT: 8, // 공백 무시 정확 매칭
+  SPACE_IGNORE_CONTAINS: 7, // 공백 무시 포함 매칭
+  NAME_PARTS_ALL: 6, // 모든 키워드 부분 포함
+  CITY_SLUG: 5, // 도시 코드 매칭
+  LOCATION_MATCH: 4, // 위치 매칭
+  NAME_PARTIAL: 3, // 부분 이름 매칭
+  CATEGORY_MATCH: 2, // 카테고리 매칭
   NO_MATCH: 0, // 매칭 없음
 };
+
+/**
+ * 키워드와 관련된 모든 alias 찾기
+ * @param {string} keyword - 검색 키워드
+ * @returns {Array} 관련 alias 배열
+ */
+function getKeywordAliases(keyword) {
+  if (!keyword) return [];
+
+  const normalized = keyword.toLowerCase().trim();
+  const aliases = new Set();
+
+  // 직접 매핑 찾기
+  Object.entries(ALL_LOCATION_ALIASES).forEach(([alias, target]) => {
+    if (alias === normalized || target === normalized) {
+      aliases.add(alias);
+      aliases.add(target);
+    }
+  });
+
+  // 부분 매칭도 고려
+  Object.keys(ALL_LOCATION_ALIASES).forEach((alias) => {
+    if (alias.includes(normalized) || normalized.includes(alias)) {
+      aliases.add(alias);
+    }
+  });
+
+  return Array.from(aliases);
+}
 
 /**
  * 숙소와 키워드 간의 매칭 점수를 계산
@@ -57,18 +92,36 @@ export function calculateMatchScore(accommodation, keyword, keywordSlug) {
   const normalizedName = normalizeText.normalizeForSearch(
     accommodation.name || ""
   );
+  const normalizedLocation = normalizeText.normalizeForSearch(
+    accommodation.location || ""
+  );
+
+  // 🆕 키워드 alias 수집
+  const keywordAliases = getKeywordAliases(keyword);
 
   // 1. 정확한 이름 매칭
   if (accommodation.name?.toLowerCase() === keywordLower) {
     return MATCH_SCORES.EXACT_NAME;
   }
 
-  // 2. 공백 무시 정확 매칭
+  // 2. Alias 정확 매칭 (새로 추가!)
+  if (accommodation.citySlug === keywordSlug) {
+    return MATCH_SCORES.ALIAS_EXACT;
+  }
+
+  // 2-1. 추가 alias 검사
+  for (const alias of keywordAliases) {
+    if (normalizedLocation.includes(alias) || normalizedName.includes(alias)) {
+      return MATCH_SCORES.ALIAS_EXACT;
+    }
+  }
+
+  // 3. 공백 무시 정확 매칭
   if (normalizedName === normalizedKeyword && normalizedKeyword.length > 0) {
     return MATCH_SCORES.SPACE_IGNORE_EXACT;
   }
 
-  // 3. 공백 무시 포함 매칭 (3글자 이상)
+  // 4. 공백 무시 포함 매칭 (3글자 이상)
   if (
     normalizedKeyword.length > 2 &&
     normalizedName.includes(normalizedKeyword)
@@ -76,7 +129,7 @@ export function calculateMatchScore(accommodation, keyword, keywordSlug) {
     return MATCH_SCORES.SPACE_IGNORE_CONTAINS;
   }
 
-  // 4. 모든 키워드 부분이 이름에 포함
+  // 5. 모든 키워드 부분이 이름에 포함
   if (
     keywordParts.every((part) =>
       accommodation.name?.toLowerCase().includes(part)
@@ -85,21 +138,24 @@ export function calculateMatchScore(accommodation, keyword, keywordSlug) {
     return MATCH_SCORES.NAME_PARTS_ALL;
   }
 
-  // 5. 도시 슬러그 매칭
+  // 6. 도시 슬러그 매칭 (기존 로직 유지)
   if (accommodation.citySlug === keywordSlug) {
     return MATCH_SCORES.CITY_SLUG;
   }
 
-  // 6. 위치 매칭
+  // 7. 위치 매칭 (개선됨)
   if (
     keywordParts.some((part) =>
       accommodation.location?.toLowerCase().includes(part)
+    ) ||
+    keywordAliases.some((alias) =>
+      accommodation.location?.toLowerCase().includes(alias)
     )
   ) {
     return MATCH_SCORES.LOCATION_MATCH;
   }
 
-  // 7. 부분 이름 매칭
+  // 8. 부분 이름 매칭
   if (
     keywordParts.some((part) =>
       accommodation.name?.toLowerCase().includes(part)
@@ -108,7 +164,7 @@ export function calculateMatchScore(accommodation, keyword, keywordSlug) {
     return MATCH_SCORES.NAME_PARTIAL;
   }
 
-  // 8. 카테고리 매칭 (호텔, 모텔 등)
+  // 9. 카테고리 매칭 (호텔, 모텔 등)
   if (accommodation.category?.toLowerCase().includes(keywordLower)) {
     return MATCH_SCORES.CATEGORY_MATCH;
   }
@@ -142,7 +198,12 @@ export function filterAccommodationsByKeyword(
 
       // 매칭 점수 계산하여 0보다 큰 경우만 포함
       const score = calculateMatchScore(accommodation, keyword, keywordSlug);
-      return score > MATCH_SCORES.NO_MATCH;
+      const isMatch = score > MATCH_SCORES.NO_MATCH;
+
+      if (isMatch) {
+      }
+
+      return isMatch;
     })
     .sort((a, b) => {
       // 매칭 점수 기준으로 정렬 (높은 점수 우선)
@@ -165,6 +226,7 @@ export function getMatchDetails(accommodation, keyword, keywordSlug) {
   const normalizedName = normalizeText.normalizeForSearch(
     accommodation.name || ""
   );
+  const keywordAliases = getKeywordAliases(keyword);
 
   return {
     accommodationName: accommodation.name,
@@ -172,6 +234,7 @@ export function getMatchDetails(accommodation, keyword, keywordSlug) {
     keywordSlug,
     normalizedKeyword,
     normalizedName,
+    keywordAliases,
     matchScore: score,
     matchType: getMatchType(score),
     finalMatch: score > MATCH_SCORES.NO_MATCH,
@@ -182,6 +245,8 @@ function getMatchType(score) {
   switch (score) {
     case MATCH_SCORES.EXACT_NAME:
       return "정확한 이름 매칭";
+    case MATCH_SCORES.ALIAS_EXACT:
+      return "Alias 정확 매칭";
     case MATCH_SCORES.SPACE_IGNORE_EXACT:
       return "공백 무시 정확 매칭";
     case MATCH_SCORES.SPACE_IGNORE_CONTAINS:
