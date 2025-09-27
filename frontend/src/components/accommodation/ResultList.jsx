@@ -1,7 +1,7 @@
 import AccommodationCard from "./AccommodationCard";
 import { useLocation } from "react-router-dom";
 import useFilteredAccommodations from "@hooks/useFilteredAccommodations";
-import { getMatchDetails } from "@utils/searchUtils";
+import { filterAccommodationsByKeyword, getMatchDetails } from "@searchEngine";
 
 export default function ResultList({ type, keywordSlug, keyword }) {
   const location = useLocation();
