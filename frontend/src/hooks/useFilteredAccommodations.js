@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { ACCOMMODATIONS } from "@data/accommodations";
 import { CATEGORY_OPTIONS, PRICE_MIN, PRICE_MAX } from "@constants/filters";
-import { filterAccommodationsByKeyword } from "@utils/searchUtils";
+import { filterAccommodationsByKeyword, getMatchDetails } from "@searchEngine";
 
 export default function useFilteredAccommodations(type, keyword, keywordSlug) {
   const location = useLocation();
