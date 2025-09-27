@@ -20,6 +20,7 @@ export default defineConfig({
       "@ui": path.resolve(__dirname, "./src/ui"),
       "@hooks": path.resolve(__dirname, "./src/hooks"),
       "@utils": path.resolve(__dirname, "./src/utils"),
+      "@searchEngine": path.resolve(__dirname, "./src/searchEngine"),
       "@constants": path.resolve(__dirname, "./src/constants"),
       "@data": path.resolve(__dirname, "./src/data"),
       "@contexts": path.resolve(__dirname, "./src/contexts"),
