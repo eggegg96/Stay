@@ -25,12 +25,6 @@ export function HeaderProvider({ children }) {
 
   const mergeHeader = useCallback(
     (next) => {
-      console.log(
-        "HeaderContext 업데이트됨:",
-        next,
-        "from:",
-        new Error().stack
-      );
       setHeader((cur) => ({ ...cur, ...next }));
     },
     [] // 의존성 배열 제거 - setHeader는 안정적인 함수이므로 불필요
