@@ -8,7 +8,6 @@ export default function ExpandedHeaderSearch({
   isDetailPage = false,
 }) {
   const handleFormSubmit = (payload) => {
-    console.log("ExpandedHeaderSearch received:", payload);
     onSubmit(payload);
   };
 

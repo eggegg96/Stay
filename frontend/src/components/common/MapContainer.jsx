@@ -24,12 +24,12 @@ export default function MapContainer({
     if (variant === "result") {
       // 결과 페이지: 더 넓은 범위로 보여주기
       kakaoLevel = 4;
-      googleLevel = 16;
+      googleLevel = 14; // 더 넓은 범위
       minHeight = "180px";
     } else {
       // 디테일 페이지: 더 자세한 범위로 보여주기
-      kakaoLevel = 4; // 카카오맵은 동일
-      googleLevel = 16; // 구글맵도 동일 (필요시 조정)
+      kakaoLevel = 4;
+      googleLevel = 16; // 더 상세한 범위
       minHeight = "420px";
     }
 
@@ -40,6 +40,7 @@ export default function MapContainer({
       minHeight,
       mapType: isOverseas ? "Google Maps" : "Kakao Map",
       accommodationId: accommodation?.id,
+      accommodationType: accommodation?.type, // 타입 정보 추가
     };
   }, [accommodation?.type, accommodation?.id, variant]);
 
@@ -56,6 +57,7 @@ export default function MapContainer({
           lat={lat}
           lng={lng}
           level={mapConfig.googleLevel}
+          type={accommodation?.type} // 숙소 타입 직접 전달
           className="w-full h-full"
           minHeight={mapConfig.minHeight}
         />
@@ -68,13 +70,6 @@ export default function MapContainer({
           level={mapConfig.kakaoLevel}
           className="w-full h-full"
         />
-      )}
-
-      {/* 개발용 표시 */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded pointer-events-none">
-          {mapConfig.mapType} ({variant})
-        </div>
       )}
     </div>
   );
