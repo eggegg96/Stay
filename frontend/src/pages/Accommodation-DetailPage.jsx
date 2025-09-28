@@ -6,7 +6,7 @@ import { formatRangeKR, nightsBetween } from "@/utils/dateText";
 import { useAccommodationParams } from "@hooks/useAccommodationParams";
 
 import AmenityModal from "@accommodation/AmenitiyModal";
-import KakaoMap from "@common/KakaoMap";
+import MapContainer from "@common/MapContainer";
 
 function formatKRW(n) {
   return typeof n === "number" ? n.toLocaleString() : null;
@@ -76,18 +76,7 @@ export default function AccommodationDetailPage() {
         resetHeader();
       }
     };
-  }, [
-    accommodation.name,
-    checkIn,
-    checkOut,
-    people,
-    children,
-    childrenAges,
-    rooms,
-    nights,
-    setHeader,
-    resetHeader,
-  ]);
+  }, [accommodation.name, checkIn, checkOut, people, children, rooms, nights]);
 
   // URL 파라미터 변경 감지 (브라우저 뒤로가기/앞으로가기)
   useEffect(() => {
@@ -295,11 +284,11 @@ export default function AccommodationDetailPage() {
       {/* 위치 섹션 */}
       <section id="location" ref={locationRef} className="mt-12 outline-none">
         <h2 className="text-xl font-bold mb-4">위치 정보</h2>
-        <KakaoMap
+        <MapContainer
+          accommodation={accommodation}
           query={accommodation.name}
           lat={accommodation.lat}
           lng={accommodation.lng}
-          level={3}
           className="w-full h-[420px] rounded-lg border"
         />
         <p className="text-sm text-gray-600 mt-2">{accommodation.location}</p>
