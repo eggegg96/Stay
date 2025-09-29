@@ -25,6 +25,7 @@ export default defineConfig({
       "@data": path.resolve(__dirname, "./src/data"),
       "@contexts": path.resolve(__dirname, "./src/contexts"),
       "@styles": path.resolve(__dirname, "./src/styles"),
+      "@auth": path.resolve(__dirname, "./src/components/auth"),
     },
   },
 });
