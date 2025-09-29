@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import SocialLoginButtons from "@common/SocialLoginBtn";
+import SocialLoginButtons from "@/components/auth/SocialLoginBtn";
 
 export default function Login() {
   return (
