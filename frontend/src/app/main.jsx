@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import DefaultLayout from "@layouts/DefaultLayout";
 import Home from "@pages/Home";
 import Login from "@pages/Login";
+import Signup from "@pages/Signup";
 import OAuthCallback from "@pages/OAuthCallback";
 import ResultsPage from "@pages/ResultsPage";
 import AccommodationDetailPage from "@pages/Accommodation-DetailPage";
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home /> },
       { path: "/login", element: <Login /> },
+      { path: "/signup", element: <Signup /> },
       { path: "/oauth/callback", element: <OAuthCallback /> },
 
       // ResultsPage를 재사용
