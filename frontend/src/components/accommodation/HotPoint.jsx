@@ -94,7 +94,7 @@ export default function HotPoint() {
 
   return (
     <section className="bg-white relative">
-      {/* 전체 화면 로딩 오버레이 */}
+      {/* 화면 로딩 오버레이 */}
       {clickedPlace && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
