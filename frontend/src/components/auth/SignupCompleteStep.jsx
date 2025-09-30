@@ -30,7 +30,7 @@ export default function SignupCompleteStep() {
         <p className="text-gray-600 text-lg">
           짝짝짝짝 x1000
           <br />
-          여기어때로 오신 것을 격하게 환영합니다!
+          Stay로 오신 것을 격하게 환영합니다!
         </p>
       </div>
 
