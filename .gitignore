@@ -1,6 +1,25 @@
+# 프론트엔드
+
 frontend/node_modules/
 node_modules/
 *.node
 .env
 dist/
 build/
+
+# 백엔드
+backend/build/
+backend/.gradle/
+backend/out/
+backend/.env
+backend/src/main/resources/application-dev.yml  # 민감 정보 있으면
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
