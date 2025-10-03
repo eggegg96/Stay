@@ -1,4 +1,4 @@
-package com.stay.backend;
+package com.stay;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
