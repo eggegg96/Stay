@@ -160,13 +160,8 @@ public class MemberService {
     @Transactional
     public void earnPoints(Long memberId, int amount) {
         Member member = findActiveById(memberId);
-
-        try {
-            member.earnPoints(amount);
-            log.info("포인트 적립 - memberId: {}, amount: {}", memberId, amount);
-        } catch (IllegalArgumentException e) {
-            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT, e.getMessage());
-        }
+        member.earnPoints(amount);
+        log.info("포인트 적립 - memberId: {}, amount: {}", memberId, amount);
     }
 
     /**
@@ -175,16 +170,8 @@ public class MemberService {
     @Transactional
     public void usePoints(Long memberId, int amount) {
         Member member = findActiveById(memberId);
-
-        try {
-            member.usePoints(amount);
-            log.info("포인트 사용 - memberId: {}, amount: {}", memberId, amount);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("부족")) {
-                throw new MemberException(MemberErrorCode.INSUFFICIENT_POINTS, e.getMessage());
-            }
-            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT, e.getMessage());
-        }
+        member.usePoints(amount);
+        log.info("포인트 사용 - memberId: {}, amount: {}", memberId, amount);
     }
 
     // ==================== 예약 관련 ====================
