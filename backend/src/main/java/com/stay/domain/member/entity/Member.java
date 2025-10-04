@@ -1,6 +1,8 @@
 package com.stay.domain.member.entity;
 
 import com.stay.domain.common.BaseEntity;
+import com.stay.domain.member.exception.MemberErrorCode;
+import com.stay.domain.member.exception.MemberException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -105,7 +107,8 @@ public class Member extends BaseEntity {
      */
     public void earnPoints(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("포인트는 0 이상이어야 합니다.");
+            // ✅ 개선: 커스텀 예외 사용
+            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
         this.points += amount;
     }
@@ -115,10 +118,12 @@ public class Member extends BaseEntity {
      */
     public void usePoints(int amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("포인트는 0 이상이어야 합니다.");
+            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
         if (this.points < amount) {
-            throw new IllegalArgumentException(
+            // ✅ 개선: 더 구체적인 에러 + 동적 메시지
+            throw new MemberException(
+                    MemberErrorCode.INSUFFICIENT_POINTS,
                     String.format("포인트가 부족합니다. (보유: %d, 사용시도: %d)", this.points, amount)
             );
         }
@@ -164,7 +169,8 @@ public class Member extends BaseEntity {
      */
     public void upgradeToBusinessOwner() {
         if (this.role == MemberRole.BUSINESS_OWNER) {
-            throw new IllegalStateException("이미 사업자 회원입니다.");
+            // ✅ 개선: IllegalStateException → MemberException
+            throw new MemberException(MemberErrorCode.ALREADY_BUSINESS_OWNER);
         }
         this.role = MemberRole.BUSINESS_OWNER;
     }
@@ -173,19 +179,19 @@ public class Member extends BaseEntity {
 
     private void validateEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("이메일은 필수입니다.");
+            throw new MemberException(MemberErrorCode.MEMBER_EMAIL_REQUIRED);
         }
         if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new IllegalArgumentException("올바른 이메일 형식이 아닙니다.");
+            throw new MemberException(MemberErrorCode.MEMBER_EMAIL_INVALID_FORMAT);
         }
     }
 
     private void validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("이름은 필수입니다.");
+            throw new MemberException(MemberErrorCode.MEMBER_NAME_REQUIRED);
         }
         if (name.length() > 50) {
-            throw new IllegalArgumentException("이름은 50자를 초과할 수 없습니다.");
+            throw new MemberException(MemberErrorCode.MEMBER_NAME_TOO_LONG);
         }
     }
 
