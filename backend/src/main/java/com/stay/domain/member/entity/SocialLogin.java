@@ -1,6 +1,8 @@
 package com.stay.domain.member.entity;
 
 import com.stay.domain.common.BaseEntity;
+import com.stay.domain.member.exception.MemberErrorCode;
+import com.stay.domain.member.exception.MemberException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -116,22 +118,21 @@ public class SocialLogin extends BaseEntity {
 
     private void validateMember(Member member) {
         if (member == null) {
-            throw new IllegalArgumentException("회원 정보는 필수입니다.");
+            throw new MemberException(MemberErrorCode.SOCIAL_MEMBER_REQUIRED);
         }
     }
 
     private void validateProvider(SocialProvider provider) {
         if (provider == null) {
-            throw new IllegalArgumentException("소셜 제공자 정보는 필수입니다.");
+            throw new MemberException(MemberErrorCode.SOCIAL_PROVIDER_REQUIRED);
         }
     }
 
     private void validateSocialId(String socialId) {
         if (socialId == null || socialId.trim().isEmpty()) {
-            throw new IllegalArgumentException("소셜 ID는 필수입니다.");
+            throw new MemberException(MemberErrorCode.SOCIAL_ID_REQUIRED);
         }
     }
-
     // ==================== 편의 메서드 ====================
 
     /**
