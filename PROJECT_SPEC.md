@@ -7,13 +7,65 @@
 ## 🔧 기술 스택
 
 - **Frontend**: React 19, Vite, TailwindCSS 4
-- **Backend**: Spring Boot (예정)
-- **Database**: MySQL/PostgreSQL (예정)
+- **Backend**: Spring Boot 3.5.6, Java 17, Spring Data JPA
+- **Database**: MySQL
 - **External APIs**: 카카오맵, 구글맵, 소셜 로그인 (구글/네이버/카카오)
 
 ---
 
+## 📊 프로젝트 진행 현황
+
+- **프론트엔드**: 약 53% 완료 (Phase 0~2)
+- **백엔드**: 약 10% 완료 (Member 도메인)
+- **다음 목표**: OAuth 연동 → 숙소 검색 API
+
+---
+
+✅ 완료 | 📋 작업 예정
+
 ## 📋 개발 로드맵
+
+### ✅ Phase 0: 프로젝트 기초 & 핵심 UI 구축 (완료)
+
+#### 0.1 프로젝트 설정 ✅
+
+- Vite + React 19 초기 설정
+- TailwindCSS 4 설정
+- React Router 설정
+- 폴더 구조 설계
+
+#### 0.2 레이아웃 시스템 ✅
+
+- 헤더/푸터 레이아웃
+- 검색 모드 & 디테일 모드 헤더
+- HeaderContext 상태 관리
+
+#### 0.3 핵심 페이지 구성 ✅
+
+- **홈 페이지**: 메인 검색, 인기 숙소, 이벤트
+- **검색 결과 페이지**: 필터링, 정렬, 카드 리스트
+- **숙소 상세 페이지**: 갤러리, 객실 선택, 예약 UI
+- **로그인/회원가입 페이지**: 소셜 로그인, 4단계 회원가입
+
+#### 0.4 재사용 컴포넌트 라이브러리 ✅
+
+- 숙소 관련 컴포넌트 (카드, 리스트, 정렬 등)
+- 검색 관련 컴포넌트 (폼, 팝오버, 요약 바)
+- 필터 컴포넌트 (가격, 편의시설, 카테고리)
+- 인증 컴포넌트 (소셜 로그인, 회원가입 스텝)
+
+#### 0.5 Hooks & Utils ✅
+
+- 커스텀 훅 (파라미터, 필터링, 상태 관리)
+- 유틸리티 함수 (날짜, 지역명, 검색)
+
+#### 0.6 목업 데이터 ✅
+
+- 국내 숙소 10개
+- 해외 숙소 10개
+- 필터 상수 정의
+
+---
 
 ### ✅ Phase 1: 검색 및 지도 연동 (완료)
 
@@ -32,19 +84,26 @@
 
 ---
 
-### ✅ Phase 2: 회원 시스템 기초 (완료)
+### ✅ Phase 2: 회원 시스템 기초 (80% 완료)
 
-#### 2.1 인증 시스템 ✅
+#### 2.1 프론트엔드 인증 UI ✅
 
-- 소셜 로그인 (구글/네이버/카카오)
-- JWT 기반 인증
-- OAuth 콜백 처리
+- 소셜 로그인 버튼 (구글/네이버/카카오)
+- 4단계 회원가입 플로우
+- OAuth 콜백 페이지
 
-#### 2.2 회원 구분 ✅
+#### 2.2 백엔드 회원 도메인 ✅
 
-- 일반회원과 사업자회원 구분
-- 기본 권한 관리
-- **⚠️ 사업자 회원 가입 플로우 미구현**
+- Member 엔티티 (회원 정보, 등급, 포인트)
+- SocialLogin 엔티티 (소셜 계정 연동)
+- MemberRepository (복잡한 쿼리 포함)
+- MemberService (가입, 조회, 등급/포인트 관리)
+- 커스텀 예외 처리 (MemberException, MemberErrorCode)
+
+#### 2.3 미완성 작업 ⚠️
+
+- **OAuth Controller** (JWT 발급) - 최우선 작업
+- **사업자 회원 가입 플로우**
 
 ---
 
@@ -338,6 +397,183 @@ frontend/src/
 
 ---
 
+### Backend 주요 디렉토리
+
+```
+backend/src/main/java/com/stay/
+├── BackendApplication.java      # Spring Boot 진입점
+│
+├── config/                       # 설정 클래스
+│   ├── WebConfig.java           # CORS, MVC 설정
+│   └── JpaAuditingConfig.java   # JPA Auditing 설정
+│
+├── controller/                   # REST API 컨트롤러
+│   └── HealthController.java    # 헬스체크 API
+│
+├── domain/                       # 도메인별 패키지 (DDD 방식)
+│   │
+│   ├── common/                   # 공통 엔티티
+│   │   └── BaseEntity.java      # 생성일시, 수정일시 등 공통 필드
+│   │
+│   └── member/                   # 회원 도메인
+│       ├── entity/               # 엔티티 클래스
+│       │   ├── Member.java      # 회원 엔티티
+│       │   ├── SocialLogin.java # 소셜 로그인 정보
+│       │   ├── MemberRole.java  # 회원 역할 Enum (CUSTOMER, BUSINESS_OWNER, ADMIN)
+│       │   ├── MemberGrade.java # 회원 등급 Enum (BASIC, ELITE, ELITE+)
+│       │   └── SocialProvider.java # 소셜 제공자 Enum (GOOGLE, NAVER, KAKAO)
+│       │
+│       ├── repository/           # JPA 리포지토리
+│       │   ├── MemberRepository.java
+│       │   └── SocialLoginRepository.java
+│       │
+│       ├── service/              # 비즈니스 로직
+│       │   └── MemberService.java
+│       │
+│       └── exception/            # 도메인 예외
+│           ├── MemberException.java
+│           └── MemberErrorCode.java
+│
+└── (향후 추가 예정)
+    ├── accommodation/            # 숙소 도메인 (계획 중)
+    ├── reservation/              # 예약 도메인 (계획 중)
+    ├── review/                   # 리뷰 도메인 (계획 중)
+    └── payment/                  # 결제 도메인 (계획 중)
+
+backend/src/main/resources/
+├── application.yml               # 기본 설정
+└── application-dev.yml          # 개발 환경 설정 (git 제외)
+
+backend/build.gradle              # Gradle 빌드 설정
+```
+
+---
+
+## 🏗️ 백엔드 아키텍처 원칙
+
+### 1. 도메인 주도 설계 (DDD)
+
+**계층 구조:**
+
+```
+Controller (API 엔드포인트)
+    ↓
+Service (비즈니스 로직)
+    ↓
+Repository (데이터 접근)
+    ↓
+Entity (도메인 모델)
+```
+
+### 2. 패키지 구조 전략
+
+```java
+domain/
+  └── {domain_name}/        // 도메인별로 완전히 분리
+      ├── entity/           // 엔티티 & Enum
+      ├── repository/       // 데이터 접근
+      ├── service/          // 비즈니스 로직
+      ├── controller/       // API 엔드포인트 (추후 추가)
+      ├── dto/              // 데이터 전송 객체 (추후 추가)
+      └── exception/        // 도메인 예외
+```
+
+**장점:**
+
+- 도메인별로 독립적인 개발 가능
+- 높은 응집도, 낮은 결합도
+- 마이크로서비스 전환 용이
+
+### 3. 공통 규칙
+
+**BaseEntity 상속:**
+
+```java
+@MappedSuperclass
+public abstract class BaseEntity {
+    private LocalDateTime createdAt;   // 생성일시
+    private LocalDateTime updatedAt;   // 수정일시
+    private String createdBy;          // 생성자
+    private String updatedBy;          // 수정자
+}
+```
+
+**예외 처리 전략:**
+
+- 도메인별 커스텀 예외 사용
+- 에러 코드 체계화 (001~999)
+- GlobalExceptionHandler로 통합 처리 (추후 구현)
+
+**트랜잭션 전략:**
+
+- 조회: `@Transactional(readOnly = true)` - 성능 최적화
+- 변경: `@Transactional` - 데이터 정합성 보장
+
+---
+
+## 🗄️ 데이터베이스 스키마
+
+### 현재 구현된 테이블
+
+**members** (회원)
+
+```sql
+CREATE TABLE members (
+    member_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone_number VARCHAR(20),
+    name VARCHAR(50) NOT NULL,
+    role VARCHAR(20) NOT NULL,           -- CUSTOMER, BUSINESS_OWNER, ADMIN
+    grade VARCHAR(20) NOT NULL,          -- BASIC, ELITE, ELITE_PLUS
+    reservation_count INT DEFAULT 0,
+    points INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    last_grade_updated_at DATETIME,
+    deleted_at DATETIME,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    created_by VARCHAR(50),
+    updated_by VARCHAR(50),
+    INDEX idx_email (email),
+    INDEX idx_phone (phone_number)
+);
+```
+
+**social_logins** (소셜 로그인 정보)
+
+```sql
+CREATE TABLE social_logins (
+    social_login_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    member_id BIGINT NOT NULL,
+    provider VARCHAR(20) NOT NULL,       -- GOOGLE, NAVER, KAKAO
+    social_id VARCHAR(100) NOT NULL,
+    social_email VARCHAR(100),
+    social_name VARCHAR(100),
+    profile_image_url VARCHAR(500),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    created_by VARCHAR(50),
+    updated_by VARCHAR(50),
+    FOREIGN KEY (member_id) REFERENCES members(member_id),
+    UNIQUE KEY uk_provider_social_id (provider, social_id),
+    INDEX idx_member_id (member_id),
+    INDEX idx_provider_social_id (provider, social_id)
+);
+```
+
+### 향후 추가될 테이블 (계획)
+
+- `accommodations` (숙소)
+- `rooms` (객실)
+- `reservations` (예약)
+- `reviews` (리뷰)
+- `payments` (결제)
+- `images` (이미지)
+- `coupons` (쿠폰)
+- ... (Phase별로 추가)
+
+---
+
 ## 🔧 기술적 고려사항
 
 ### 1. 예약 시스템 구현 시 주의사항
@@ -407,9 +643,20 @@ const USER_ROLES = {
 
 **인증/인가**
 
-- JWT 토큰 만료 시간 관리
-- Refresh Token 구현
-- CORS 설정
+- JWT 토큰 기반 인증 (구현 예정)
+- Access Token + Refresh Token 방식
+- Authorization 헤더: `Bearer {token}`
+
+**CORS 정책**
+
+```java
+// 현재 설정 (개발 환경)
+allowedOrigins: http://localhost:5173
+allowedMethods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+allowCredentials: true
+
+// 프로덕션 환경에서는 도메인 제한 필요
+```
 
 **결제 보안**
 
@@ -419,28 +666,87 @@ const USER_ROLES = {
 
 ---
 
+## 📋 백엔드 구현 상태
+
+### ✅ 완료 (Member 도메인)
+
+```
+✅ Entity
+   - Member (회원)
+   - SocialLogin (소셜 로그인 정보)
+   - MemberRole (역할)
+   - MemberGrade (등급)
+   - SocialProvider (소셜 제공자)
+
+✅ Repository
+   - MemberRepository (복잡한 쿼리 포함)
+   - SocialLoginRepository (Fetch Join 최적화)
+
+✅ Service
+   - MemberService (회원가입, 조회, 등급 관리, 포인트 관리)
+
+✅ Exception
+   - MemberException
+   - MemberErrorCode (체계화된 에러 코드)
+
+✅ Config
+   - WebConfig (CORS)
+   - JpaAuditingConfig (생성/수정 정보 자동 관리)
+```
+
+### 🔜 다음 작업
+
+**1. OAuth & Security**
+
+```
+- OAuthController (OAuth 콜백 처리)
+- TokenService (JWT 발급/검증)
+- SecurityConfig (Spring Security 설정)
+```
+
+**2. Accommodation 도메인**
+
+```
+- Accommodation Entity
+- AccommodationRepository
+- AccommodationService
+- 검색 API 구현 (프론트 searchEngine 로직 이관)
+```
+
+**3. Image 도메인**
+
+```
+- Image Entity
+- ImageService (S3 업로드)
+- 이미지 관리 API
+```
+
+---
+
 ## 🔄 다음 작업 우선순위
 
-### 즉시 착수
+### 백엔드 즉시 착수 (1~2주)
 
-1. **사업자 회원 가입 플로우 구현** (Phase 2 완료 필요)
-2. **예약 기능 Phase 3.1 시작** (기본 예약 생성)
+1. **OAuth Controller 구현** - 프론트 Phase 2 완성
+2. **Accommodation API** - 프론트 Phase 3 시작 가능
 
-### 단기 목표
+### 프론트엔드 단기 목표
 
-3. 예약 조회 및 내역 (Phase 3.2)
-4. 예약 취소 기능 (Phase 3.3)
+3. **사업자 회원 가입 플로우** (Phase 2 완료)
+4. **예약 기능 Phase 3.1** (기본 예약 생성)
 
-### 중기 목표
+### 중기 목표 (3~4주)
 
-5. 결제 연동 (Phase 3.4)
-6. 리뷰 시스템 (Phase 4)
+5. 예약 조회 및 내역 (Phase 3.2)
+6. 예약 취소 기능 (Phase 3.3)
+7. 결제 연동 (Phase 3.4)
 
-### 장기 목표
+### 장기 목표 (5주 이상)
 
-7. 회원 등급 및 할인 (Phase 5)
-8. 사업자 페이지 (Phase 6)
-9. 사이트 관리자 (Phase 7)
+8. 리뷰 시스템 (Phase 4)
+9. 회원 등급 및 할인 (Phase 5)
+10. 사업자 페이지 (Phase 6)
+11. 사이트 관리자 (Phase 7)
 
 ---
 
@@ -449,6 +755,8 @@ const USER_ROLES = {
 - [여기어때 서비스](https://www.goodchoice.kr/)
 - [React 19 문서](https://react.dev/)
 - [TailwindCSS 4 문서](https://tailwindcss.com/)
+- [Spring Boot 문서](https://spring.io/projects/spring-boot)
+- [Spring Data JPA 문서](https://spring.io/projects/spring-data-jpa)
 - [PG 결제 연동 가이드](https://docs.tosspayments.com/)
 
 ---
@@ -459,3 +767,6 @@ const USER_ROLES = {
 - **2024.09.28**: 해외 구글맵 API 적용 완료
 - **2024.09.29**: 회원 기능 기초 구현 완료 (사업자 가입 플로우 제외)
 - **2024.09.29**: 프로젝트 명세서 업데이트 - 예약 시스템 방향성 확정
+- **2025.01.15**: Phase 0 추가 (프로젝트 기초 & 핵심 UI 구축)
+- **2025.01.15**: 백엔드 구조 추가 (Member 도메인 완료, DDD 아키텍처 적용)
+- **2025.01.15**: 백엔드 예외 처리 개선 (MemberException, MemberErrorCode 체계화)
