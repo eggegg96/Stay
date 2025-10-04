@@ -47,6 +47,20 @@ public enum MemberErrorCode {
     UNSUPPORTED_SOCIAL_PROVIDER("MEMBER_502", "지원하지 않는 소셜 제공자입니다."),
     SOCIAL_LOGIN_ALREADY_LINKED("MEMBER_503", "이미 다른 회원과 연동된 소셜 계정입니다."),
 
+    // ========== Validation 관련 (601~699) ==========
+    INVALID_INPUT_VALUE("MEMBER_601", "잘못된 입력값입니다."),
+
+    // Member Validation
+    MEMBER_EMAIL_REQUIRED("MEMBER_611", "이메일은 필수입니다."),
+    MEMBER_EMAIL_INVALID_FORMAT("MEMBER_612", "올바른 이메일 형식이 아닙니다."),
+    MEMBER_NAME_REQUIRED("MEMBER_613", "이름은 필수입니다."),
+    MEMBER_NAME_TOO_LONG("MEMBER_614", "이름은 50자를 초과할 수 없습니다."),
+
+    // SocialLogin Validation
+    SOCIAL_MEMBER_REQUIRED("MEMBER_621", "회원 정보는 필수입니다."),
+    SOCIAL_PROVIDER_REQUIRED("MEMBER_622", "소셜 제공자 정보는 필수입니다."),
+    SOCIAL_ID_REQUIRED("MEMBER_623", "소셜 ID는 필수입니다."),
+
     // 기타 (999)
     INTERNAL_ERROR("MEMBER_999", "회원 처리 중 오류가 발생했습니다.");
 
