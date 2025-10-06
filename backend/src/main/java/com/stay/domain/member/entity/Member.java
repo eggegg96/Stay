@@ -15,11 +15,6 @@ import java.util.List;
 
 /**
  * 회원 엔티티
- *
- * 설계 원칙:
- * 1. 불변성 보장: Setter 없이 생성자/빌더로만 생성
- * 2. 도메인 로직 캡슐화: 비즈니스 규칙은 엔티티 내부에서 처리
- * 3. 명확한 책임 분리: 등급 관련 로직은 별도 메서드로 분리
  */
 @Entity
 @Table(name = "members",
@@ -197,7 +192,6 @@ public class Member extends BaseEntity {
     /**
      * 회원 탈퇴 (소프트 삭제)
      *
-     * 실무 포인트:
      * - 실제 DB에서 삭제하지 않음
      * - deletedAt 설정 + 비활성화
      */
