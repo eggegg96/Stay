@@ -69,13 +69,16 @@ public class Member extends BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    // 프로필 이미지 URL (소셜 로그인용)
+    @Column(name = "profile_image_url", length = 500)
+    private String profileImageUrl;
+
     // SocialLogin과의 관계 (일대다)
-    // ⚠️ 아직 SocialLogin 클래스 없어서 빨간 줄 나올 수 있음 (다음 단계에서 해결!)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialLogin> socialLogins = new ArrayList<>();
 
     @Builder
-    private Member(String email, String phoneNumber, String name, MemberRole role) {
+    private Member(String email, String phoneNumber, String name, MemberRole role, String profileImageUrl) {
         validateEmail(email);
         validateName(name);
 
@@ -87,9 +90,9 @@ public class Member extends BaseEntity {
         this.reservationCount = 0;
         this.points = 0;
         this.isActive = true;
+        this.profileImageUrl = profileImageUrl;
         this.lastGradeUpdatedAt = LocalDateTime.now();
     }
-
     // ==================== 비즈니스 로직 ====================
 
     /**
@@ -107,7 +110,6 @@ public class Member extends BaseEntity {
      */
     public void earnPoints(int amount) {
         if (amount < 0) {
-            // ✅ 개선: 커스텀 예외 사용
             throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
         this.points += amount;
@@ -121,7 +123,6 @@ public class Member extends BaseEntity {
             throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
         if (this.points < amount) {
-            // ✅ 개선: 더 구체적인 에러 + 동적 메시지
             throw new MemberException(
                     MemberErrorCode.INSUFFICIENT_POINTS,
                     String.format("포인트가 부족합니다. (보유: %d, 사용시도: %d)", this.points, amount)
@@ -143,7 +144,41 @@ public class Member extends BaseEntity {
     }
 
     /**
-     * 회원 정지
+     * 회원 등급 강제 갱신 (관리자용)
+     */
+    public void updateGrade(MemberGrade newGrade) {
+        this.grade = newGrade;
+        this.lastGradeUpdatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 사업자 회원으로 승급
+     */
+    public void upgradeToBusinessOwner() {
+        if (this.role == MemberRole.BUSINESS_OWNER) {
+            throw new MemberException(MemberErrorCode.ALREADY_BUSINESS_OWNER);
+        }
+        this.role = MemberRole.BUSINESS_OWNER;
+    }
+
+    // ==================== 회원 상태 관리 ====================
+
+    /**
+     * 마지막 로그인 시간 업데이트
+     *
+     * 실무 포인트:
+     * - BaseEntity의 updatedAt이 자동으로 갱신됨
+     */
+    public void updateLastLoginAt() {
+        // BaseEntity의 @LastModifiedDate가 자동으로 updatedAt 갱신
+    }
+
+    /**
+     * 회원 비활성화
+     *
+     * 사용 케이스:
+     * - 관리자의 회원 정지
+     * - 휴면 계정 전환
      */
     public void deactivate() {
         this.isActive = false;
@@ -153,26 +188,31 @@ public class Member extends BaseEntity {
      * 회원 활성화
      */
     public void activate() {
+        if (this.deletedAt != null) {
+            throw new MemberException(MemberErrorCode.MEMBER_DELETED);
+        }
         this.isActive = true;
     }
 
     /**
      * 회원 탈퇴 (소프트 삭제)
+     *
+     * 실무 포인트:
+     * - 실제 DB에서 삭제하지 않음
+     * - deletedAt 설정 + 비활성화
      */
     public void delete() {
         this.isActive = false;
         this.deletedAt = LocalDateTime.now();
     }
 
+    // ==================== 프로필 관리 ====================
+
     /**
-     * 사업자 회원으로 승급
+     * 프로필 이미지 URL 업데이트
      */
-    public void upgradeToBusinessOwner() {
-        if (this.role == MemberRole.BUSINESS_OWNER) {
-            // ✅ 개선: IllegalStateException → MemberException
-            throw new MemberException(MemberErrorCode.ALREADY_BUSINESS_OWNER);
-        }
-        this.role = MemberRole.BUSINESS_OWNER;
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     // ==================== Validation ====================
