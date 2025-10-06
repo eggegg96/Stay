@@ -1,0 +1,44 @@
+### 1. 헬스체크 (서버 실행 확인)
+GET http://localhost:8080/api/test/members/health
+
+###
+
+### 2. 소셜 로그인 - 구글 (신규 가입)
+POST http://localhost:8080/api/test/members/social-login
+Content-Type: application/json
+
+{
+  "provider": "GOOGLE",
+  "socialId": "google-test-12345",
+  "email": "testuser@gmail.com",
+  "name": "테스트유저",
+  "socialEmail": "testuser@gmail.com",
+  "profileImageUrl": "https://example.com/profile.jpg"
+}
+
+###
+
+### 3. 같은 계정으로 다시 로그인 (기존 회원)
+POST http://localhost:8080/api/test/members/social-login
+Content-Type: application/json
+
+{
+  "provider": "GOOGLE",
+  "socialId": "google-test-12345",
+  "email": "testuser@gmail.com",
+  "name": "테스트유저",
+  "socialEmail": "testuser@gmail.com",
+  "profileImageUrl": "https://example.com/profile.jpg"
+}
+
+###
+
+### 4. 회원 조회 (ID: 1)
+GET http://localhost:8080/api/test/members/1
+
+###
+
+### 5. 포인트 적립 (1000P)
+POST http://localhost:8080/api/test/members/1/earn-points?points=1000
+
+###
