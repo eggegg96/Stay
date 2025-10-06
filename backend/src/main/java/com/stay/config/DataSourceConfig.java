@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 /**
  * DataSource 수동 설정
  *
- * 실무 포인트:
  * - 자동 설정이 실패할 때 수동으로 빈 생성
  * - HikariCP: 현업에서 가장 많이 쓰는 커넥션 풀
  * - @Primary: 여러 DataSource가 있을 때 기본으로 사용할 것 지정
