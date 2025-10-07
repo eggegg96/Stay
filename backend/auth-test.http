@@ -1,0 +1,71 @@
+### 1. 소셜 로그인 - 구글 (신규 가입)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "provider": "GOOGLE",
+  "socialId": "google-real-12345",
+  "email": "realuser@gmail.com",
+  "name": "실제유저",
+  "socialEmail": "realuser@gmail.com",
+  "profileImageUrl": "https://example.com/profile.jpg"
+}
+
+###
+
+### 2. 소셜 로그인 - 네이버
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "provider": "NAVER",
+  "socialId": "naver-12345",
+  "email": "naveruser@naver.com",
+  "name": "네이버유저",
+  "socialEmail": "naveruser@naver.com",
+  "profileImageUrl": "https://example.com/naver-profile.jpg"
+}
+
+###
+
+### 3. 소셜 로그인 - 카카오
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "provider": "KAKAO",
+  "socialId": "kakao-12345",
+  "email": "kakaouser@kakao.com",
+  "name": "카카오유저",
+  "socialEmail": "kakaouser@kakao.com",
+  "profileImageUrl": "https://example.com/kakao-profile.jpg"
+}
+
+###
+
+### 4. Access Token 재발급
+# 먼저 위의 로그인 API를 호출해서 refreshToken을 받은 후
+# 아래 {여기에_리프레시_토큰_붙여넣기} 부분에 붙여넣기
+POST http://localhost:8080/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{여기에_리프레시_토큰_붙여넣기}"
+}
+
+###
+
+### 5. 같은 계정으로 다시 로그인 (기존 회원 확인)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "provider": "GOOGLE",
+  "socialId": "google-real-12345",
+  "email": "realuser@gmail.com",
+  "name": "실제유저",
+  "socialEmail": "realuser@gmail.com",
+  "profileImageUrl": "https://example.com/profile.jpg"
+}
+
+###

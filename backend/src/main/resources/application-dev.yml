@@ -13,3 +13,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
+
+jwt:
+  secret: stay-secret-key-for-jwt-token-generation-at-least-256-bits-long-for-hs256-algorithm
+  access-token-validity: 3600000      # 1시간 (밀리초)
+  refresh-token-validity: 604800000   # 7일 (밀리초)
