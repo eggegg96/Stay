@@ -38,3 +38,10 @@ out/
 
 # 환경 변수 파일
 .env
+.env.local
+.env.development
+.env.production
+
+# Application properties with sensitive data
+**/application-dev.yml
+**/application-prod.yml

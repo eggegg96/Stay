@@ -19,3 +19,32 @@ jwt:
   secret: stay-secret-key-for-jwt-token-generation-at-least-256-bits-long-for-hs256-algorithm
   access-token-validity: 3600000      # 1시간 (밀리초)
   refresh-token-validity: 604800000   # 7일 (밀리초)
+
+
+# OAuth 설정
+oauth:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:test-google-client-id}
+    client-secret: ${GOOGLE_CLIENT_SECRET:test-google-secret}
+    redirect-uri: http://localhost:5173/oauth/callback
+    token-uri: https://oauth2.googleapis.com/token
+    user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+
+  naver:
+    client-id: ${NAVER_CLIENT_ID:test-naver-client-id}
+    client-secret: ${NAVER_CLIENT_SECRET:test-naver-secret}
+    redirect-uri: http://localhost:5173/oauth/callback
+    token-uri: https://nid.naver.com/oauth2.0/token
+    user-info-uri: https://openapi.naver.com/v1/nid/me
+
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID:test-kakao-client-id}
+    client-secret: ${KAKAO_CLIENT_SECRET:}
+    redirect-uri: http://localhost:5173/oauth/callback
+    token-uri: https://kauth.kakao.com/oauth/token
+    user-info-uri: https://kapi.kakao.com/v2/user/me
+
+logging:
+  level:
+    com.stay: DEBUG
+    org.springframework.web: DEBUG
