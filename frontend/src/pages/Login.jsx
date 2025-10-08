@@ -14,7 +14,7 @@ export default function Login() {
             로그인/회원가입
           </div>
         </div>
-        <SocialLoginButtons demo />
+        <SocialLoginButtons demo={false} />
       </div>
     </section>
   );
