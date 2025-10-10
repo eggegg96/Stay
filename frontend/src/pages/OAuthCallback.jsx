@@ -63,11 +63,6 @@ export default function OAuthCallback() {
         // { provider: "GOOGLE", code: "4/0AY0e..." }
         const result = await handleOAuthLogin(provider, code);
 
-        console.log("OAuth 로그인 성공:", result);
-
-        // 로그인 성공 메시지
-        alert(`${provider.toUpperCase()} 로그인 성공!`);
-
         // 홈으로 이동
         navigate("/", { replace: true });
       } catch (err) {
@@ -92,11 +87,7 @@ export default function OAuthCallback() {
         {isProcessing ? (
           <>
             {/* 로딩 스피너 */}
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 text-lg">로그인 처리 중...</p>
-            <p className="text-gray-400 text-sm mt-2">
-              백엔드에서 OAuth 인증을 처리하고 있습니다
-            </p>
+            <div className="w-16 h-16 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
           </>
         ) : error ? (
           <>
