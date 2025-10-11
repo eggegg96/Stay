@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_TIMEOUT } from "@/constants";
 import {
   getAccessToken,
   setTokens,
@@ -15,7 +16,7 @@ import {
  */
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api",
-  timeout: 10000, // 10초 타임아웃
+  timeout: API_TIMEOUT.DEFAULT,
   headers: {
     "Content-Type": "application/json",
   },

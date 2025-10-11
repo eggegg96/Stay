@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-date-range";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { DATE_CONSTANTS } from "@/constants";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
@@ -43,7 +44,7 @@ export default function DateRangeField({ value, onChange }) {
         )} (${Math.max(
           1,
           Math.round(
-            (range[0].endDate - range[0].startDate) / (1000 * 60 * 60 * 24)
+            (range[0].endDate - range[0].startDate) / DATE_CONSTANTS.ONE_DAY_MS
           )
         )}박)`
       : "날짜 선택";
