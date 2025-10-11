@@ -1,3 +1,5 @@
+import { STORAGE_KEYS } from "@/constants";
+
 /**
  * 토큰 저장소 유틸리티
  *
@@ -7,11 +9,6 @@
  * - 토큰 관련 로직을 한 곳에 모아서 관리 (단일 책임 원칙!)
  */
 
-const TOKEN_KEYS = {
-  ACCESS_TOKEN: "accessToken",
-  REFRESH_TOKEN: "refreshToken",
-};
-
 /**
  * Access Token 저장
  */
@@ -20,14 +17,14 @@ export const setAccessToken = (token) => {
     console.warn("토큰이 비어있습니다.");
     return;
   }
-  localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, token);
+  localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
 };
 
 /**
  * Access Token 조회
  */
 export const getAccessToken = () => {
-  return localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+  return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 };
 
 /**
@@ -38,14 +35,14 @@ export const setRefreshToken = (token) => {
     console.warn("리프레시 토큰이 비어있습니다.");
     return;
   }
-  localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, token);
+  localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
 };
 
 /**
  * Refresh Token 조회
  */
 export const getRefreshToken = () => {
-  return localStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+  return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
 /**
@@ -60,8 +57,8 @@ export const setTokens = (accessToken, refreshToken) => {
  * 모든 토큰 삭제 (로그아웃 시)
  */
 export const clearTokens = () => {
-  localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
-  localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
 /**
