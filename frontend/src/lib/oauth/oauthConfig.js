@@ -39,7 +39,7 @@ export const GOOGLE_AUTH_CONFIG = {
     response_type: "code",
     scope: "email profile", // 이메일, 프로필 정보 요청
     access_type: "offline",
-    state: "google", // ⭐ provider 정보를 state에 포함
+    state: "google", // provider 정보를 state에 포함
   },
 };
 
@@ -58,7 +58,7 @@ export const NAVER_AUTH_CONFIG = {
     client_id: NAVER_CLIENT_ID,
     redirect_uri: REDIRECT_URI,
     response_type: "code",
-    state: "naver", // ⭐ provider 정보를 state에 포함
+    state: "naver", // provider 정보를 state에 포함
   },
 };
 
@@ -77,7 +77,7 @@ export const KAKAO_AUTH_CONFIG = {
     client_id: KAKAO_CLIENT_ID,
     redirect_uri: REDIRECT_URI,
     response_type: "code",
-    state: "kakao", // ⭐ provider 정보를 state에 포함
+    state: "kakao", // provider 정보를 state에 포함
   },
 };
 

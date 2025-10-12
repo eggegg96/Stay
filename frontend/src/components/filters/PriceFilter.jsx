@@ -44,7 +44,7 @@ export default function PriceFilter({ priceRange, setPriceRange }) {
             </div>
           )}
           renderThumb={({ props }) => {
-            const { key, ...thumbProps } = props; // ✅ key 분리
+            const { key, ...thumbProps } = props; // key 분리
             return (
               <div
                 key={key}
