@@ -46,28 +46,45 @@ public class MemberService {
                 request.provider(), request.socialId());
 
         try {
-            // 1. 기존 소셜 계정 조회 (회원 정보 포함)
             return socialLoginRepository
                     .findByProviderAndSocialIdWithMember(request.provider(), request.socialId())
                     .map(socialLogin -> {
                         Member member = socialLogin.getMember();
 
-                        // 회원 상태 검증
+                        // ========== 1. 탈퇴한 회원 처리 (최우선!) ==========
                         if (member.getDeletedAt() != null) {
-                            throw new MemberException(MemberErrorCode.MEMBER_DELETED);
+                            LocalDateTime deletedAt = member.getDeletedAt();
+                            LocalDateTime now = LocalDateTime.now();
+                            long hoursSinceDeleted = java.time.Duration.between(deletedAt, now).toHours();
+
+                            if (hoursSinceDeleted < 24) {
+                                // 24시간 이내 → 재가입 불가
+                                log.warn("탈퇴 후 24시간 이내 재가입 시도 차단 - memberId: {}, 탈퇴 시각: {}",
+                                        member.getId(), deletedAt);
+                                throw new MemberException(MemberErrorCode.MEMBER_DELETED_RECENTLY);
+                            }
+
+                            // 24시간 경과 → 재활성화
+                            log.info("탈퇴 회원 재활성화 - memberId: {}, 탈퇴 시각: {}",
+                                    member.getId(), deletedAt);
+                            member.reactivate();
+                            // reactivate()에서 is_active = true로 변경되므로
+                            // 아래 비활성화 체크를 통과하게 됨!
                         }
+
+                        // ========== 2. 비활성화 회원 체크 ==========
+                        // (탈퇴 회원은 위에서 재활성화되었으므로 여기서 걸리지 않음)
                         if (!member.getIsActive()) {
                             throw new MemberException(MemberErrorCode.MEMBER_NOT_ACTIVE);
                         }
 
-                        // 로그인 시간 업데이트
+                        // ========== 3. 로그인 시간 업데이트 ==========
                         member.updateLastLoginAt();
 
                         log.info("기존 회원 로그인 - memberId: {}", member.getId());
                         return member;
                     })
                     .orElseGet(() -> {
-                        // 2. 신규 회원 가입
                         log.info("신규 회원 가입 진행 - email: {}", request.email());
                         return registerSocialMember(request);
                     });
@@ -211,7 +228,7 @@ public class MemberService {
         member.delete();
 
         // 연동된 소셜 계정 정보도 삭제
-        socialLoginRepository.deleteByMember(member);
+//        socialLoginRepository.deleteByMember(member);
 
         log.info("회원 탈퇴 처리 완료 - memberId: {}", memberId);
     }

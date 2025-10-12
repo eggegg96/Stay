@@ -138,7 +138,7 @@ public class MemberController {
         log.info("========================================");
         log.info("회원 비활성화 요청 - memberId: {}", memberId);
 
-        memberService.deactivateMember(memberId);
+        memberService.deleteMember(memberId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
