@@ -1,12 +1,13 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useMemo, useState, useEffect } from "react";
 import { useHeader } from "@contexts/HeaderContext";
+import { useAuth } from "@contexts/AuthContext";
 import useHomeSearchState from "@hooks/useHomeSearchState";
-import SummaryBar from "@search/SummaryBar";
 import ExpandedHeaderSearch from "@search/ExpandedHeaderSearch";
-import { formatRangeKR, nightsBetween } from "@utils/dateText";
+import SummaryBar from "@search/SummaryBar";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Header() {
+  const { isLoggedIn, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { header, setHeader } = useHeader();
@@ -78,6 +79,24 @@ export default function Header() {
     navigate(`/${payload.base}?${params.toString()}`);
   };
 
+  /**
+   * 로그아웃 핸들러
+   *
+   * - 백엔드 API 호출로 쿠키 삭제
+   * - Context 상태 업데이트
+   * - 홈으로 리다이렉트
+   */
+  const handleLogout = async () => {
+    try {
+      await logout();
+      alert("로그아웃되었습니다");
+      navigate("/");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃에 실패했습니다");
+    }
+  };
+
   return (
     <header className="border-b border-slate-200 bg-white relative z-50">
       <div className="p-4 h-20 flex items-center">
@@ -112,13 +131,28 @@ export default function Header() {
             </button>
           </nav>
         )}
-
-        <Link
-          to="/login"
-          className="ml-auto mr-8 border px-4 py-2 border-blue-500 rounded-lg text-blue-500 font-semibold"
-        >
-          로그인/회원가입
-        </Link>
+        {/* 로그인 상태에 따라 다른 UI 표시 */}
+        <div className="ml-auto mr-8">
+          {isLoggedIn ? (
+            // 로그인 상태: 사용자 정보 + 로그아웃 버튼
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleLogout}
+                className="border px-4 py-2 border-blue-500 rounded-lg text-blue-500 font-semibold hover:cursor-pointer hover:bg-blue-50"
+              >
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            // 비로그인 상태: 로그인/회원가입 버튼
+            <Link
+              to="/login"
+              className="border px-4 py-2 border-blue-500 rounded-lg text-blue-500 font-semibold hover:bg-blue-50 hover:cursor-pointer"
+            >
+              로그인/회원가입
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* 확장 영역: 허용 경로 + 열린 상태일 때만 렌더 */}

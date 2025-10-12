@@ -8,6 +8,7 @@ import OAuthCallback from "@pages/OAuthCallback";
 import ResultsPage from "@pages/ResultsPage";
 import AccommodationDetailPage from "@pages/Accommodation-DetailPage";
 import { HeaderProvider } from "@contexts/HeaderContext";
+import { AuthProvider } from "@contexts/AuthContext";
 
 import "@styles/globals.css";
 import "swiper/css";
@@ -42,7 +43,9 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")).render(
-  <HeaderProvider>
-    <RouterProvider router={router} />
-  </HeaderProvider>
+  <AuthProvider>
+    <HeaderProvider>
+      <RouterProvider router={router} />
+    </HeaderProvider>
+  </AuthProvider>
 );
