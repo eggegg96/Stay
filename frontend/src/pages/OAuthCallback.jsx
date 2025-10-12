@@ -16,7 +16,7 @@ import { handleOAuthLogin } from "@/lib/oauth/oauthHandler";
  * 변경 사항:
  * - provider는 state 파라미터에서 가져옴 (구글은 state를 그대로 반환)
  * - 프론트엔드는 code만 백엔드로 전달
- * - 백엔드가 OAuth 처리 (훨씬 간단해짐!)
+ * - 백엔드가 OAuth 처리 (훨씬 간단해짐)
  */
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
@@ -29,7 +29,7 @@ export default function OAuthCallback() {
       try {
         // URL에서 파라미터 추출
         const code = searchParams.get("code");
-        const state = searchParams.get("state"); // ⭐ state에서 provider 가져오기
+        const state = searchParams.get("state"); // state에서 provider 가져오기
         const errorParam = searchParams.get("error");
 
         console.log("OAuth 콜백 - state:", state, "code:", code);
