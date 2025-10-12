@@ -1,67 +1,63 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { handleOAuthLogin } from "@/lib/oauth/oauthHandler";
+import { useAuth } from "@/contexts/AuthContext";
+import { UI_DELAY } from "@/constants/common";
 
-/**
- * OAuth 콜백 페이지
- *
- * 역할:
- * 1. 소셜 제공자로부터 리다이렉트되어 돌아오는 페이지
- * 2. URL에서 code를 받아서 백엔드로 전달
- * 3. 로그인 성공 시 홈으로 이동
- *
- * URL 예시:
- * /oauth/callback?code=4/0AY0e...&state=google
- *
- * 변경 사항:
- * - provider는 state 파라미터에서 가져옴 (구글은 state를 그대로 반환)
- * - 프론트엔드는 code만 백엔드로 전달
- * - 백엔드가 OAuth 처리 (훨씬 간단해짐)
- */
 export default function OAuthCallback() {
+  const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(true);
+  const hasProcessed = useRef(false); // 중복 실행 방지
 
   useEffect(() => {
+    // 이미 처리했으면 무시
+    if (hasProcessed.current) {
+      console.log("OAuth 이미 처리됨 - 무시");
+      return;
+    }
+
     const processOAuth = async () => {
+      hasProcessed.current = true; // 처리 시작
+
       try {
-        // URL에서 파라미터 추출
         const code = searchParams.get("code");
-        const state = searchParams.get("state"); // state에서 provider 가져오기
+        const state = searchParams.get("state");
         const errorParam = searchParams.get("error");
 
         console.log("OAuth 콜백 - state:", state, "code:", code);
 
-        // 에러 체크
         if (errorParam) {
           throw new Error(`OAuth 인증 실패: ${errorParam}`);
         }
 
-        // 필수 파라미터 체크
         if (!state || !code) {
           throw new Error("필수 파라미터가 누락되었습니다.");
         }
 
-        // 데모 모드 체크
+        // 데모 모드는 그대로
         if (code === "demo-code-123" || code === "demo-code") {
           console.log("[DEMO] 데모 로그인 처리");
-
-          // 데모는 바로 홈으로 (토큰 없이)
           setTimeout(() => {
             navigate("/", { replace: true });
-          }, 1500);
+          }, UI_DELAY.REDIRECT);
           return;
         }
 
-        // provider는 state 값 (google, naver, kakao)
         const provider = state;
 
-        // 백엔드로 code 전달
-        // POST /api/auth/oauth/login
-        // { provider: "GOOGLE", code: "4/0AY0e..." }
+        // 백엔드로 OAuth 로그인 처리
         const result = await handleOAuthLogin(provider, code);
+
+        // 로그인 상태 업데이트
+        await login({
+          email: result.email || result.user?.email || "user@example.com",
+          // 백엔드 응답에 따라 추가 정보 설정
+        });
+
+        console.log("로그인 상태 업데이트 완료");
 
         // 홈으로 이동
         navigate("/", { replace: true });
@@ -69,7 +65,6 @@ export default function OAuthCallback() {
         console.error("OAuth 처리 실패:", err);
         setError(err.message);
 
-        // 3초 후 로그인 페이지로
         setTimeout(() => {
           navigate("/login", { replace: true });
         }, 3000);
@@ -79,19 +74,19 @@ export default function OAuthCallback() {
     };
 
     processOAuth();
-  }, [searchParams, navigate]);
+  }, []);
 
   return (
     <section className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6">
+      {/* 기존 UI 그대로 */}
       <div className="text-center">
         {isProcessing ? (
           <>
-            {/* 로딩 스피너 */}
-            <div className="w-16 h-16 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-gray-700 text-lg mt-4">로그인 처리 중...</p>
           </>
         ) : error ? (
           <>
-            {/* 에러 메시지 */}
             <div className="text-red-500 mb-4">
               <svg
                 className="h-16 w-16 mx-auto mb-2"
@@ -115,7 +110,6 @@ export default function OAuthCallback() {
           </>
         ) : (
           <>
-            {/* 성공 메시지 */}
             <div className="text-green-500 mb-4">
               <svg
                 className="h-16 w-16 mx-auto mb-2"
