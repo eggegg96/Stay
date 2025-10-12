@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
  * - MEMBER_301~399: 포인트 관련
  * - MEMBER_401~499: 권한 관련
  * - MEMBER_501~599: 소셜 로그인 관련
+ * - MEMBER_601~699: Validation 관련
  */
 @Getter
 @RequiredArgsConstructor
@@ -22,6 +23,8 @@ public enum MemberErrorCode {
     MEMBER_NOT_FOUND("MEMBER_001", "회원을 찾을 수 없습니다."),
     MEMBER_NOT_ACTIVE("MEMBER_002", "비활성화된 회원입니다."),
     MEMBER_DELETED("MEMBER_003", "탈퇴한 회원입니다."),
+    MEMBER_DELETED_RECENTLY("MEMBER_004", "탈퇴 후 24시간 이내에는 재가입할 수 없습니다."),
+    MEMBER_NOT_DELETED("MEMBER_005", "탈퇴하지 않은 회원입니다."),
 
     // 회원 가입 관련 (101~199)
     DUPLICATE_EMAIL("MEMBER_101", "이미 가입된 이메일입니다."),
@@ -47,7 +50,7 @@ public enum MemberErrorCode {
     UNSUPPORTED_SOCIAL_PROVIDER("MEMBER_502", "지원하지 않는 소셜 제공자입니다."),
     SOCIAL_LOGIN_ALREADY_LINKED("MEMBER_503", "이미 다른 회원과 연동된 소셜 계정입니다."),
 
-    // ========== Validation 관련 (601~699) ==========
+    // Validation 관련 (601~699)
     INVALID_INPUT_VALUE("MEMBER_601", "잘못된 입력값입니다."),
 
     // Member Validation

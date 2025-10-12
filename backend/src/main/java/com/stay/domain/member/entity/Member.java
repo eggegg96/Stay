@@ -69,7 +69,9 @@ public class Member extends BaseEntity {
     private String profileImageUrl;
 
     // SocialLogin과의 관계 (일대다)
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = false)
     private List<SocialLogin> socialLogins = new ArrayList<>();
 
     @Builder
@@ -198,7 +200,32 @@ public class Member extends BaseEntity {
     public void delete() {
         this.isActive = false;
         this.deletedAt = LocalDateTime.now();
+        this.points = 0;  // 포인트 초기화
+        this.grade = MemberGrade.BASIC;  // 등급 초기화
     }
+
+
+    /**
+     * 회원 재활성화
+     *
+     * 사용 케이스:
+     * - 탈퇴 후 24시간 경과 시 재로그인 허용
+     * - 탈퇴 상태를 되돌리고 활성화
+     *
+     * 주의:
+     * - 탈퇴하지 않은 회원에게는 호출 불가
+     * - 포인트, 등급은 이미 delete() 시 초기화됨
+     * - 예약 내역은 보존됨
+     */
+    public void reactivate() {
+        if (this.deletedAt == null) {
+            throw new MemberException(MemberErrorCode.MEMBER_NOT_DELETED);
+        }
+
+        this.deletedAt = null;
+        this.isActive = true;
+    }
+
 
     // ==================== 프로필 관리 ====================
 
