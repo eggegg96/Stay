@@ -3,6 +3,7 @@ package com.stay.config.security;
 import com.stay.domain.auth.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -84,8 +85,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 형식: "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9..."
      */
     private String extractToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
+        // 쿠키에서 accessToken 추출
+        Cookie[] cookies = request.getCookies();
 
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);  // "Bearer " 이후 문자열 반환
         }
