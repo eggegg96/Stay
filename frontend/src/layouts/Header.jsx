@@ -3,11 +3,12 @@ import { useAuth } from "@contexts/AuthContext";
 import useHomeSearchState from "@hooks/useHomeSearchState";
 import ExpandedHeaderSearch from "@search/ExpandedHeaderSearch";
 import SummaryBar from "@search/SummaryBar";
+import UserMenu from "@/components/common/UserMenu";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Header() {
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { header, setHeader } = useHeader();
@@ -134,20 +135,11 @@ export default function Header() {
         {/* 로그인 상태에 따라 다른 UI 표시 */}
         <div className="ml-auto mr-8">
           {isLoggedIn ? (
-            // 로그인 상태: 사용자 정보 + 로그아웃 버튼
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleLogout}
-                className="border px-4 py-2 border-blue-500 rounded-lg text-blue-500 font-semibold hover:cursor-pointer hover:bg-blue-50"
-              >
-                로그아웃
-              </button>
-            </div>
+            <UserMenu />
           ) : (
-            // 비로그인 상태: 로그인/회원가입 버튼
             <Link
               to="/login"
-              className="border px-4 py-2 border-blue-500 rounded-lg text-blue-500 font-semibold hover:bg-blue-50 hover:cursor-pointer"
+              className="border px-4 py-2 border-blue-500 rounded-lg text-blue-500 font-semibold hover:bg-blue-50 transition-colors"
             >
               로그인/회원가입
             </Link>
