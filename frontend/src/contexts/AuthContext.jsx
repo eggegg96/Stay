@@ -6,7 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // 초기값 true
+  const [loading, setLoading] = useState(true);
 
   /**
    * 로그인 상태 확인
@@ -16,26 +16,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   const checkAuthStatus = async () => {
+    // HttpOnly 쿠키 유효성 확인을 위해 API 요청
     try {
-      // HttpOnly 쿠키 유효성 확인을 위해 API 요청
-      // TODO: /api/auth/me 구현 후 실제 사용자 정보 가져오기
-      try {
-        await authApi.getCurrentUser();
-        // 성공하면 로그인 상태
-        setIsLoggedIn(true);
-        setUser({ email: "user@example.com" }); // TODO: 실제 사용자 정보
-      } catch (error) {
-        // 401 에러면 비로그인 상태
-        console.log("비로그인 상태");
-        setIsLoggedIn(false);
-        setUser(null);
-      }
+      const userData = await authApi.getCurrentUser();
+
+      setIsLoggedIn(true);
+      setUser(userData);
     } catch (error) {
-      console.error("인증 상태 확인 실패:", error);
+      console.log("비로그인 상태");
       setIsLoggedIn(false);
       setUser(null);
     } finally {
-      setLoading(false); // 로딩 완료
+      setLoading(false);
     }
   };
 

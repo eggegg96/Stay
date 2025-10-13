@@ -93,6 +93,19 @@ const authApi = {
       throw error;
     }
   },
+
+  /**
+   * 현재 사용자 정보 조회
+   */
+  getCurrentUser: async () => {
+    try {
+      const response = await apiClient.get("/members/me"); // 실제 API 호출
+      return response.data;
+    } catch (error) {
+      console.error("사용자 정보 조회 실패:", error);
+      throw error;
+    }
+  },
 };
 
 export default authApi;
