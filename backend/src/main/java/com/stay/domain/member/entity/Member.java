@@ -41,6 +41,14 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
+<<<<<<< Updated upstream
+=======
+    // ============ 닉네임 필드 ============
+
+    @Column(unique = true, length = 30)
+    private String nickname;
+
+>>>>>>> Stashed changes
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MemberRole role;

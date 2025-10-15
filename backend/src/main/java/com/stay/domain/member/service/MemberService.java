@@ -1,6 +1,7 @@
 package com.stay.domain.member.service;
 
 import com.stay.domain.member.dto.SocialLoginRequest;
+import com.stay.domain.member.dto.SocialLoginResult;
 import com.stay.domain.member.entity.*;
 import com.stay.domain.member.exception.MemberErrorCode;
 import com.stay.domain.member.exception.MemberException;
@@ -41,53 +42,42 @@ public class MemberService {
      * @return 회원 엔티티
      */
     @Transactional
-    public Member socialLogin(SocialLoginRequest request) {
-        log.info("소셜 로그인 시도 - provider: {}, socialId: {}",
-                request.provider(), request.socialId());
-
+    public SocialLoginResult socialLogin(SocialLoginRequest request) {
         try {
-            return socialLoginRepository
-                    .findByProviderAndSocialIdWithMember(request.provider(), request.socialId())
+            log.info("소셜 로그인 처리 시작 - provider: {}, email: {}",
+                    request.provider(), request.email());
+
+            final boolean[] isNewMember = {false}; // 신규 회원 플래그
+
+            // ========== 1. 소셜 계정으로 회원 조회 ==========
+            Member member = socialLoginRepository
+                    .findByProviderAndSocialId(request.provider(), request.socialId())
                     .map(socialLogin -> {
-                        Member member = socialLogin.getMember();
+                        Member existingMember = socialLogin.getMember();
 
-                        // ========== 1. 탈퇴한 회원 처리 (최우선!) ==========
-                        if (member.getDeletedAt() != null) {
-                            LocalDateTime deletedAt = member.getDeletedAt();
-                            LocalDateTime now = LocalDateTime.now();
-                            long hoursSinceDeleted = java.time.Duration.between(deletedAt, now).toHours();
-
-                            if (hoursSinceDeleted < 24) {
-                                // 24시간 이내 → 재가입 불가
-                                log.warn("탈퇴 후 24시간 이내 재가입 시도 차단 - memberId: {}, 탈퇴 시각: {}",
-                                        member.getId(), deletedAt);
-                                throw new MemberException(MemberErrorCode.MEMBER_DELETED_RECENTLY);
-                            }
-
-                            // 24시간 경과 → 재활성화
-                            log.info("탈퇴 회원 재활성화 - memberId: {}, 탈퇴 시각: {}",
-                                    member.getId(), deletedAt);
-                            member.reactivate();
-                            // reactivate()에서 is_active = true로 변경되므로
-                            // 아래 비활성화 체크를 통과하게 됨!
+                        // 탈퇴 회원 재활성화
+                        if (!existingMember.getIsActive() && existingMember.getDeletedAt() != null) {
+                            log.info("탈퇴 회원 재활성화 - memberId: {}", existingMember.getId());
+                            existingMember.reactivate();
                         }
 
-                        // ========== 2. 비활성화 회원 체크 ==========
-                        // (탈퇴 회원은 위에서 재활성화되었으므로 여기서 걸리지 않음)
-                        if (!member.getIsActive()) {
+                        if (!existingMember.getIsActive()) {
                             throw new MemberException(MemberErrorCode.MEMBER_NOT_ACTIVE);
                         }
 
-                        // ========== 3. 로그인 시간 업데이트 ==========
-                        member.updateLastLoginAt();
+                        existingMember.updateLastLoginAt();
+                        log.info("기존 회원 로그인 - memberId: {}", existingMember.getId());
 
-                        log.info("기존 회원 로그인 - memberId: {}", member.getId());
-                        return member;
+                        return existingMember;
                     })
                     .orElseGet(() -> {
                         log.info("신규 회원 가입 진행 - email: {}", request.email());
+                        isNewMember[0] = true; // 신규 회원 플래그 설정
                         return registerSocialMember(request);
                     });
+
+            // SocialLoginResult 반환 (Member + isNewMember)
+            return new SocialLoginResult(member, isNewMember[0]);
 
         } catch (MemberException e) {
             log.error("소셜 로그인 실패 - code: {}, message: {}", e.getCode(), e.getMessage());
@@ -180,6 +170,90 @@ public class MemberService {
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
 
+<<<<<<< Updated upstream
+=======
+    /**
+     * 닉네임 중복 체크
+     *
+     * 왜 필요한가?
+     * - 프론트엔드에서 사용자가 닉네임 입력할 때 실시간으로 중복 여부를 확인
+     * - 회원가입/수정 시 닉네임이 이미 사용 중인지 검증
+     *
+     * @param nickname 확인할 닉네임
+     * @return true: 사용 가능, false: 이미 사용 중
+     *
+     * 사용 예시 (Controller에서):
+     * ```java
+     * @GetMapping("/members/check-nickname")
+     * public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+     *     boolean available = memberService.isNicknameAvailable(nickname);
+     *     return ResponseEntity.ok(available);
+     * }
+     * ```
+     */
+    @Transactional(readOnly = true)
+    public boolean isNicknameAvailable(String nickname) {
+        if (nickname == null || nickname.trim().isEmpty()) {
+            return false;
+        }
+        return !memberRepository.existsByNickname(nickname);
+    }
+
+    /**
+     * 회원 닉네임 설정
+     *
+     * 왜 필요한가?
+     * - 소셜 로그인 후 닉네임을 설정하는 단계에서 사용
+     * - 닉네임 변경 기능에서도 사용 가능
+     *
+     * - 닉네임 중복 체크 필수
+     * - 엔티티 내부의 검증 로직(validateNickname)도 실행됨
+     *
+     * @param memberId 회원 ID
+     * @param nickname 설정할 닉네임
+     * @return 업데이트된 회원 정보
+     * @throws MemberException 닉네임이 중복되거나 유효하지 않을 때
+     */
+    @Transactional
+    public Member updateNickname(Long memberId, String nickname) {
+        log.info("닉네임 설정 시작 - memberId: {}, nickname: {}", memberId, nickname);
+
+        // 1. 회원 조회
+        Member member = findActiveById(memberId);
+
+        // 2. 닉네임 중복 체크
+        // 본인의 기존 닉네임이 아닌 경우에만 중복 체크
+        if (!nickname.equals(member.getNickname())) {
+            if (memberRepository.existsByNickname(nickname)) {
+                log.warn("닉네임 중복 - nickname: {}", nickname);
+                throw new MemberException(MemberErrorCode.DUPLICATE_NICKNAME);
+            }
+        }
+
+        // 3. 닉네임 설정 (엔티티 내부 검증 로직 실행)
+        member.updateNickname(nickname);
+
+        log.info("닉네임 설정 완료 - memberId: {}, nickname: {}", memberId, nickname);
+        return member;
+    }
+
+    /**
+     * 닉네임으로 회원 조회
+     *
+     * 왜 필요한가?
+     * - 헤더나 프로필 페이지에서 닉네임으로 회원 정보 조회
+     * - 다른 사용자의 프로필 보기 기능 구현 시 사용
+     *
+     * @param nickname 조회할 닉네임
+     * @return 회원 정보
+     * @throws MemberException 회원을 찾을 수 없을 때
+     */
+    @Transactional(readOnly = true)
+    public Member findByNickname(String nickname) {
+        return memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+>>>>>>> Stashed changes
     // ==================== 회원 정보 수정 ====================
 
     /**

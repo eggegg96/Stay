@@ -54,7 +54,8 @@ public class SecurityConfig {
                         // 인증 없이 접근 가능한 URL (Public)
                         .requestMatchers(
                                 "/api/auth/**",           // 로그인, OAuth 등
-                                "/api/test/**",           // 테스트 API
+                                "/api/test/**",
+                                "api/members/check-nickname", // 테스트 API
                                 "/health",
                                 "/error"
                         ).permitAll()
@@ -65,8 +66,6 @@ public class SecurityConfig {
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
-
-                // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

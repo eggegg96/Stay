@@ -56,6 +56,7 @@ public class MemberController {
         response.put("id", member.getId());
         response.put("email", member.getEmail());
         response.put("name", member.getName());
+        response.put("nickname", member.getNickname());
         response.put("phoneNumber", member.getPhoneNumber());
         response.put("role", member.getRole().name());
         response.put("grade", member.getGrade().name());
@@ -64,7 +65,7 @@ public class MemberController {
         response.put("profileImageUrl", member.getProfileImageUrl());
         response.put("isActive", member.getIsActive());
 
-        log.info("내 정보 조회 성공 - email: {}", member.getEmail());
+        log.info("회원 정보 - nickname: {}, grade: {}", member.getNickname(), member.getGrade());
         log.info("========================================");
 
         return ResponseEntity.ok(response);
