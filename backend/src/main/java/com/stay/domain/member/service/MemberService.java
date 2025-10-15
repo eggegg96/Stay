@@ -169,9 +169,13 @@ public class MemberService {
         return memberRepository.findActiveByEmail(email)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
+// ==================== 닉네임 관리 ====================
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
+=======
+>>>>>>> feature/oauth-signup-flow
     /**
      * 닉네임 중복 체크
      *
@@ -231,10 +235,21 @@ public class MemberService {
         }
 
         // 3. 닉네임 설정 (엔티티 내부 검증 로직 실행)
+<<<<<<< HEAD
         member.updateNickname(nickname);
 
         log.info("닉네임 설정 완료 - memberId: {}, nickname: {}", memberId, nickname);
         return member;
+=======
+        try {
+            member.updateNickname(nickname);
+            log.info("닉네임 설정 완료 - memberId: {}, nickname: {}", memberId, nickname);
+            return member;
+        } catch (MemberException e) {
+            log.error("닉네임 검증 실패 - memberId: {}, nickname: {}", memberId, nickname);
+            throw e;
+        }
+>>>>>>> feature/oauth-signup-flow
     }
 
     /**
@@ -253,7 +268,10 @@ public class MemberService {
         return memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
+<<<<<<< HEAD
 >>>>>>> Stashed changes
+=======
+>>>>>>> feature/oauth-signup-flow
     // ==================== 회원 정보 수정 ====================
 
     /**
