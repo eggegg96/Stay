@@ -83,7 +83,7 @@ public class OAuthService {
             log.info("Client ID: {}", config.getClientId());
 
             if (config.getClientSecret() == null || config.getClientSecret().isBlank()) {
-                log.error("❌ Client Secret이 설정되지 않았습니다!");
+                log.error("Client Secret이 설정되지 않았습니다!");
                 throw new IllegalStateException("Client Secret이 설정되지 않았습니다.");
             }
             log.info("Client Secret: {}... (길이: {})",
@@ -94,10 +94,10 @@ public class OAuthService {
             log.info("Code: {}...", code.substring(0, Math.min(30, code.length())));
             log.info("========================================");
 
-            // ✅ 핵심 수정: Content-Type을 application/x-www-form-urlencoded로 명시
+            // 핵심 수정: Content-Type을 application/x-www-form-urlencoded로 명시
             OAuthTokenResponse response = webClient.post()
                     .uri(config.getTokenUri())
-                    .contentType(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED)  // ✅ 추가!
+                    .contentType(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED)
                     .bodyValue(params)
                     .retrieve()
                     .onStatus(
@@ -118,12 +118,12 @@ public class OAuthService {
                 throw new IllegalStateException("토큰 발급 실패: 응답이 null입니다.");
             }
 
-            log.info("✅ 토큰 발급 성공!");
+            log.info("토큰 발급 성공!");
             return response.access_token();
 
         } catch (Exception e) {
             log.error("========================================");
-            log.error("❌ Access Token 발급 실패");
+            log.error("Access Token 발급 실패");
             log.error("Provider: {}", provider);
             log.error("Error: {}", e.getMessage(), e);
             log.error("========================================");
@@ -173,7 +173,7 @@ public class OAuthService {
         }
 
         return new SocialLoginRequest(
-                SocialProvider.GOOGLE,  // ✅ enum 직접 전달
+                SocialProvider.GOOGLE,  // enum 직접 전달
                 userInfo.id(),
                 userInfo.email(),
                 userInfo.name(),
@@ -202,7 +202,7 @@ public class OAuthService {
 
         NaverUserInfo userInfo = response.response();
         return new SocialLoginRequest(
-                SocialProvider.NAVER,  // ✅ enum 직접 전달
+                SocialProvider.NAVER,  // enum 직접 전달
                 userInfo.id(),
                 userInfo.email(),
                 userInfo.name(),
@@ -239,7 +239,7 @@ public class OAuthService {
         }
 
         return new SocialLoginRequest(
-                SocialProvider.KAKAO,  // ✅ enum 직접 전달
+                SocialProvider.KAKAO,  // enum 직접 전달
                 userInfo.id().toString(),
                 email,
                 name,

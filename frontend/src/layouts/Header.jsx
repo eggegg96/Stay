@@ -4,6 +4,7 @@ import useHomeSearchState from "@hooks/useHomeSearchState";
 import ExpandedHeaderSearch from "@search/ExpandedHeaderSearch";
 import SummaryBar from "@search/SummaryBar";
 import UserMenu from "@/components/common/UserMenu";
+import { DATE_CONSTANTS } from "@/constants/common";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -55,7 +56,7 @@ export default function Header() {
         startDate: header.checkIn ? new Date(header.checkIn) : new Date(),
         endDate: header.checkOut
           ? new Date(header.checkOut)
-          : new Date(Date.now() + 86400000),
+          : new Date(Date.now() + DATE_CONSTANTS.DEFAULT_NIGHTS),
       });
     }
 
@@ -78,24 +79,6 @@ export default function Header() {
     }
 
     navigate(`/${payload.base}?${params.toString()}`);
-  };
-
-  /**
-   * 로그아웃 핸들러
-   *
-   * - 백엔드 API 호출로 쿠키 삭제
-   * - Context 상태 업데이트
-   * - 홈으로 리다이렉트
-   */
-  const handleLogout = async () => {
-    try {
-      await logout();
-      alert("로그아웃되었습니다");
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      alert("로그아웃에 실패했습니다");
-    }
   };
 
   return (

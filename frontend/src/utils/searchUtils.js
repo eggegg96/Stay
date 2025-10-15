@@ -36,7 +36,7 @@ export const normalizeText = {
 // 매칭 점수 계산 상수
 export const MATCH_SCORES = {
   EXACT_NAME: 10, // 정확한 이름 매칭
-  ALIAS_EXACT: 9, // Alias 정확 매칭 🆕
+  ALIAS_EXACT: 9, // Alias 정확 매칭
   SPACE_IGNORE_EXACT: 8, // 공백 무시 정확 매칭
   SPACE_IGNORE_CONTAINS: 7, // 공백 무시 포함 매칭
   NAME_PARTS_ALL: 6, // 모든 키워드 부분 포함
@@ -96,7 +96,7 @@ export function calculateMatchScore(accommodation, keyword, keywordSlug) {
     accommodation.location || ""
   );
 
-  // 🆕 키워드 alias 수집
+  // 키워드 alias 수집
   const keywordAliases = getKeywordAliases(keyword);
 
   // 1. 정확한 이름 매칭

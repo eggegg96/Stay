@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { DATE_CONSTANTS } from "@/constants/common";
 
 export default function useHomeSearchState(init = {}) {
   const [keyword, setKeyword] = useState(init.keyword ?? "");
@@ -9,7 +10,8 @@ export default function useHomeSearchState(init = {}) {
   const [range, setRange] = useState([
     {
       startDate: init.startDate ?? new Date(),
-      endDate: init.endDate ?? new Date(Date.now() + 86400000),
+      endDate:
+        init.endDate ?? new Date(Date.now() + DATE_CONSTANTS.DEFAULT_NIGHTS),
       key: "selection",
     },
   ]);
