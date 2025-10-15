@@ -60,7 +60,7 @@ public class DataSourceConfig {
 
             HikariDataSource dataSource = new HikariDataSource(config);
 
-            log.info("✅ DataSource 생성 성공!");
+            log.info("DataSource 생성 성공!");
             log.info("JDBC URL: {}", config.getJdbcUrl());
             log.info("=".repeat(50));
 
@@ -68,7 +68,7 @@ public class DataSourceConfig {
 
         } catch (Exception e) {
             log.info("=".repeat(50));
-            log.error("❌ DataSource 생성 실패!");
+            log.error("DataSource 생성 실패!");
             log.error("에러: {}", e.getMessage(), e);
             log.info("=".repeat(50));
             throw new RuntimeException("DataSource 생성 실패", e);
