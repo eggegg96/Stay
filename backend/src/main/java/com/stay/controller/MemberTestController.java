@@ -1,6 +1,7 @@
 package com.stay.controller;
 
 import com.stay.domain.member.dto.SocialLoginRequest;
+import com.stay.domain.member.dto.SocialLoginResult;
 import com.stay.domain.member.entity.Member;
 import com.stay.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -46,11 +47,14 @@ public class MemberTestController {
         log.info("테스트: 소셜 로그인 요청 - {}", request);
 
         try {
-            Member member = memberService.socialLogin(request);
+            // 반환 타입 변경: Member → SocialLoginResult
+            SocialLoginResult result = memberService.socialLogin(request);
+            Member member = result.getMember();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "소셜 로그인 성공!");
+            response.put("isNewMember", result.isNewMember()); // 신규 회원 여부 추가
             response.put("member", Map.of(
                     "id", member.getId(),
                     "email", member.getEmail(),
