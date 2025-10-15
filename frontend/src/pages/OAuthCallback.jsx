@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { handleOAuthLogin } from "@/lib/oauth/oauthHandler";
 import { useAuth } from "@/contexts/AuthContext";
 import { UI_DELAY } from "@/constants/common";
+import authApi from "@/lib/api/authApi";
 
 export default function OAuthCallback() {
   const { login } = useAuth();
@@ -10,24 +11,27 @@ export default function OAuthCallback() {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(true);
-  const hasProcessed = useRef(false); // 중복 실행 방지
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
-    // 이미 처리했으면 무시
     if (hasProcessed.current) {
       console.log("OAuth 이미 처리됨 - 무시");
       return;
     }
 
     const processOAuth = async () => {
-      hasProcessed.current = true; // 처리 시작
+      hasProcessed.current = true;
 
       try {
         const code = searchParams.get("code");
         const state = searchParams.get("state");
         const errorParam = searchParams.get("error");
 
-        console.log("OAuth 콜백 - state:", state, "code:", code);
+        console.log("========================================");
+        console.log("OAuth 콜백 시작");
+        console.log("state (provider):", state);
+        console.log("code:", code?.substring(0, 20) + "...");
+        console.log("========================================");
 
         if (errorParam) {
           throw new Error(`OAuth 인증 실패: ${errorParam}`);
@@ -37,27 +41,50 @@ export default function OAuthCallback() {
           throw new Error("필수 파라미터가 누락되었습니다.");
         }
 
-        // 데모 모드는 그대로
-        if (code === "demo-code-123" || code === "demo-code") {
-          console.log("[DEMO] 데모 로그인 처리");
+        const provider = state;
+
+        // 백엔드로 OAuth 로그인 처리
+        console.log("백엔드 OAuth API 호출 중...");
+        const result = await handleOAuthLogin(provider, code);
+
+        console.log("========================================");
+        console.log("백엔드 응답:");
+        console.log("result:", result);
+        console.log("isNewMember:", result.isNewMember);
+        console.log("email:", result.email);
+        console.log("========================================");
+
+        // 신규 회원인 경우 회원가입 페이지로 이동
+        if (result.isNewMember === true) {
+          console.log("신규 회원 감지 - 회원가입 페이지로 이동");
           setTimeout(() => {
-            navigate("/", { replace: true });
+            navigate("/signup", {
+              replace: true,
+              state: {
+                fromOAuth: true,
+                email: result.email,
+              },
+            });
           }, UI_DELAY.REDIRECT);
           return;
         }
 
-        const provider = state;
+        // 기존 회원인 경우 로그인 상태 업데이트
+        console.log("기존 회원 - 로그인 처리");
+        // 사용자 정보 조회 (nickname, grade 포함)
+        try {
+          const userData = await authApi.getCurrentUser();
+          console.log("사용자 정보 조회 성공:", userData);
 
-        // 백엔드로 OAuth 로그인 처리
-        const result = await handleOAuthLogin(provider, code);
+          // AuthContext에 저장
+          await login(userData);
+        } catch (err) {
+          console.error("사용자 정보 조회 실패:", err);
+          // 최소한의 정보로라도 로그인 처리
+          await login({ email: result.email });
+        }
 
-        // 로그인 상태 업데이트
-        await login({
-          email: result.email || result.user?.email || "user@example.com",
-          // 백엔드 응답에 따라 추가 정보 설정
-        });
-
-        console.log("로그인 상태 업데이트 완료");
+        console.log("로그인 상태 업데이트 완료 - 홈으로 이동");
 
         // 홈으로 이동
         navigate("/", { replace: true });
@@ -67,18 +94,17 @@ export default function OAuthCallback() {
 
         setTimeout(() => {
           navigate("/login", { replace: true });
-        }, 3000);
+        }, UI_DELAY);
       } finally {
         setIsProcessing(false);
       }
     };
 
     processOAuth();
-  }, []);
+  }, []); // 의존성 배열 비움 (최초 1회만 실행)
 
   return (
     <section className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6">
-      {/* 기존 UI 그대로 */}
       <div className="text-center">
         {isProcessing ? (
           <>
@@ -125,10 +151,8 @@ export default function OAuthCallback() {
                 />
               </svg>
             </div>
-            <p className="text-gray-700 text-lg">로그인 성공!</p>
-            <p className="text-gray-400 text-sm mt-2">
-              잠시 후 메인 페이지로 이동합니다...
-            </p>
+            <p className="text-gray-700 text-lg">처리 완료!</p>
+            <p className="text-gray-400 text-sm mt-2">페이지 이동 중...</p>
           </>
         )}
       </div>
