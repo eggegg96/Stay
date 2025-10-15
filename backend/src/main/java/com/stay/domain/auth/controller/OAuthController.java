@@ -1,4 +1,3 @@
-// backend/src/main/java/com/stay/domain/auth/controller/OAuthController.java
 package com.stay.domain.auth.controller;
 
 import com.stay.domain.auth.dto.JwtTokenResponse;
@@ -37,7 +36,7 @@ public class OAuthController {
     @PostMapping("/login")
     public ResponseEntity<?> oauthLogin(
             @RequestBody OAuthLoginRequest request,
-            HttpServletResponse response  // 쿠키 설정을 위해 추가
+            HttpServletResponse response
     ) {
         try {
             log.info("========================================");
@@ -49,31 +48,37 @@ public class OAuthController {
             // AuthService에 OAuth 로그인 처리 위임
             JwtTokenResponse tokenResponse = authService.oauthLogin(request);
 
-            // Access Token을 HttpOnly 쿠키로 설정
-            Cookie accessTokenCookie = new Cookie("accessToken", tokenResponse.accessToken());
-            accessTokenCookie.setHttpOnly(true);  // JavaScript 접근 차단
-            accessTokenCookie.setSecure(false);   // 개발 환경 (배포 시 true로 변경)
-            accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 전송
-            accessTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 (초 단위)
-            response.addCookie(accessTokenCookie);
+            // 신규 회원이 아닌 경우에만 쿠키 설정
+            if (!tokenResponse.isNewMember()) {
+                // Access Token을 HttpOnly 쿠키로 설정
+                Cookie accessTokenCookie = new Cookie("accessToken", tokenResponse.accessToken());
+                accessTokenCookie.setHttpOnly(true);  // JavaScript 접근 차단
+                accessTokenCookie.setSecure(false);   // 개발 환경 (배포 시 true)
+                accessTokenCookie.setPath("/");       // 모든 경로에서 쿠키 전송
+                accessTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+                response.addCookie(accessTokenCookie);
 
-            // Refresh Token을 HttpOnly 쿠키로 설정
-            Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.refreshToken());
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(false);
-            refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
-            response.addCookie(refreshTokenCookie);
+                // Refresh Token을 HttpOnly 쿠키로 설정
+                Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.refreshToken());
+                refreshTokenCookie.setHttpOnly(true);
+                refreshTokenCookie.setSecure(false);
+                refreshTokenCookie.setPath("/");
+                refreshTokenCookie.setMaxAge(30 * 24 * 60 * 60); // 30일
+                response.addCookie(refreshTokenCookie);
+
+                log.info("기존 회원 로그인 - HttpOnly 쿠키로 토큰 발급");
+            } else {
+                log.info("신규 회원 가입 필요 - 쿠키 발급하지 않음");
+            }
 
             log.info("========================================");
-            log.info("OAuth 로그인 성공! HttpOnly 쿠키로 토큰 발급");
-            log.info("========================================");
 
-            // 프론트엔드에는 토큰 없이 성공 메시지만 응답
+            // 프론트엔드에 신규 회원 여부 전달
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "로그인 성공"
-                    // 토큰은 쿠키에 있으므로 응답 본문에 포함하지 않음
+                    "message", "로그인 성공",
+                    "isNewMember", tokenResponse.isNewMember(),
+                    "email", tokenResponse.email()
             ));
 
         } catch (IllegalArgumentException e) {
@@ -115,9 +120,10 @@ public class OAuthController {
                             "message", "OAuth 로그인 처리 중 오류가 발생했습니다.",
                             "detail", e.getMessage()
                     ));
-
         }
-    }/**
+    }
+
+    /**
      * 로그아웃 API
      *
      * HttpOnly 쿠키 삭제

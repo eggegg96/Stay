@@ -1,36 +1,67 @@
 package com.stay.domain.auth.dto;
 
-import lombok.Builder;
-
 /**
  * JWT 토큰 응답 DTO
  *
- * 왜 필요한가?
- * - 로그인 성공 시 프론트엔드에게 토큰을 전달하기 위해
- * - Record를 사용해서 불변 객체로 만듦 (실수로 변경 방지)
+ * HttpOnly 쿠키 방식에서는:
+ * - Controller에서만 사용 (토큰 추출용)
+ * - 프론트엔드에는 success, message, isNewMember만 전달
  *
- * 프론트엔드는 이 응답을 받아서:
- * - accessToken을 localStorage에 저장
- * - API 요청 시 Header에 "Bearer {accessToken}" 형태로 전달
- * - refreshToken도 저장해서 액세스 토큰 갱신에 사용
+ * record를 사용하는 이유:
+ * - 불변 객체 (final 필드 자동 생성)
+ * - getter 자동 생성 (accessToken(), refreshToken() 등)
+ * - equals(), hashCode(), toString() 자동 생성
+ * - @Getter 어노테이션 불필요
  */
-@Builder
 public record JwtTokenResponse(
         String accessToken,
         String refreshToken,
-        String tokenType,      // "Bearer"
-        Long expiresIn         // 액세스 토큰 만료 시간 (초 단위)
+        String tokenType,
+        Long expiresIn,
+        boolean isNewMember,
+        String email
 ) {
     /**
      * 편의 생성 메서드
      * Bearer 타입으로 고정하고, 만료 시간을 자동 계산
+     *
+     * 5개 파라미터 버전 (신규 회원 포함)
      */
-    public static JwtTokenResponse of(String accessToken, String refreshToken, Long accessTokenValidity) {
-        return JwtTokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .tokenType("Bearer")
-                .expiresIn(accessTokenValidity / 1000)  // 밀리초 -> 초 변환
-                .build();
+    public static JwtTokenResponse of(
+            String accessToken,
+            String refreshToken,
+            Long accessTokenValidity,
+            boolean isNewMember,
+            String email
+    ) {
+        return new JwtTokenResponse(
+                accessToken,
+                refreshToken,
+                "Bearer",
+                accessTokenValidity / 1000,  // 밀리초 -> 초 변환
+                isNewMember,
+                email
+        );
+    }
+
+    /**
+     * 3개 파라미터 버전 (호환성 유지용)
+     *
+     * @Deprecated 기존 코드와의 호환성을 위해 남겨둠
+     */
+    @Deprecated
+    public static JwtTokenResponse of(
+            String accessToken,
+            String refreshToken,
+            Long accessTokenValidity
+    ) {
+        return new JwtTokenResponse(
+                accessToken,
+                refreshToken,
+                "Bearer",
+                accessTokenValidity / 1000,
+                false,  // 기본값: 기존 회원
+                null    // 이메일 없음
+        );
     }
 }
