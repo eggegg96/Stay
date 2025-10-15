@@ -5,6 +5,7 @@ import com.stay.domain.auth.dto.JwtTokenResponse;
 import com.stay.domain.auth.dto.OAuthLoginRequest;
 import com.stay.domain.auth.util.JwtUtil;
 import com.stay.domain.member.dto.SocialLoginRequest;
+import com.stay.domain.member.dto.SocialLoginResult;
 import com.stay.domain.member.entity.Member;
 import com.stay.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -57,20 +58,27 @@ public class AuthService {
                 request.code()
         );
 
-        // 2. 회원 가입 or 로그인
-        Member member = memberService.socialLogin(socialLoginRequest);
+        // 2. 회원 가입 or 로그인 (신규 회원 여부 포함)
+        SocialLoginResult result = memberService.socialLogin(socialLoginRequest);
 
         // 3. JWT 토큰 발급
-        String accessToken = jwtUtil.generateAccessToken(member.getId(), member.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(member.getId());
+        String accessToken = jwtUtil.generateAccessToken(
+                result.getMember().getId(),
+                result.getMember().getEmail()
+        );
+        String refreshToken = jwtUtil.generateRefreshToken(result.getMember().getId());
 
-        log.info("OAuth 로그인 완료 - memberId: {}, email: {}",
-                member.getId(), member.getEmail());
+        log.info("OAuth 로그인 완료 - memberId: {}, email: {}, isNewMember: {}",
+                result.getMember().getId(),
+                result.getMember().getEmail(),
+                result.isNewMember());
 
         return JwtTokenResponse.of(
                 accessToken,
                 refreshToken,
-                jwtProperties.getAccessTokenValidity()
+                jwtProperties.getAccessTokenValidity(),
+                result.isNewMember(),
+                result.getMember().getEmail()
         );
     }
 
@@ -85,18 +93,25 @@ public class AuthService {
         log.info("소셜 로그인 처리 시작 - provider: {}, email: {}",
                 request.provider(), request.email());
 
-        Member member = memberService.socialLogin(request);
+        SocialLoginResult result = memberService.socialLogin(request);
 
-        String accessToken = jwtUtil.generateAccessToken(member.getId(), member.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(member.getId());
+        String accessToken = jwtUtil.generateAccessToken(
+                result.getMember().getId(),
+                result.getMember().getEmail()
+        );
+        String refreshToken = jwtUtil.generateRefreshToken(result.getMember().getId());
 
         log.info("JWT 토큰 발급 완료 - memberId: {}, email: {}",
-                member.getId(), member.getEmail());
+                result.getMember().getId(),
+                result.getMember().getEmail()
+        );
 
         return JwtTokenResponse.of(
                 accessToken,
                 refreshToken,
-                jwtProperties.getAccessTokenValidity()
+                jwtProperties.getAccessTokenValidity(),
+                result.isNewMember(),
+                result.getMember().getEmail()
         );
     }
 
@@ -124,6 +139,7 @@ public class AuthService {
 
         log.info("토큰 재발급 완료 - memberId: {}", memberId);
 
+        // 재발급은 기존 회원이므로 3개 파라미터 버전 사용
         return JwtTokenResponse.of(
                 newAccessToken,
                 newRefreshToken,
