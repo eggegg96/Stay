@@ -49,6 +49,26 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     boolean existsByPhoneNumber(String phoneNumber);
 
+    // ==================== 닉네임 관련 ====================
+
+
+    Optional<Member> findByNickname(String nickname);
+
+    boolean existsByNickname(String nickname);
+
+    /**
+     * 활성 회원 중 닉네임으로 조회
+     *
+     * 왜 필요한가?
+     * - 탈퇴한 회원의 닉네임은 재사용 가능하도록 할 경우 사용
+     * - 현재는 unique 제약이 있어서 탈퇴 회원도 닉네임 유지되지만,
+     *   나중에 정책이 바뀔 수 있으므로 미리 준비
+     */
+    @Query("SELECT m FROM Member m WHERE m.nickname = :nickname AND m.isActive = true AND m.deletedAt IS NULL")
+    Optional<Member> findActiveByNickname(@Param("nickname") String nickname);
+
+
+
     // ==================== 등급 관련 ====================
 
     /**

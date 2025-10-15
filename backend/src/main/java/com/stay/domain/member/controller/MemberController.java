@@ -1,7 +1,11 @@
 package com.stay.domain.member.controller;
 
+import com.stay.domain.member.dto.MemberResponse;
+import com.stay.domain.member.dto.NicknameCheckResponse;
+import com.stay.domain.member.dto.UpdateNicknameRequest;
 import com.stay.domain.member.entity.Member;
 import com.stay.domain.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +94,121 @@ public class MemberController {
         response.put("points", member.getPoints());
         response.put("grade", member.getGrade().name());
         response.put("gradeDescription", getGradeDescription(member.getGrade().name()));
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ==================== 닉네임 관련 API ====================
+
+    /**
+     * 닉네임 중복 체크 API
+     *
+     * 왜 필요한가?
+     * - 사용자가 닉네임 입력할 때 실시간으로 사용 가능 여부 확인
+     * - 회원가입 폼에서 "이미 사용 중인 닉네임입니다" 피드백 제공
+     *
+     * 요청 예시:
+     * GET /api/members/check-nickname?nickname=멋진닉네임
+     *
+     * 응답 예시:
+     * {
+     *   "available": true,
+     *   "message": "사용 가능한 닉네임입니다."
+     * }
+     *
+     * @param nickname 확인할 닉네임
+     * @return 사용 가능 여부와 메시지
+     */
+    @GetMapping("/check-nickname")
+    public ResponseEntity<NicknameCheckResponse> checkNickname(
+            @RequestParam String nickname) {
+
+        log.info("닉네임 중복 체크 요청 - nickname: {}", nickname);
+
+        // 닉네임 중복 여부 확인
+        boolean available = memberService.isNicknameAvailable(nickname);
+
+        // 응답 메시지 생성
+        String message = available
+                ? "사용 가능한 닉네임입니다."
+                : "이미 사용 중인 닉네임입니다.";
+
+        NicknameCheckResponse response = new NicknameCheckResponse(available, message);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 닉네임 설정/변경 API
+     *
+     * 왜 필요한가?
+     * - 소셜 로그인 후 닉네임 설정 단계에서 사용
+     * - 마이페이지에서 닉네임 변경 기능 제공
+     *
+     * 요청 예시:
+     * PATCH /api/members/1/nickname
+     * {
+     *   "nickname": "새로운닉네임"
+     * }
+     *
+     * 응답 예시:
+     * {
+     *   "id": 1,
+     *   "email": "user@example.com",
+     *   "nickname": "새로운닉네임",
+     *   "name": "홍길동"
+     * }
+     *
+     * @param memberId 회원 ID
+     * @param request 닉네임 변경 요청 DTO
+     * @return 업데이트된 회원 정보
+     */
+    @PatchMapping("/{memberId}/nickname")
+    public ResponseEntity<MemberResponse> updateNickname(
+            @PathVariable Long memberId,
+            @RequestBody @Valid UpdateNicknameRequest request) {
+
+        log.info("닉네임 설정 요청 - memberId: {}, nickname: {}",
+                memberId, request.nickname());
+
+        // 닉네임 설정
+        Member member = memberService.updateNickname(memberId, request.nickname());
+
+        // DTO로 변환하여 응답
+        MemberResponse response = MemberResponse.from(member);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 회원 정보 조회 API (닉네임 포함)
+     *
+     * 왜 필요한가?
+     * - 헤더에서 닉네임 표시
+     * - 마이페이지에서 회원 정보 표시
+     *
+     * 요청 예시:
+     * GET /api/members/1
+     *
+     * 응답 예시:
+     * {
+     *   "id": 1,
+     *   "email": "user@example.com",
+     *   "nickname": "멋진닉네임",
+     *   "name": "홍길동",
+     *   "points": 1000,
+     *   "grade": "BASIC"
+     * }
+     *
+     * @param memberId 회원 ID
+     * @return 회원 정보
+     */
+    @GetMapping("/{memberId}")
+    public ResponseEntity<MemberResponse> getMember(@PathVariable Long memberId) {
+        log.info("회원 조회 요청 - memberId: {}", memberId);
+
+        Member member = memberService.findActiveById(memberId);
+        MemberResponse response = MemberResponse.from(member);
 
         return ResponseEntity.ok(response);
     }
