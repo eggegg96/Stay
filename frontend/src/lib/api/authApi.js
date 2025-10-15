@@ -99,7 +99,8 @@ const authApi = {
    */
   getCurrentUser: async () => {
     try {
-      const response = await apiClient.get("/members/me"); // 실제 API 호출
+      const response = await apiClient.get("/members/me");
+      console.log("백엔드에서 사용자 정보 조회:", response.data);
       return response.data;
     } catch (error) {
       console.error("사용자 정보 조회 실패:", error);
