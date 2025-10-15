@@ -1,15 +1,22 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import TermsAgreementStep from "@/components/auth/TermsAgreementStep";
 import PhoneVerificationStep from "@/components/auth/PhoneVerificationStep";
 import UserInfoStep from "@/components/auth/UserInfoStep";
 import SignupCompleteStep from "@/components/auth/SignupCompleteStep";
 
 export default function Signup() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const step = parseInt(searchParams.get("step") || "1");
 
+  console.log("Signup - location.state:", location.state); // 디버깅용
+
   const goToStep = (nextStep) => {
-    setSearchParams({ step: nextStep });
+    navigate(`/signup?step=${nextStep}`, {
+      replace: true,
+      state: location.state, // 기존 state 유지
+    });
   };
 
   return (
