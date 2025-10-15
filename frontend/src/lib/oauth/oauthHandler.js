@@ -3,11 +3,6 @@ import authApi from "@/lib/api/authApi";
 /**
  * OAuth 핸들러 (백엔드 처리 방식)
  *
- * 변경 사항:
- * - 프론트엔드는 code만 백엔드로 전달
- * - 백엔드가 OAuth 처리 (access_token, 사용자 정보 조회 등)
- * - 프론트엔드는 JWT 토큰만 받아서 저장
- *
  * 장점:
  * - Client Secret 노출 안 됨
  * - 보안 강화
