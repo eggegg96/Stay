@@ -30,6 +30,7 @@ public enum MemberErrorCode {
     DUPLICATE_EMAIL("MEMBER_101", "이미 가입된 이메일입니다."),
     DUPLICATE_PHONE("MEMBER_102", "이미 가입된 전화번호입니다."),
     DUPLICATE_SOCIAL_LOGIN("MEMBER_103", "이미 연동된 소셜 계정입니다."),
+    DUPLICATE_NICKNAME("MEMBER_104", "이미 사용 중인 닉네임입니다."),
 
     // 회원 정보 수정 관련 (201~299)
     INVALID_EMAIL_FORMAT("MEMBER_201", "올바른 이메일 형식이 아닙니다."),
@@ -58,6 +59,9 @@ public enum MemberErrorCode {
     MEMBER_EMAIL_INVALID_FORMAT("MEMBER_612", "올바른 이메일 형식이 아닙니다."),
     MEMBER_NAME_REQUIRED("MEMBER_613", "이름은 필수입니다."),
     MEMBER_NAME_TOO_LONG("MEMBER_614", "이름은 50자를 초과할 수 없습니다."),
+    MEMBER_NICKNAME_REQUIRED("MEMBER_615", "닉네임은 필수입니다."),
+    MEMBER_NICKNAME_INVALID_LENGTH("MEMBER_616", "닉네임은 2~30자여야 합니다."),
+    MEMBER_NICKNAME_INVALID_FORMAT("MEMBER_617", "닉네임은 한글, 영문, 숫자만 입력 가능합니다."),
 
     // SocialLogin Validation
     SOCIAL_MEMBER_REQUIRED("MEMBER_621", "회원 정보는 필수입니다."),

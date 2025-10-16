@@ -10,10 +10,7 @@ export default function UserMenu() {
   const getUserDisplayName = () => {
     if (!user) return "사용자";
 
-    // 🔍 디버깅용 로그 (문제 해결 후 제거)
     console.log("🔍 User 정보:", user);
-    console.log("🔍 닉네임:", user.nickname);
-    console.log("🔍 등급:", user.grade);
 
     // 닉네임이 있으면 닉네임 우선
     if (user.nickname) {
@@ -31,16 +28,10 @@ export default function UserMenu() {
   const handleLogout = async () => {
     try {
       await logout();
-
-      setTimeout(() => {
-        window.location.href = "/";
-      }, UI_DELAY.REDIRECT);
+      window.location.href = "/";
     } catch (error) {
       console.error("로그아웃 실패:", error);
-      // 에러가 있어도 강제로 로그아웃 처리
-      setTimeout(() => {
-        window.location.href = "/";
-      }, UI_DELAY.REDIRECT);
+      alert("로그아웃에 실패했습니다");
     }
   };
 

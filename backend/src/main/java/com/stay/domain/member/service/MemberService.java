@@ -169,9 +169,8 @@ public class MemberService {
         return memberRepository.findActiveByEmail(email)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
+// ==================== 닉네임 관리 ====================
 
-<<<<<<< Updated upstream
-=======
     /**
      * 닉네임 중복 체크
      *
@@ -231,10 +230,14 @@ public class MemberService {
         }
 
         // 3. 닉네임 설정 (엔티티 내부 검증 로직 실행)
-        member.updateNickname(nickname);
-
-        log.info("닉네임 설정 완료 - memberId: {}, nickname: {}", memberId, nickname);
-        return member;
+        try {
+            member.updateNickname(nickname);
+            log.info("닉네임 설정 완료 - memberId: {}, nickname: {}", memberId, nickname);
+            return member;
+        } catch (MemberException e) {
+            log.error("닉네임 검증 실패 - memberId: {}, nickname: {}", memberId, nickname);
+            throw e;
+        }
     }
 
     /**
@@ -253,7 +256,6 @@ public class MemberService {
         return memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
->>>>>>> Stashed changes
     // ==================== 회원 정보 수정 ====================
 
     /**
@@ -360,19 +362,24 @@ public class MemberService {
     // ==================== 등급 관리 ====================
 
     /**
-     * 회원 등급 갱신
+     * 회원 등급 재계산
      * - 배치 작업에서 호출 예정
-     * - 예약 횟수 기반으로 등급 산정
+     * - Member가 자신의 예약 횟수로 등급을 재계산
+     * - MemberGrade.determineGrade()가 비즈니스 로직 담당
      */
     @Transactional
-    public Member updateGrade(Long memberId, int reservationCount) {
+    public Member recalculateMemberGrade(Long memberId) {
         Member member = findActiveById(memberId);
 
-        MemberGrade newGrade = MemberGrade.determineGrade(reservationCount);
-        member.updateGrade(newGrade);
+        // Member가 스스로 등급 재계산 (캡슐화)
+        member.recalculateGrade();
 
-        log.info("회원 등급 갱신 완료 - memberId: {}, grade: {} (예약 {}회)",
-                memberId, newGrade, reservationCount);
+        log.info("회원 등급 갱신 완료 - memberId: {}, grade: {} (예약 {}회, 할인율: {}%)",
+                memberId,
+                member.getGrade().getDisplayName(),
+                member.getReservationCount(),
+                member.getGrade().getDiscountRate() * 100);
+
         return member;
     }
 
