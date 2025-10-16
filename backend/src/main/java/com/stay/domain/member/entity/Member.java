@@ -20,8 +20,8 @@ import java.util.List;
 @Table(name = "members",
         indexes = {
                 @Index(name = "idx_email", columnList = "email"),
-                @Index(name = "idx_phone", columnList = "phone_number"),
-                @Index(name = "idx_nickname", columnList = "nickname")
+                @Index(name = "idx_phone", columnList = "phone_number")
+                // idx_nickname 제거 (unique = true가 유니크 인덱스 자동 생성)
         }
 )
 @Getter
@@ -42,22 +42,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> feature/oauth-signup-flow
-    // ============ 닉네임 필드 ============
-
-    @Column(unique = true, length = 30)
+    @Column(name = "nickname", length = 30, unique = true)
     private String nickname;
-<<<<<<< HEAD
 
->>>>>>> Stashed changes
-=======
-    // =========================================
-
->>>>>>> feature/oauth-signup-flow
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MemberRole role;
@@ -67,10 +54,10 @@ public class Member extends BaseEntity {
     private MemberGrade grade;
 
     @Column(nullable = false)
-    private Integer reservationCount = 0;
+    private int reservationCount = 0;
 
     @Column(nullable = false)
-    private Integer points = 0;
+    private int points = 0;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
@@ -106,6 +93,12 @@ public class Member extends BaseEntity {
         this.role = role != null ? role : MemberRole.CUSTOMER;
         this.grade = MemberGrade.BASIC;
         this.profileImageUrl = profileImageUrl;
+        this.lastGradeUpdatedAt = LocalDateTime.now();
+
+        // 필드 초기화로 처리되므로 제거
+        // this.reservationCount = 0;
+        // this.points = 0;
+        // this.isActive = true;
     }
 
     // ==================== 닉네임 관리 ====================
@@ -154,16 +147,24 @@ public class Member extends BaseEntity {
 
     // ==================== 포인트 관리 ====================
 
-    public void earnPoints(Integer points) {
-        if (points <= 0) {
-            throw new IllegalArgumentException("적립 포인트는 0보다 커야 합니다.");
+    /**
+     * 포인트 적립
+     * @param points 적립할 포인트
+     */
+    public void earnPoints(int points) {
+        if (points < 0) {
+            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
         this.points += points;
     }
 
-    public void usePoints(Integer points) {
-        if (points <= 0) {
-            throw new IllegalArgumentException("사용 포인트는 0보다 커야 합니다.");
+    /**
+     * 포인트 사용
+     * @param points 사용할 포인트
+     */
+    public void usePoints(int points) {
+        if (points < 0) {
+            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
         if (this.points < points) {
             throw new MemberException(MemberErrorCode.INSUFFICIENT_POINTS);
@@ -171,22 +172,35 @@ public class Member extends BaseEntity {
         this.points -= points;
     }
 
-    // ==================== 예약 카운트 관리 ====================
+    // ==================== 예약 카운트 & 등급 관리 ====================
 
-    public void incrementReservationCount() {
+    /**
+     * 예약 완료 시 호출
+     * - 예약 횟수 증가
+     * - 등급 자동 갱신
+     */
+    public void completeReservation() {
         this.reservationCount++;
+        recalculateGrade();
     }
 
-    // ==================== 등급 관리 ====================
+    /**
+     * 등급 재계산
+     * - MemberGrade Enum의 비즈니스 로직 활용
+     * - 예약 횟수 기반으로 등급 자동 결정
+     */
+    public void recalculateGrade() {
+        MemberGrade newGrade = MemberGrade.determineGrade(this.reservationCount);
 
-    public void updateGrade(MemberGrade newGrade) {
-        if (newGrade == null) {
-            throw new IllegalArgumentException("등급은 null일 수 없습니다.");
+        if (this.grade != newGrade) {
+            this.grade = newGrade;
+            this.lastGradeUpdatedAt = LocalDateTime.now();
         }
-        this.grade = newGrade;
-        this.lastGradeUpdatedAt = LocalDateTime.now();
     }
 
+    /**
+     * 사업자 회원으로 승급 (관리자용)
+     */
     public void upgradeToBusinessOwner() {
         if (this.role == MemberRole.BUSINESS_OWNER) {
             throw new IllegalStateException("이미 사업자 회원입니다.");
@@ -196,10 +210,16 @@ public class Member extends BaseEntity {
 
     // ==================== 회원 상태 관리 ====================
 
+    /**
+     * 회원 비활성화
+     */
     public void deactivate() {
         this.isActive = false;
     }
 
+    /**
+     * 회원 활성화
+     */
     public void activate() {
         if (this.deletedAt != null) {
             throw new MemberException(MemberErrorCode.MEMBER_DELETED);
@@ -207,6 +227,9 @@ public class Member extends BaseEntity {
         this.isActive = true;
     }
 
+    /**
+     * 회원 탈퇴 (소프트 삭제)
+     */
     public void delete() {
         this.isActive = false;
         this.deletedAt = LocalDateTime.now();
@@ -214,6 +237,9 @@ public class Member extends BaseEntity {
         this.grade = MemberGrade.BASIC;
     }
 
+    /**
+     * 탈퇴 회원 재활성화
+     */
     public void reactivate() {
         if (this.deletedAt == null) {
             throw new MemberException(MemberErrorCode.MEMBER_NOT_DELETED);
@@ -224,6 +250,9 @@ public class Member extends BaseEntity {
 
     // ==================== 프로필 관리 ====================
 
+    /**
+     * 프로필 이미지 URL 업데이트
+     */
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }

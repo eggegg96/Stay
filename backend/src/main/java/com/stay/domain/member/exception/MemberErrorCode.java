@@ -59,12 +59,9 @@ public enum MemberErrorCode {
     MEMBER_EMAIL_INVALID_FORMAT("MEMBER_612", "올바른 이메일 형식이 아닙니다."),
     MEMBER_NAME_REQUIRED("MEMBER_613", "이름은 필수입니다."),
     MEMBER_NAME_TOO_LONG("MEMBER_614", "이름은 50자를 초과할 수 없습니다."),
-
-    // Nickname Validation (615~619)
     MEMBER_NICKNAME_REQUIRED("MEMBER_615", "닉네임은 필수입니다."),
-    MEMBER_NICKNAME_INVALID_LENGTH("MEMBER_616", "닉네임은 2-30자 사이여야 합니다."),
-    MEMBER_NICKNAME_INVALID_FORMAT("MEMBER_617", "닉네임은 한글, 영문, 숫자, 언더스코어(_)만 사용 가능합니다."),
-
+    MEMBER_NICKNAME_INVALID_LENGTH("MEMBER_616", "닉네임은 2~30자여야 합니다."),
+    MEMBER_NICKNAME_INVALID_FORMAT("MEMBER_617", "닉네임은 한글, 영문, 숫자만 입력 가능합니다."),
 
     // SocialLogin Validation
     SOCIAL_MEMBER_REQUIRED("MEMBER_621", "회원 정보는 필수입니다."),

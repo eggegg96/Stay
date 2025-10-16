@@ -4,6 +4,8 @@ import com.stay.domain.member.dto.MemberResponse;
 import com.stay.domain.member.dto.NicknameCheckResponse;
 import com.stay.domain.member.dto.UpdateNicknameRequest;
 import com.stay.domain.member.entity.Member;
+import com.stay.domain.member.exception.MemberErrorCode;
+import com.stay.domain.member.exception.MemberException;
 import com.stay.domain.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +100,30 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 포인트 적립
+     */
+    public void earnPoints(int points) {
+        if (points =< 0) {
+            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
+        }
+        this.points += points;
+    }
+
+    /**
+     * 포인트 사용
+     */
+    public void usePoints(int amount){
+        if (amount < 0) {
+            throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
+        }
+        if(this.points < amount) {
+            throw new MemberException(
+                    MemberErrorCode.INSUFFICIENT_POINTS,
+                    String.format("포인트가 부족합니다. 보유 (보유: %d, 사용시도: %d)", this.points, amount)
+            );
+        }
+    }
     // ==================== 닉네임 관련 API ====================
 
     /**
