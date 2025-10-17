@@ -1,18 +1,19 @@
 import axios from "axios";
 import { API_TIMEOUT } from "@/constants";
-import {
-  getAccessToken,
-  setTokens,
-  clearTokens,
-} from "@/lib/utils/tokenStorage";
 
 /**
  * Axios 인스턴스 생성
  *
+ * HttpOnly 쿠키 방식:
+ * - JWT 토큰이 HttpOnly 쿠키로 저장됨 (백엔드에서 설정)
+ * - 브라우저가 자동으로 쿠키를 관리하고 전송
+ * - 프론트엔드는 토큰을 직접 저장/조회하지 않음
+ * - XSS 공격으로부터 안전함 (JavaScript로 토큰 접근 불가)
+ *
  * 왜 필요한가?
- * - 매번 axios.get, axios.post 할 때마다 baseURL 적는 건 비효율적
- * - 공통 설정(baseURL, timeout, headers)을 한 번만 정의
- * - 인터셉터로 모든 요청에 자동으로 토큰 추가 가능
+ * - 모든 API 요청에 공통 설정(baseURL, timeout, headers)을 한 번만 정의
+ * - withCredentials: true 설정으로 쿠키 자동 전송
+ * - 인터셉터로 401 에러 등 공통 에러 처리
  */
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api",
@@ -26,26 +27,30 @@ const apiClient = axios.create({
 /**
  * 요청 인터셉터
  *
- * 모든 API 요청 직전에 실행됨
+ * HttpOnly 쿠키 방식에서는:
+ * - Authorization 헤더에 토큰을 직접 넣지 않음
+ * - 브라우저가 자동으로 쿠키를 요청에 포함
+ * - 백엔드의 JwtAuthenticationFilter가 쿠키에서 토큰 추출
  *
- * 왜 필요한가?
- * - 로그인이 필요한 API마다 일일이 토큰 넣는 건 번거로움
- * - 인터셉터가 자동으로 모든 요청에 토큰 추가
- * - DRY 원칙! (Don't Repeat Yourself)
+ * 기존 localStorage 방식과의 차이:
+ * - localStorage: 프론트엔드가 직접 토큰을 꺼내서 헤더에 추가
+ * - HttpOnly 쿠키: 브라우저가 자동으로 처리 (더 안전)
  */
 apiClient.interceptors.request.use(
   (config) => {
-    const token = getAccessToken();
+    // HttpOnly 쿠키는 브라우저가 자동으로 전송하므로
+    // 여기서 토큰을 추가할 필요가 없음
 
-    // 토큰이 있으면 Authorization 헤더에 추가
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // 디버깅용 로그 (개발 환경에서만)
+    if (import.meta.env.DEV) {
+      console.log(
+        `[API Request] ${config.method?.toUpperCase()} ${config.url}`
+      );
     }
 
     return config;
   },
   (error) => {
-    // 요청 설정 중 에러 발생
     console.error("Request Error:", error);
     return Promise.reject(error);
   }
@@ -56,23 +61,24 @@ apiClient.interceptors.request.use(
  *
  * 모든 API 응답을 받은 직후 실행됨
  *
- * 왜 필요한가?
- * - 401 에러(인증 실패) 발생 시 자동으로 토큰 재발급 시도
- * - 토큰 만료 시 사용자가 수동으로 다시 로그인 안 해도 됨
- * - 자동 리프레시 로직 구현
+ * 401 에러 처리:
+ * - Access Token 만료 시 자동으로 Refresh Token으로 재발급 시도
+ * - Refresh Token도 HttpOnly 쿠키로 관리됨
+ * - 재발급 성공 시 원래 요청 재시도
+ * - 재발급 실패 시 로그인 페이지로 이동
  */
 let isRefreshing = false; // 토큰 재발급 중인지 플래그
 let failedQueue = []; // 401로 실패한 요청들을 저장할 큐
 
 /**
- * 실패한 요청들을 다시 실행
+ * 실패한 요청들을 다시 실행하거나 거부
  */
-const processQueue = (error, token = null) => {
+const processQueue = (error) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve();
     }
   });
 
@@ -91,9 +97,9 @@ apiClient.interceptors.response.use(
      * 401 에러 처리 (인증 실패)
      *
      * 시나리오:
-     * 1. API 요청 -> 401 에러 (토큰 만료)
+     * 1. API 요청 → 401 에러 (Access Token 만료)
      * 2. Refresh Token으로 새 Access Token 발급 시도
-     * 3-1. 성공: 새 토큰으로 원래 요청 재시도
+     * 3-1. 성공: 원래 요청 재시도
      * 3-2. 실패: 로그인 페이지로 이동
      */
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -103,8 +109,7 @@ apiClient.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+          .then(() => {
             return apiClient(originalRequest);
           })
           .catch((err) => {
@@ -116,39 +121,24 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // 토큰 재발급 API 호출 (나중에 authApi.js에서 구현)
-        const { refreshToken } = await import("@/lib/utils/tokenStorage").then(
-          (module) => ({ refreshToken: module.getRefreshToken() })
-        );
-
-        if (!refreshToken) {
-          throw new Error("리프레시 토큰이 없습니다.");
-        }
-
-        // 토큰 재발급 요청
-        const response = await axios.post(
-          `${apiClient.defaults.baseURL}/auth/refresh`,
-          { refreshToken }
-        );
-
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-        // 새 토큰 저장
-        setTokens(accessToken, newRefreshToken);
+        // Refresh Token API 호출
+        // Refresh Token도 HttpOnly 쿠키로 전송되므로 별도 파라미터 불필요
+        await apiClient.post("/auth/refresh");
 
         // 대기 중인 요청들 재시도
-        processQueue(null, accessToken);
+        processQueue(null);
 
         // 원래 요청 재시도
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        // 새로운 Access Token이 쿠키에 설정되었으므로 자동으로 전송됨
         return apiClient(originalRequest);
       } catch (refreshError) {
         // 토큰 재발급 실패 -> 로그아웃 처리
-        processQueue(refreshError, null);
-        clearTokens();
+        processQueue(refreshError);
 
         // 로그인 페이지로 리다이렉트
+        console.error("Refresh Token 만료 - 로그인 페이지로 이동");
         window.location.href = "/login";
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

@@ -296,7 +296,7 @@ public class MemberService {
     }
 
     /**
-     * 회원 탈퇴 (소프트 삭제)
+     * 회원 탈퇴 (하드 삭제)
      */
     @Transactional
     public void deleteMember(Long memberId) {
@@ -315,8 +315,8 @@ public class MemberService {
      * 포인트 적립
      */
     @Transactional
-    public Member earnPoints(Long memberId, Integer points) {
-        if (points == null || points <= 0) {
+    public Member earnPoints(Long memberId, int points) {
+        if (points <= 0) {  // null 체크 불필요
             throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
 
@@ -337,8 +337,8 @@ public class MemberService {
      * 포인트 사용
      */
     @Transactional
-    public Member usePoints(Long memberId, Integer points) {
-        if (points == null || points <= 0) {
+    public Member usePoints(Long memberId, int points) {
+        if (points <= 0) {
             throw new MemberException(MemberErrorCode.INVALID_POINT_AMOUNT);
         }
 
