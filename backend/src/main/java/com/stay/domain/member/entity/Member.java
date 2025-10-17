@@ -203,7 +203,7 @@ public class Member extends BaseEntity {
      */
     public void upgradeToBusinessOwner() {
         if (this.role == MemberRole.BUSINESS_OWNER) {
-            throw new IllegalStateException("이미 사업자 회원입니다.");
+            throw new MemberException(MemberErrorCode.ALREADY_BUSINESS_OWNER);
         }
         this.role = MemberRole.BUSINESS_OWNER;
     }

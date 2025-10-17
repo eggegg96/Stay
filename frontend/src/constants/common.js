@@ -13,22 +13,6 @@ export const DATE_CONSTANTS = {
   DEFAULT_NIGHTS: 1, // 기본 숙박 일수
 };
 
-// ==================== 로컬 스토리지 키 ====================
-
-/**
- * 로컬 스토리지 키 상수
- *
- * 사용 위치:
- * - lib/utils/tokenStorage.js
- * - lib/api/client.js
- * - contexts/AuthContext.jsx (만들 예정)
- */
-export const STORAGE_KEYS = {
-  ACCESS_TOKEN: "accessToken",
-  REFRESH_TOKEN: "refreshToken",
-  USER_INFO: "userInfo",
-};
-
 // ==================== API 관련 상수 ====================
 
 /**
