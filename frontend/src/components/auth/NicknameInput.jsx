@@ -40,12 +40,12 @@ export default function NicknameInput({
       return { valid: false, message: "닉네임을 입력해주세요." };
     }
 
-    if (value.length < 2) {
-      return { valid: false, message: "닉네임은 최소 2자 이상이어야 합니다." };
+    if (value.length < 3) {
+      return { valid: false, message: "닉네임은 최소 3자 이상이어야 합니다." };
     }
 
-    if (value.length > 30) {
-      return { valid: false, message: "닉네임은 최대 30자까지 가능합니다." };
+    if (value.length > 8) {
+      return { valid: false, message: "닉네임은 최대 8자까지 가능합니다." };
     }
 
     // 한글, 영문, 숫자, 언더스코어만 허용
@@ -164,10 +164,10 @@ export default function NicknameInput({
           type="text"
           value={nickname}
           onChange={handleChange}
-          placeholder="2-30자, 한글/영문/숫자/언더스코어"
-          maxLength={30}
+          placeholder="3-8자, 한글/영문/숫자/언더스코어"
+          maxLength={8}
           className={`
-            w-full px-4 py-3 border-2 rounded-lg
+            px-4 py-3 w-full border-2 rounded-lg
             focus:outline-none focus:ring-2 focus:ring-blue-500/20
             transition-colors duration-200
             ${getBorderColor()}
@@ -219,7 +219,7 @@ export default function NicknameInput({
         )}
       </div>
       {message && <p className={`text-sm ${getMessageColor()}`}>{message}</p>}
-      <p className="text-xs text-gray-500 text-right">{nickname.length} / 30</p>
+      <p className="text-xs text-gray-500 text-right">{nickname.length} / 8</p>
     </div>
   );
 }

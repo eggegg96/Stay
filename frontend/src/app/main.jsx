@@ -6,6 +6,10 @@ import Login from "@pages/Login";
 import Signup from "@pages/Signup";
 import OAuthCallback from "@pages/OAuthCallback";
 import ResultsPage from "@pages/ResultsPage";
+
+import BusinessLogin from "@pages/BusinessLogin";
+import BusinessSignup from "@pages/BusinessSignup";
+
 import AccommodationDetailPage from "@pages/Accommodation-DetailPage";
 import { HeaderProvider } from "@contexts/HeaderContext";
 import { AuthProvider } from "@contexts/AuthContext";
@@ -25,7 +29,10 @@ const router = createBrowserRouter([
       { path: "/signup", element: <Signup /> },
       { path: "/oauth/callback", element: <OAuthCallback /> },
 
-      // ResultsPage를 재사용
+      // 비즈니스 회원 인증
+      { path: "/business/login", element: <BusinessLogin /> },
+      { path: "/business/signup", element: <BusinessSignup /> },
+
       {
         path: "/domestic",
         element: <ResultsPage type="domestic" title="국내 숙소" />,
