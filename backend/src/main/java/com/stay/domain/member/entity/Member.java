@@ -36,13 +36,16 @@ public class Member extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Column(length = 255)
+    private String password;
+
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(name = "nickname", length = 30, unique = true)
+    @Column(name = "nickname", length = 8, unique = true)
     private String nickname;
 
     @Enumerated(EnumType.STRING)
@@ -80,13 +83,14 @@ public class Member extends BaseEntity {
     private List<SocialLogin> socialLogins = new ArrayList<>();
 
     @Builder
-    private Member(String email, String phoneNumber, String name, String nickname,
+    private Member(String email, String password, String phoneNumber, String name, String nickname,
                    MemberRole role, String profileImageUrl) {
         validateEmail(email);
         validateName(name);
         // 닉네임은 나중에 설정할 수도 있으므로 null 허용
 
         this.email = email;
+        this.password = password;
         this.phoneNumber = phoneNumber;
         this.name = name;
         this.nickname = nickname;
@@ -126,7 +130,7 @@ public class Member extends BaseEntity {
             throw new MemberException(MemberErrorCode.MEMBER_NICKNAME_REQUIRED);
         }
 
-        if (nickname.length() < 2 || nickname.length() > 30) {
+        if (nickname.length() < 2 || nickname.length() > 8) {
             throw new MemberException(MemberErrorCode.MEMBER_NICKNAME_INVALID_LENGTH);
         }
 
