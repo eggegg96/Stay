@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
  * - MEMBER_401~499: 권한 관련
  * - MEMBER_501~599: 소셜 로그인 관련
  * - MEMBER_601~699: Validation 관련
+ * - MEMBER_701~799: 사업자 관련 ← 새로 추가!
  */
 @Getter
 @RequiredArgsConstructor
@@ -67,6 +68,42 @@ public enum MemberErrorCode {
     SOCIAL_MEMBER_REQUIRED("MEMBER_621", "회원 정보는 필수입니다."),
     SOCIAL_PROVIDER_REQUIRED("MEMBER_622", "소셜 제공자 정보는 필수입니다."),
     SOCIAL_ID_REQUIRED("MEMBER_623", "소셜 ID는 필수입니다."),
+
+    // ==================== 사업자 관련 (701~799) ====================
+
+    // 사업자 기본 (701~710)
+    BUSINESS_INFO_NOT_FOUND("MEMBER_701", "사업자 정보를 찾을 수 없습니다."),
+    DUPLICATE_BUSINESS_NUMBER("MEMBER_702", "이미 등록된 사업자 등록번호입니다."),
+    NOT_BUSINESS_OWNER("MEMBER_703", "사업자 회원이 아닙니다."),
+
+    // 사업자 등록번호 검증 (711~720)
+    BUSINESS_NUMBER_REQUIRED("MEMBER_711", "사업자 등록번호는 필수입니다."),
+    BUSINESS_NUMBER_INVALID_FORMAT("MEMBER_712", "사업자 등록번호 형식이 올바르지 않습니다 (XXX-XX-XXXXX)."),
+
+    // 회사 정보 검증 (721~730)
+    COMPANY_NAME_REQUIRED("MEMBER_721", "회사명은 필수입니다."),
+
+    // 정산 계좌 검증 (731~740)
+    BANK_NAME_REQUIRED("MEMBER_731", "은행명은 필수입니다."),
+    BANK_ACCOUNT_REQUIRED("MEMBER_732", "계좌번호는 필수입니다."),
+    ACCOUNT_HOLDER_REQUIRED("MEMBER_733", "예금주명은 필수입니다."),
+
+    // 이메일 인증 (741~750)
+    EMAIL_NOT_VERIFIED("MEMBER_741", "이메일 인증이 완료되지 않았습니다."),
+
+    // 사업자 포인트 제한 (751~760)
+    BUSINESS_MEMBER_CANNOT_EARN_POINTS("MEMBER_751", "사업자 회원은 포인트를 적립할 수 없습니다."),
+    BUSINESS_MEMBER_CANNOT_USE_POINTS("MEMBER_752", "사업자 회원은 포인트를 사용할 수 없습니다."),
+
+    // 승인 상태 관련 (761~770)
+    BUSINESS_NOT_APPROVED("MEMBER_761", "승인되지 않은 사업자입니다."),
+    BUSINESS_ALREADY_APPROVED("MEMBER_762", "이미 승인된 사업자입니다."),
+    BUSINESS_REJECTED("MEMBER_763", "승인이 거부된 사업자입니다."),
+    REJECTION_REASON_REQUIRED("MEMBER_764", "승인 거부 사유는 필수입니다."),
+
+    // 기타 사업자 (771~799)
+    MEMBER_REQUIRED("MEMBER_771", "회원 정보가 필요합니다."),
+    CANNOT_CHANGE_ADMIN_ROLE("MEMBER_772", "관리자 역할은 변경할 수 없습니다."),
 
     // 기타 (999)
     INTERNAL_ERROR("MEMBER_999", "회원 처리 중 오류가 발생했습니다.");
