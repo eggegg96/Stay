@@ -16,7 +16,7 @@ UPDATE members
 SET nickname = CONCAT(
     SUBSTRING_INDEX(email, '@', 1),  -- 이메일 아이디 부분
     '_',
-    id                                -- 회원 ID (고유성 보장)
+    member_id                         -- 회원 ID (고유성 보장)
 )
 WHERE nickname IS NULL;
 
