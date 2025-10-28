@@ -77,6 +77,17 @@ public class Member extends BaseEntity {
     @Column(name = "profile_image_url", length = 500)
     private String profileImageUrl;
 
+    /**
+     * 이메일 인증 여부
+     * - 회원가입 시 false
+     * - 이메일 인증 완료 시 true
+     */
+    @Column(name = "email_verified", nullable = false)
+    private Boolean emailVerified = false;
+
+    @Column(name = "email_verified_at")
+    private LocalDateTime emailVerifiedAt;
+
     @OneToMany(mappedBy = "member",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             orphanRemoval = false)
@@ -212,6 +223,34 @@ public class Member extends BaseEntity {
         this.role = MemberRole.BUSINESS_OWNER;
     }
 
+    // ==================== 이메일 인증 ====================
+
+    /**
+     * 이메일 인증 처리
+     */
+    public void verifyEmail() {
+        if (this.emailVerified) {
+            return;  // 이미 인증됨
+        }
+
+        this.emailVerified = true;
+        this.emailVerifiedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 이메일 인증 여부 확인
+     */
+    public boolean isEmailVerified() {
+        return this.emailVerified;
+    }
+
+    /**
+     * 사업자 회원 여부 확인
+     */
+    public boolean isBusiness() {
+        return this.role == MemberRole.BUSINESS_OWNER;
+    }
+
     // ==================== 회원 상태 관리 ====================
 
     /**
@@ -280,6 +319,7 @@ public class Member extends BaseEntity {
             throw new MemberException(MemberErrorCode.MEMBER_NAME_TOO_LONG);
         }
     }
+
 
     // ==================== 편의 메서드 ====================
 

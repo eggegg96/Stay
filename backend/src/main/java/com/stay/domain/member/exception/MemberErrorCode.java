@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
  * - MEMBER_501~599: 소셜 로그인 관련
  * - MEMBER_601~699: Validation 관련
  * - MEMBER_701~799: 사업자 관련 ← 새로 추가!
+ * - MEMBER_801~899: 이메일 관련
  */
 @Getter
 @RequiredArgsConstructor
@@ -91,7 +92,7 @@ public enum MemberErrorCode {
     // 이메일 인증 (741~750)
     EMAIL_NOT_VERIFIED("MEMBER_741", "이메일 인증이 완료되지 않았습니다."),
 
-    // 사업자 포인트 제한 (751~760)
+    // 사업자 포인트 제한 (751~760) 추후 다른 Error 코드로 변경 가능
     BUSINESS_MEMBER_CANNOT_EARN_POINTS("MEMBER_751", "사업자 회원은 포인트를 적립할 수 없습니다."),
     BUSINESS_MEMBER_CANNOT_USE_POINTS("MEMBER_752", "사업자 회원은 포인트를 사용할 수 없습니다."),
 
@@ -104,6 +105,13 @@ public enum MemberErrorCode {
     // 기타 사업자 (771~799)
     MEMBER_REQUIRED("MEMBER_771", "회원 정보가 필요합니다."),
     CANNOT_CHANGE_ADMIN_ROLE("MEMBER_772", "관리자 역할은 변경할 수 없습니다."),
+
+    // 이메일 인증 관련 (801~899)
+    ALREADY_VERIFIED("MEMBER_801", "이미 이메일 인증이 완료된 회원입니다."),
+    INVALID_VERIFICATION_TOKEN("MEMBER_802", "유효하지 않은 인증 토큰입니다."),
+    VERIFICATION_TOKEN_EXPIRED("MEMBER_803", "인증 토큰이 만료되었습니다."),
+    VERIFICATION_TOKEN_ALREADY_USED("MEMBER_804", "이미 사용된 인증 토큰입니다."),
+    EMAIL_RESEND_TOO_SOON("MEMBER_805", "인증 메일은 3분 후에 재발송할 수 있습니다."),
 
     // 기타 (999)
     INTERNAL_ERROR("MEMBER_999", "회원 처리 중 오류가 발생했습니다.");
