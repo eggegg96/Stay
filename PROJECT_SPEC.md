@@ -12,15 +12,15 @@
   - Build Tool: Vite
   - Styling: TailwindCSS 4
   - Router: React Router v6
-  - State Management: Context API, Custom Hooks
-  - HTTP Client: Fetch API (추후 Axios 고려)
+  - State Management: Context API(Justand 변경 예정), Custom Hooks
+  - HTTP Client: Axios
 
 - **Backend**
 
   - Framework: Spring Boot 3.5.6
   - Language: Java 17
   - Database: MySQL 8.0
-  - ORM: Spring Data JPA
+  - ORM: Spring Data JPA (Hibernate)
   - Security: Spring Security + JWT (HttpOnly Cookie)
   - Migration: Flyway
 
@@ -546,72 +546,6 @@ public abstract class BaseEntity {
 
 ---
 
-## 데이터베이스 스키마
-
-### 현재 구현된 테이블
-
-**members** (회원)
-
-```sql
-CREATE TABLE members (
-    member_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    phone_number VARCHAR(20),
-    name VARCHAR(50) NOT NULL,
-    nickname VARCHAR(30) UNIQUE NOT NULL,
-    role VARCHAR(20) NOT NULL,           -- CUSTOMER, BUSINESS_OWNER, ADMIN
-    grade VARCHAR(20) NOT NULL,          -- BASIC, ELITE, ELITE_PLUS
-    reservation_count INT DEFAULT 0,
-    points INT DEFAULT 0,
-    is_active BOOLEAN DEFAULT TRUE,
-    last_login_at DATETIME,
-    last_grade_updated_at DATETIME,
-    deleted_at DATETIME,
-    profile_image_url VARCHAR(500),
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    created_by VARCHAR(50),
-    updated_by VARCHAR(50),
-    INDEX idx_email (email),
-    INDEX idx_phone (phone_number),
-    UNIQUE KEY uk_members_nickname (nickname)
-);
-```
-
-**social_logins** (소셜 로그인 정보)
-
-```sql
-CREATE TABLE social_logins (
-    social_login_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    member_id BIGINT NOT NULL,
-    provider VARCHAR(20) NOT NULL,       -- GOOGLE, NAVER, KAKAO
-    social_id VARCHAR(100) NOT NULL,
-    social_email VARCHAR(100),
-    social_name VARCHAR(100),
-    profile_image_url VARCHAR(500),
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL,
-    created_by VARCHAR(50),
-    updated_by VARCHAR(50),
-    FOREIGN KEY (member_id) REFERENCES members(member_id),
-    UNIQUE KEY uk_provider_social_id (provider, social_id),
-    INDEX idx_member_id (member_id),
-    INDEX idx_provider_social_id (provider, social_id)
-);
-```
-
-### 향후 추가될 테이블 (계획)
-
-- `accommodations` (숙소)
-- `rooms` (객실)
-- `reservations` (예약)
-- `reviews` (리뷰)
-- `payments` (결제)
-- `images` (이미지)
-- `coupons` (쿠폰)
-
----
-
 ## 기술적 고려사항
 
 ### 1. 예약 시스템 구현 시 주의사항
@@ -708,14 +642,14 @@ allowCredentials: true
 
 ### 즉시 착수 (Phase 2 완성)
 
-1. **소셜 로그인 확장**
+1. **소셜 로그인 확장** ✅
 
    - 카카오 OAuth 연동
    - 네이버 OAuth 연동
    - OAuthService에 provider별 처리 추가
 
 2. **사업자 회원 가입 플로우**
-   - 이메일 인증 UI (프론트)
+   - 이메일 인증 UI (프론트) ✅
    - JavaMailSender 이메일 발송 (백엔드)
 
 ### 단기 목표 (1-2주)
@@ -771,3 +705,6 @@ allowCredentials: true
 - **2025.10.21**: 닉네임 기능 추가 (Member Entity, API, 중복 체크, DB 마이그레이션)
 - **2025.10.21**: OAuth 로그인 HttpOnly Cookie 방식으로 변경 (보안 강화)
 - **2025.10.21**: 프로젝트 명세서 업데이트 (진행 상황 반영, 불필요한 표시 제거)
+- **2025.10.28**: HTTP Client: Fetch API → Axios로 수정 (실제 구현과 일치화)
+- **2025.10.28**: State Management: Zustand 전환 예정 명시
+- **2025.10.28**: DB 테이블 구조 섹션 제거 (Flyway 버전 관리로 대체)
