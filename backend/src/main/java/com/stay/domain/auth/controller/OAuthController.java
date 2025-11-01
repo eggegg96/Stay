@@ -4,6 +4,7 @@ import com.stay.domain.auth.dto.JwtTokenResponse;
 import com.stay.domain.auth.dto.OAuthLoginRequest;
 import com.stay.domain.auth.service.AuthService;
 import com.stay.domain.auth.util.JwtUtil;
+import com.stay.domain.member.dto.SocialLoginRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -101,13 +102,31 @@ public class OAuthController {
 
             log.info("========================================");
 
-            // 프론트엔드에 신규 회원 여부 전달
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "로그인 성공",
-                    "isNewMember", tokenResponse.isNewMember(),
-                    "email", tokenResponse.email()
-            ));
+            // 프론트엔드에 응답 반환
+            if (tokenResponse.isNewMember()) {
+                // 신규 회원: OAuth 정보 포함
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "신규 회원입니다. 닉네임을 입력해주세요",
+                        "isNewMember", true,
+                        "oauthData", Map.of(
+                                "provider", tokenResponse.provider(),
+                                "providerId", tokenResponse.providerId(),
+                                "email", tokenResponse.email(),
+                                "name", tokenResponse.name(),
+                                "profileImageUrl", tokenResponse.profileImageUrl() != null
+                                        ? tokenResponse.profileImageUrl() : ""
+                        )
+                ));
+            } else {
+                // 기존 회원: 기존 응답
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "로그인 성공",
+                        "isNewMember", false,
+                        "email", tokenResponse.email()
+                ));
+            }
 
         } catch (IllegalArgumentException e) {
             log.error("========================================");
@@ -151,6 +170,89 @@ public class OAuthController {
         }
     }
 
+
+    /**
+     * OAuth 최종 회원가입 API (닉네임 포함)
+     *
+     * POST /api/auth/oauth/register
+     *
+     * 왜 필요한가?
+     * - 기존 /login은 OAuth 인증만 처리
+     * - 이 API는 닉네임까지 받아서 한 번에 회원가입 완료!
+     *
+     * 플로우:
+     * 1. 프론트: OAuth 인증 완료 → sessionStorage에 OAuth 정보 저장
+     * 2. 프론트: 닉네임 입력 페이지로 이동
+     * 3. 프론트: 닉네임 입력 후 이 API 호출
+     * 4. 백엔드: 닉네임 + OAuth 정보로 회원가입 완료 → 토큰 발급
+     *
+     * @param request OAuth 정보 + 닉네임 (SocialLoginRequest)
+     * @param response HttpServletResponse (쿠키 설정용)
+     * @return 회원가입 성공 응답
+     */
+    @PostMapping("/register")
+    public ResponseEntity<?> registerWithOAuth(
+            @RequestBody SocialLoginRequest request,
+            HttpServletResponse response
+    ) {
+        try {
+            log.info("========================================");
+            log.info("OAuth 최종 회원가입 요청 시작");
+            log.info("Provider: {}", request.provider());
+            log.info("Email: {}", request.email());
+            log.info("Nickname: {}", request.nickname());
+            log.info("========================================");
+
+            // AuthService에 최종 가입 처리 위임
+            JwtTokenResponse tokenResponse = authService.registerWithOAuth(request);
+
+            // Access Token을 HttpOnly 쿠키로 설정
+            Cookie accessTokenCookie = new Cookie("accessToken", tokenResponse.accessToken());
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(false);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge(7 * 24 * 60 * 60);  // 7일
+            response.addCookie(accessTokenCookie);
+
+            // Refresh Token을 HttpOnly 쿠키로 설정
+            Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.refreshToken());
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(false);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(30 * 24 * 60 * 60);  // 30일
+            response.addCookie(refreshTokenCookie);
+
+            log.info("OAuth 최종 회원가입 성공 - email: {}", tokenResponse.email());
+            log.info("========================================");
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "회원가입이 완료되었습니다",
+                    "email", tokenResponse.email()
+            ));
+
+        } catch (IllegalArgumentException e) {
+            // 닉네임 중복, 이미 가입된 계정 등
+            log.error("OAuth 최종 회원가입 실패: {}", e.getMessage());
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "success", false,
+                            "error", "VALIDATION_ERROR",
+                            "message", e.getMessage()
+                    ));
+
+        } catch (Exception e) {
+            log.error("OAuth 최종 회원가입 중 예상치 못한 오류", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "success", false,
+                            "error", "SERVER_ERROR",
+                            "message", "회원가입 처리 중 오류가 발생했습니다"
+                    ));
+        }
+    }
     /**
      * 로그아웃 API
      *

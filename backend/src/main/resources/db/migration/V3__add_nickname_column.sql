@@ -19,7 +19,3 @@ SET nickname = CONCAT(
     member_id                         -- 회원 ID (고유성 보장)
 )
 WHERE nickname IS NULL;
-
--- 4. 이제 닉네임을 필수로 변경
-ALTER TABLE members
-MODIFY COLUMN nickname VARCHAR(30) NOT NULL COMMENT '사용자 닉네임 (고유, 필수)';

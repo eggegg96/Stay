@@ -1,22 +1,35 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@contexts/AuthContext";
 import authApi from "@/lib/api/authApi";
 import NicknameInput from "@/components/auth/NicknameInput";
 
 export default function UserInfoStep({ onNext }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { login } = useAuth();
 
-  // OAuth에서 전달된 이메일 정보 가져오기
-  const oauthEmail = location.state?.email;
+  // sessionStorage에서 OAuth 정보 가져오기
   const fromOAuth = location.state?.fromOAuth;
+  const [oauthData, setOauthData] = useState(null);
 
-  console.log("========================================");
-  console.log("UserInfoStep 마운트");
-  console.log("OAuth 정보:", { fromOAuth, oauthEmail });
-  console.log("location.state:", location.state);
-  console.log("========================================");
+  useEffect(() => {
+    if (fromOAuth) {
+      const storedData = sessionStorage.getItem("oauthData");
+      if (storedData) {
+        const parsed = JSON.parse(storedData);
+        console.log("========================================");
+        console.log("UserInfoStep - OAuth 정보 로드 완료");
+        console.log("Provider:", parsed.provider);
+        console.log("Email:", parsed.email);
+        console.log("========================================");
+        setOauthData(parsed);
+      } else {
+        console.error("OAuth 정보를 찾을 수 없습니다!");
+        navigate("/login", { replace: true });
+      }
+    }
+  }, [fromOAuth, navigate]);
 
   const [formData, setFormData] = useState({
     year: "",
@@ -90,59 +103,56 @@ export default function UserInfoStep({ onNext }) {
       return;
     }
 
+    // OAuth 정보 확인
+    if (!oauthData) {
+      setError("OAuth 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
+      return;
+    }
+
     setIsSubmitting(true);
     setError("");
 
     try {
       console.log("========================================");
-      console.log("회원가입 완료 시도");
-      console.log("OAuth 이메일:", oauthEmail);
-      console.log("닉네임:", formData.nickname);
-      console.log(
-        "생년월일:",
-        `${formData.year}-${formData.month}-${formData.day}`
-      );
-      console.log("성별:", formData.gender);
+      console.log("OAuth 최종 회원가입 시도");
+      console.log("Provider:", oauthData.provider);
+      console.log("Email:", oauthData.email);
+      console.log("Nickname:", formData.nickname);
       console.log("========================================");
 
-      // OAuth로 온 경우 이메일 확인
-      if (!oauthEmail) {
-        throw new Error(
-          "로그인 정보를 찾을 수 없습니다. OAuth 인증을 다시 시도해주세요."
-        );
-      }
-
-      // 닉네임 설정 API 호출
-      // TODO: 백엔드 API 구현 후 주석 해제
-      // await authApi.updateNickname(formData.nickname);
-
-      // 임시: 닉네임 설정 성공으로 간주
-      console.log("닉네임 설정 완료");
-
-      // 로그인 상태 업데이트 (쿠키 발급을 위해)
-      await login({
-        email: oauthEmail,
+      // 최종 가입 API 호출
+      await authApi.registerWithOAuth({
+        provider: oauthData.provider,
+        providerId: oauthData.providerId,
+        email: oauthData.email,
+        name: oauthData.name,
+        nickname: formData.nickname,
+        profileImageUrl: oauthData.profileImageUrl || null,
       });
+
+      console.log("OAuth 최종 회원가입 성공");
+
+      // sessionStorage에서 OAuth 정보 삭제
+      sessionStorage.removeItem("oauthData");
+
+      // 로그인 상태 업데이트 (쿠키에서 자동으로 토큰 가져옴)
+      await login();
 
       console.log("로그인 상태 업데이트 완료");
       console.log("회원가입 완료 - 4단계로 이동");
-
-      // TODO: 생년월일, 성별도 저장하려면 별도 API 필요
-      // 현재는 닉네임만 설정하고 완료
 
       // 성공 시 다음 단계로
       onNext();
     } catch (err) {
       console.error("========================================");
-      console.error("회원가입 완료 실패:", err);
+      console.error("OAuth 최종 회원가입 실패:", err);
       console.error("========================================");
 
-      // 에러 메시지 사용자 친화적으로 표시
-      if (
-        err.message?.includes("nickname") ||
-        err.message?.includes("닉네임")
-      ) {
+      // 에러 메시지 처리
+      if (err.message?.includes("닉네임")) {
         setError("닉네임 설정에 실패했습니다. 다시 시도해주세요.");
+      } else if (err.message?.includes("이미 가입")) {
+        setError("이미 가입된 계정입니다. 로그인해주세요.");
       } else {
         setError(err.message || "회원가입에 실패했습니다. 다시 시도해주세요.");
       }
@@ -159,9 +169,9 @@ export default function UserInfoStep({ onNext }) {
           필수 정보 입력
         </h1>
         <p className="text-slate-500">가입을 위해 필수 정보를 입력해 주세요.</p>
-        {/* 디버깅용: OAuth 이메일 표시 */}
-        {oauthEmail && (
-          <p className="text-sm text-blue-600 mt-2">📧 {oauthEmail}</p>
+        {/* OAuth 이메일 표시 */}
+        {oauthData && (
+          <p className="text-sm text-blue-600 mt-2">📧 {oauthData.email}</p>
         )}
       </div>
 

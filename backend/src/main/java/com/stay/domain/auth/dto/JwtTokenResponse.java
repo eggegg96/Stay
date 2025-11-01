@@ -19,13 +19,15 @@ public record JwtTokenResponse(
         String tokenType,
         Long expiresIn,
         boolean isNewMember,
-        String email
+        String email,
+        String provider,
+        String providerId,
+        String name,
+        String profileImageUrl
 ) {
     /**
-     * 편의 생성 메서드
-     * Bearer 타입으로 고정하고, 만료 시간을 자동 계산
-     *
-     * 5개 파라미터 버전 (신규 회원 포함)
+     * 기존 회원용 생성 메서드
+     * (토큰 포함, OAuth 정보 없음)
      */
     public static JwtTokenResponse of(
             String accessToken,
@@ -40,7 +42,36 @@ public record JwtTokenResponse(
                 "Bearer",
                 accessTokenValidity / 1000,  // 밀리초 -> 초 변환
                 isNewMember,
-                email
+                email,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    /**
+     * 신규 회원용 생성 메서드
+     * (토큰 없음, OAuth 정보 포함)
+     */
+    public static JwtTokenResponse ofNewMember(
+            String email,
+            String provider,
+            String providerId,
+            String name,
+            String profileImageUrl
+    ) {
+        return new JwtTokenResponse(
+                null,  // 토큰 없음
+                null,
+                "Bearer",
+                null,
+                true,  // 신규 회원
+                email,
+                provider,
+                providerId,
+                name,
+                profileImageUrl
         );
     }
 
@@ -60,8 +91,12 @@ public record JwtTokenResponse(
                 refreshToken,
                 "Bearer",
                 accessTokenValidity / 1000,
-                false,  // 기본값: 기존 회원
-                null    // 이메일 없음
+                false,
+                null,
+                null,
+                null,
+                null,
+                null
         );
     }
 }

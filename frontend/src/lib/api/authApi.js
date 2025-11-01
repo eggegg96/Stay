@@ -120,5 +120,69 @@ const authApi = {
       );
     }
   },
+
+  /**
+   * OAuth 최종 회원가입 (닉네임 포함)
+   *
+   * POST /api/auth/oauth/register
+   *
+   * 왜 필요한가?
+   * - OAuth 인증 후 닉네임까지 입력받아서 한 번에 회원가입 완료
+   * - 251102 문제인 소셜 회원가입시 생기는 DB에 null값인 닉네임을 저장하려는 문제를 해결함
+   * - nickname=NULL 레코드 생기지 않음
+   *
+   * @param {Object} data - OAuth 정보 + 닉네임
+   * @param {string} data.provider - 소셜 제공자 (GOOGLE, NAVER, KAKAO)
+   * @param {string} data.providerId - 소셜 고유 ID
+   * @param {string} data.email - 이메일
+   * @param {string} data.name - 이름
+   * @param {string} data.nickname - 닉네임
+   * @param {string} [data.profileImageUrl] - 프로필 이미지 (선택)
+   * @returns {Promise<Object>} 회원가입 성공 응답
+   */
+  registerWithOAuth: async (data) => {
+    try {
+      console.log("========================================");
+      console.log("OAuth 최종 회원가입 API 호출");
+      console.log("Provider:", data.provider);
+      console.log("Email:", data.email);
+      console.log("Nickname:", data.nickname);
+      console.log("========================================");
+
+      // 백엔드 형식에 맞게 데이터 변환
+      const requestData = {
+        provider: data.provider,
+        socialId: data.providerId, // ← providerId → socialId
+        email: data.email,
+        name: data.name,
+        socialEmail: data.email, // ← socialEmail 추가
+        profileImageUrl: data.profileImageUrl || null,
+        nickname: data.nickname,
+      };
+
+      console.log("변환된 요청 데이터:", requestData);
+
+      const response = await apiClient.post(
+        "/auth/oauth/register",
+        requestData
+      );
+
+      console.log("OAuth 최종 회원가입 API 응답:", response.data);
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || "회원가입에 실패했습니다");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("OAuth 최종 회원가입 API 실패:", error);
+
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+
+      throw new Error("회원가입 처리 중 오류가 발생했습니다");
+    }
+  },
 };
 export default authApi;

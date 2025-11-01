@@ -178,7 +178,8 @@ public class OAuthService {
                 userInfo.email(),
                 userInfo.name(),
                 userInfo.email(),
-                userInfo.picture()
+                userInfo.picture(),
+                null
         );
     }
 
@@ -207,7 +208,8 @@ public class OAuthService {
                 userInfo.email(),
                 userInfo.name(),
                 userInfo.email(),
-                userInfo.profile_image()
+                userInfo.profile_image(),
+                null
         );
     }
 
@@ -244,7 +246,9 @@ public class OAuthService {
                 email,
                 name,
                 userInfo.kakao_account().email(),
-                profileImage
+                profileImage,
+                null
+
         );
     }
 }
