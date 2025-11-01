@@ -93,23 +93,32 @@ public class MemberService {
      * - 이메일 중복 체크 필수 (다른 소셜로 이미 가입했을 수 있음)
      * - 회원 생성 + 소셜 계정 연동을 한 트랜잭션에서 처리
      */
-    private Member registerSocialMember(SocialLoginRequest request) {
+    public Member registerSocialMember(SocialLoginRequest request) {
         // 이메일 중복 체크
         if (memberRepository.existsByEmail(request.email())) {
             log.warn("이미 가입된 이메일 - email: {}", request.email());
             throw new MemberException(MemberErrorCode.DUPLICATE_EMAIL);
         }
 
+        // 닉네임 중복 체크
+        if (request.nickname() != null && memberRepository.existsByNickname(request.nickname())) {
+            log.warn("이미 사용 중인 닉네임 - nickname: {}", request.nickname());
+            throw new MemberException(MemberErrorCode.DUPLICATE_NICKNAME);
+        }
+
         // 회원 생성
         Member newMember = Member.builder()
                 .email(request.email())
                 .name(request.name())
+                .nickname(request.nickname())
                 .profileImageUrl(request.profileImageUrl())
                 .role(MemberRole.CUSTOMER)
                 .build();
 
         Member savedMember = memberRepository.save(newMember);
-        log.info("신규 회원 생성 완료 - memberId: {}", savedMember.getId());
+        log.info("신규 회원 생성 완료 - memberId: {}, nickname: {}",
+                savedMember.getId(),
+                savedMember.getNickname());  // ← 로그에 닉네임 추가
 
         // 소셜 계정 연동
         SocialLogin socialLogin = SocialLogin.builder()
@@ -190,6 +199,23 @@ public class MemberService {
      * }
      * ```
      */
+
+    // ==================== 닉네임 관리 ====================
+
+    /**
+     * 닉네임 존재 여부 확인
+     */
+    public boolean existsByNickname(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
+    /**
+     * 이메일 존재 여부 확인
+     */
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+
     @Transactional(readOnly = true)
     public boolean isNicknameAvailable(String nickname) {
         if (nickname == null || nickname.trim().isEmpty()) {

@@ -56,13 +56,19 @@ export default function OAuthCallback() {
 
         // 신규 회원인 경우 회원가입 페이지로 이동
         if (result.isNewMember === true) {
-          console.log("신규 회원 감지 - 회원가입 페이지로 이동");
+          console.log("신규 회원 감지 - OAuth 정보를 sessionStorage에 저장");
+
+          // sessionStorage에 OAuth 정보 저장
+          sessionStorage.setItem("oauthData", JSON.stringify(result.oauthData));
+
+          console.log("OAuth Data 저장 완료:", result.oauthData);
+
           setTimeout(() => {
             navigate("/signup", {
               replace: true,
               state: {
                 fromOAuth: true,
-                email: result.email,
+                isNewMember: true,
               },
             });
           }, UI_DELAY.REDIRECT);

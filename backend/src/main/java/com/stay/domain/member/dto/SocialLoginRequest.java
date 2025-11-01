@@ -12,7 +12,8 @@ public record SocialLoginRequest(
         String email,
         String name,
         String socialEmail,
-        String profileImageUrl
+        String profileImageUrl,
+        String nickname
 ) {
 
     /**
@@ -34,6 +35,10 @@ public record SocialLoginRequest(
 
         if (profileImageUrl != null) {
             profileImageUrl = profileImageUrl.trim();
+        }
+
+        if (nickname != null) {
+            nickname = nickname.trim();
         }
     }
 }
