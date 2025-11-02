@@ -135,8 +135,18 @@ export default function UserInfoStep({ onNext }) {
       // sessionStorage에서 OAuth 정보 삭제
       sessionStorage.removeItem("oauthData");
 
-      // 로그인 상태 업데이트 (쿠키에서 자동으로 토큰 가져옴)
-      await login();
+      console.log("사용자 정보 조회 시작...");
+      try {
+        const userData = await authApi.getCurrentUser();
+        console.log("사용자 정보 조회 성공:", userData);
+
+        // AuthContext에 저장
+        await login(userData); // ← userData를 전달!
+      } catch (err) {
+        console.error("사용자 정보 조회 실패:", err);
+        // 최소한의 정보로라도 로그인 처리
+        await login({ email: oauthData.email, nickname: formData.nickname });
+      }
 
       console.log("로그인 상태 업데이트 완료");
       console.log("회원가입 완료 - 4단계로 이동");
