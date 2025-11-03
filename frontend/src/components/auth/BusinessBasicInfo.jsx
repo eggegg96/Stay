@@ -1,5 +1,6 @@
 import { useState } from "react";
 import NicknameInput from "./NicknameInput";
+import BirthDatePicker from "@/components/auth/BirthDatePicker";
 
 /**
  * Props:
@@ -303,17 +304,16 @@ export default function BusinessBasicInfo({ initialData, onNext }) {
             생년월일
           </label>
           <div className="flex-1">
-            <input
-              type="date"
-              placeholder="생년월일 입력"
+            <BirthDatePicker
               value={formData.birthDate}
-              onChange={(e) => handleChange("birthDate", e.target.value)}
-              max={new Date().toISOString().split("T")[0]}
-              className="px-4 py-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(date) => {
+                setFormData({ ...formData, birthDate: date });
+                // 에러 초기화
+                if (errors.birthDate) {
+                  setErrors({ ...errors, birthDate: "" });
+                }
+              }}
             />
-            {errors.birthDate && (
-              <p className="text-sm text-red-500 mt-2">{errors.birthDate}</p>
-            )}
           </div>
         </div>
 
