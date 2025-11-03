@@ -99,6 +99,8 @@ export default function BusinessCompanySelectStep({ initialData, onNext }) {
 
   const handleModalConfirm = () => {
     onNext(tempCompanyData);
+    setShowConfirmModal(false);
+    setTempCompanyData(null);
   };
 
   return (
