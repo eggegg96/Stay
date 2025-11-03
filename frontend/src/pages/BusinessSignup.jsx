@@ -1,5 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 import BusinessEmailVerification from "@/components/auth/BusinessEmailVerification";
 import BusinessEmailSent from "@/components/auth/BusinessEmailSent";
@@ -13,43 +14,30 @@ import SignupCompleteStep from "@/components/auth/SignupCompleteStep";
 /**
  * 비즈니스 회원가입 페이지
  *
- * 왜 이렇게 많은 단계가 필요한가?
- * 1. 이메일 인증: 실제 사용하는 이메일인지 확인 (보안 + 스팸 방지)
- * 2. 소속 확인: 정확한 사업자 매칭 (숙소 관리를 위해 필수)
- * 3. 약관 동의: 법적 요구사항
- * 4. 휴대폰 인증: 본인 확인 + 중복 가입 방지
- * 5. 단계별 검증: 각 단계에서 데이터 무결성 보장
- *
- * 왜 state로 formData를 관리하는가?
- * - 각 단계에서 입력한 데이터를 다음 단계로 전달
- * - 뒤로가기 시에도 입력한 데이터 유지
- * - 마지막 단계에서 모든 데이터를 한 번에 서버로 전송
+ * 접근 제어:
+ * 1. 로그인한 사용자 → 홈으로 리다이렉트
+ * 2. 비로그인 사용자 → step 검증 후 회원가입 진행
  */
 export default function BusinessSignup() {
+  const { user, loading } = useAuth(); // ← loading 추가!
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const step = parseInt(searchParams.get("step") || "1");
 
-  // 전체 회원가입 데이터를 하나의 state로 관리
-  // 이유: 각 단계의 데이터를 통합 관리하여 데이터 일관성 유지
+  // 검증 중 상태
+  const [isValidating, setIsValidating] = useState(true);
+  const [isValid, setIsValid] = useState(false);
+
+  // 전체 회원가입 데이터
   const [formData, setFormData] = useState({
-    // step 1-2: 이메일 인증
     email: "",
-    emailVerified: false, // 이메일 인증 완료 여부
-
-    // step 4-5: 소속 정보
-    companyType: "", // 724펜, 독채펜션, 호텔 등
-    companyName: "", // 선택한 소속명
-    businessNumber: "", // 사업자등록번호
-
-    // step 6: 약관 동의
+    emailVerified: false,
+    companyType: "",
+    companyName: "",
+    businessNumber: "",
     termsAgreed: false,
-
-    // step 7: 휴대폰 인증
     phoneNumber: "",
-    phoneVerified: false, // 휴대폰 인증 완료 여부
-
-    // step 8: 기본정보
+    phoneVerified: false,
     name: "",
     password: "",
     passwordConfirm: "",
@@ -60,18 +48,187 @@ export default function BusinessSignup() {
   });
 
   /**
+   * 로그인 상태 확인 + Step 검증
+   */
+  useEffect(() => {
+    // AuthContext 로딩 중이면 검증 대기
+    if (loading) {
+      console.log("🔄 AuthContext 로딩 중...");
+      return;
+    }
+
+    const validateAccess = () => {
+      console.log(`🔍 비즈니스 회원가입 페이지 접근 검증 시작...`);
+
+      // 🔒 1순위: 이미 로그인한 사용자는 회원가입 페이지 접근 불가
+      if (user) {
+        console.warn("⚠️ 이미 로그인된 사용자 - 홈으로 리다이렉트");
+        navigate("/", { replace: true });
+        setIsValid(false);
+        setIsValidating(false);
+        return;
+      }
+
+      // 2순위: Step 검증
+      console.log(`🔍 Business Step ${step} 검증 시작...`);
+
+      // Step 1은 항상 접근 가능
+      if (step === 1) {
+        sessionStorage.removeItem("businessSignupStep1Completed");
+        sessionStorage.removeItem("businessSignupStep2Completed");
+        sessionStorage.removeItem("businessSignupStep4Completed");
+        sessionStorage.removeItem("businessSignupStep5Completed");
+        sessionStorage.removeItem("businessSignupStep6Completed");
+        sessionStorage.removeItem("businessSignupStep7Completed");
+        sessionStorage.removeItem("businessSignupStep8Completed");
+        console.log("🔄 Business Step 1 - 진행 상태 초기화");
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // Step 2: 이메일 입력 완료 여부 확인
+      if (step === 2) {
+        const step1Completed = sessionStorage.getItem(
+          "businessSignupStep1Completed"
+        );
+        if (!step1Completed) {
+          console.warn("⚠️ Business Step 1 미완료 - Step 1로 리다이렉트");
+          navigate("/business/signup?step=1", { replace: true });
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // Step 3은 백엔드에서 이메일 인증 처리 (건너뜀)
+
+      // Step 4: 이메일 발송 확인 완료 여부
+      if (step === 4) {
+        const step2Completed = sessionStorage.getItem(
+          "businessSignupStep2Completed"
+        );
+        if (!step2Completed) {
+          console.warn("⚠️ Business Step 2 미완료 - Step 1로 리다이렉트");
+          navigate("/business/signup?step=1", { replace: true });
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // Step 5: 소속 선택 완료 여부 확인
+      if (step === 5) {
+        const step4Completed = sessionStorage.getItem(
+          "businessSignupStep4Completed"
+        );
+        if (!step4Completed) {
+          console.warn("⚠️ Business Step 4 미완료 - Step 1로 리다이렉트");
+          navigate("/business/signup?step=1", { replace: true });
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // Step 6: 소속 확인 완료 여부 확인
+      if (step === 6) {
+        const step5Completed = sessionStorage.getItem(
+          "businessSignupStep5Completed"
+        );
+        if (!step5Completed) {
+          console.warn("⚠️ Business Step 5 미완료 - Step 1로 리다이렉트");
+          navigate("/business/signup?step=1", { replace: true });
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // Step 7: 약관 동의 완료 여부 확인
+      if (step === 7) {
+        const step6Completed = sessionStorage.getItem(
+          "businessSignupStep6Completed"
+        );
+        if (!step6Completed) {
+          console.warn("⚠️ Business Step 6 미완료 - Step 1로 리다이렉트");
+          navigate("/business/signup?step=1", { replace: true });
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // Step 8: 휴대폰 인증 완료 여부 확인
+      if (step === 8) {
+        const step7Completed = sessionStorage.getItem(
+          "businessSignupStep7Completed"
+        );
+        if (!step7Completed) {
+          console.warn("⚠️ Business Step 7 미완료 - Step 1로 리다이렉트");
+          navigate("/business/signup?step=1", { replace: true });
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // Step 9: 기본정보 입력 완료 여부 확인
+      if (step === 9) {
+        const step8Completed = sessionStorage.getItem(
+          "businessSignupStep8Completed"
+        );
+        if (!step8Completed) {
+          console.warn("⚠️ Business Step 8 미완료 - Step 1로 리다이렉트");
+          navigate("/business/signup?step=1", { replace: true });
+          setIsValid(false);
+          setIsValidating(false);
+          return;
+        }
+        setIsValid(true);
+        setIsValidating(false);
+        return;
+      }
+
+      // 그 외 잘못된 step
+      console.warn(`⚠️ 잘못된 step: ${step} - Step 1로 리다이렉트`);
+      navigate("/business/signup?step=1", { replace: true });
+      setIsValid(false);
+      setIsValidating(false);
+    };
+
+    validateAccess();
+  }, [step, navigate, user, loading]);
+
+  /**
    * 다음 단계로 이동
-   *
-   * @param {number} nextStep - 이동할 step 번호
-   * @param {object} data - 현재 step에서 입력한 데이터
-   *
-   * replace: true를 사용하는 이유:
-   * - 브라우저 뒤로가기 시 step을 거슬러 올라가지 않음
-   * - 회원가입 플로우는 순차적으로 진행되어야 하므로
    */
   const goToStep = (nextStep, data = {}) => {
-    // 현재 단계 데이터를 기존 formData에 병합
     setFormData((prev) => ({ ...prev, ...data }));
+
+    // 현재 step 완료 표시 (step 3은 제외 - 백엔드 처리)
+    if (step !== 3) {
+      sessionStorage.setItem(`businessSignupStep${step}Completed`, "true");
+      console.log(`✅ Business Step ${step} 완료`);
+    }
 
     navigate(`/business/signup?step=${nextStep}`, {
       replace: true,
@@ -80,14 +237,17 @@ export default function BusinessSignup() {
 
   /**
    * 이전 단계로 돌아가기
-   *
-   * 사용 예: 소속 확인 화면에서 "뒤로" 버튼
    */
   const goBack = (prevStep) => {
     navigate(`/business/signup?step=${prevStep}`, {
       replace: true,
     });
   };
+
+  // 검증 중이거나 검증 실패 시 아무것도 렌더링하지 않음
+  if (isValidating || !isValid) {
+    return null;
+  }
 
   return (
     <section className="min-h-[calc(100vh-80px)] py-12 px-6">
