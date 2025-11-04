@@ -20,7 +20,7 @@ export default function AccommodationDetailPage() {
   const {
     checkIn,
     checkOut,
-    people,
+    adults,
     children,
     childrenAges,
     rooms,
@@ -49,7 +49,7 @@ export default function AccommodationDetailPage() {
   // 가격 계산 (숙박일수 + 인원 기준)
   const calculatePrice = (basePrice) => {
     if (!basePrice) return null;
-    return basePrice * nights * Number(people);
+    return basePrice * nights * Number(adults);
   };
 
   // HeaderContext 업데이트
@@ -61,7 +61,7 @@ export default function AccommodationDetailPage() {
       keyword: accommodation.name,
       checkIn,
       checkOut,
-      people,
+      adults,
       children,
       childrenAges,
       rooms,
@@ -76,7 +76,7 @@ export default function AccommodationDetailPage() {
         resetHeader();
       }
     };
-  }, [accommodation.name, checkIn, checkOut, people, children, rooms, nights]);
+  }, [accommodation.name, checkIn, checkOut, adults, children, rooms, nights]);
 
   // URL 파라미터 변경 감지 (브라우저 뒤로가기/앞으로가기)
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function AccommodationDetailPage() {
       const newParams = new URLSearchParams(window.location.search);
       const newCheckIn = newParams.get("checkIn") || checkIn;
       const newCheckOut = newParams.get("checkOut") || checkOut;
-      const newPeople = Number(newParams.get("people") || people);
+      const newAdults = Number(newParams.get("adults") || adults);
       const newRooms = Number(newParams.get("rooms") || rooms);
 
       // 아동 정보 파싱
@@ -102,7 +102,7 @@ export default function AccommodationDetailPage() {
         keyword: accommodation.name,
         checkIn: newCheckIn,
         checkOut: newCheckOut,
-        people: newPeople,
+        adults: newAdults,
         children: newChildren,
         childrenAges: newChildrenAges,
         rooms: newRooms,
@@ -116,7 +116,7 @@ export default function AccommodationDetailPage() {
     accommodation.name,
     checkIn,
     checkOut,
-    people,
+    adults,
     children,
     childrenAges,
     rooms,
@@ -230,7 +230,7 @@ export default function AccommodationDetailPage() {
             >
               <h3 className="text-lg font-semibold">{room.name}</h3>
               <div className="text-xs text-gray-500 mt-1">
-                {nights}박 기준 • 성인 {people}명
+                {nights}박 기준 • 성인 {adults}명
                 {isOverseas && children > 0 && ` • 아동 ${children}명`}
               </div>
 
@@ -242,7 +242,7 @@ export default function AccommodationDetailPage() {
                       대실 {dayFormatted ? `${dayFormatted}원` : "정보 없음"}
                     </span>
                     <div className="text-xs text-gray-400">
-                      기본 {formatKRW(room.dayUse)}원 × {nights}박 × {people}명
+                      기본 {formatKRW(room.dayUse)}원 × {nights}박 × {adults}명
                     </div>
                   </div>
                   <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">
@@ -260,7 +260,7 @@ export default function AccommodationDetailPage() {
                     </span>
                     <div className="text-xs text-gray-400">
                       기본 {formatKRW(room.stay)}원 × {nights}박 ×{" "}
-                      {people + children}명
+                      {adults + children}명
                     </div>
                   </div>
                   <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">

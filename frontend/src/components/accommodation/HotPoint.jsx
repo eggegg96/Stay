@@ -40,7 +40,7 @@ export default function HotPoint() {
       keyword: place.name,
       checkIn: today.toISOString().split("T")[0],
       checkOut: tomorrow.toISOString().split("T")[0],
-      people: "2",
+      adults: "2",
       rooms: "1",
     });
 

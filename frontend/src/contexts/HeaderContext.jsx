@@ -13,7 +13,7 @@ const DEFAULT = {
   keyword: "",
   checkIn: "",
   checkOut: "",
-  people: 2,
+  adults: 2,
   children: 0, // 아동 수
   childrenAges: [], // 아동 연령 배열
   rooms: 1,

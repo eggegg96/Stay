@@ -62,13 +62,13 @@ export default function Hot() {
 
     const checkIn = today.toISOString().split("T")[0];
     const checkOut = tomorrow.toISOString().split("T")[0];
-    const people = "2";
+    const adults = "2";
     const rooms = "1";
 
     // 약간의 딜레이 후 올바른 경로로 이동
     setTimeout(() => {
       navigate(
-        `/${accommodation.type}/${accommodation.id}?checkIn=${checkIn}&checkOut=${checkOut}&people=${people}&rooms=${rooms}`
+        `/${accommodation.type}/${accommodation.id}?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&rooms=${rooms}`
       );
       setClickedAccommodation(null);
 

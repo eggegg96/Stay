@@ -19,8 +19,8 @@ export default function SearchForm({
     setKeyword,
     range,
     setRange,
-    people,
-    setPeople,
+    adults,
+    setAdults,
     children,
     setChildren,
     childrenAges,
@@ -61,7 +61,7 @@ export default function SearchForm({
       keyword: keyword.trim(),
       checkIn: format(range[0].startDate, "yyyy-MM-dd"),
       checkOut: format(range[0].endDate, "yyyy-MM-dd"),
-      people: Number(people),
+      adults: Number(adults),
       children: area === "overseas" ? validChildrenAges.join(",") : undefined, // 🔥 이 부분이 핵심!
       rooms: Number(rooms),
     };
@@ -77,9 +77,9 @@ export default function SearchForm({
   const getBookingText = () => {
     if (area === "overseas") {
       const childrenText = Number(children) > 0 ? ` · 아동 ${children}명` : "";
-      return `성인 ${people}명${childrenText} · 객실 ${rooms}개`;
+      return `성인 ${adults}명${childrenText} · 객실 ${rooms}개`;
     } else {
-      return `인원 ${people}명`;
+      return `인원 ${adults}명`;
     }
   };
 
@@ -149,8 +149,8 @@ export default function SearchForm({
         <BookingPopover
           open={openBooking}
           onClose={() => setOpenBooking(false)}
-          people={people}
-          setPeople={setPeople}
+          adults={adults}
+          setAdults={setAdults}
           children={children}
           setChildren={setChildren}
           childrenAges={childrenAges}

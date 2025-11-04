@@ -15,14 +15,14 @@ export default function SummaryBar({ onOpen }) {
   const getGuestsText = () => {
     if (isOverseas) {
       // 해외: 성인 + 아동 + 객실 정보 표시
-      const adultsText = `성인 ${header.people || 2}명`;
+      const adultsText = `성인 ${header.adults || 2}명`;
       const childrenText = ` · 아동 ${header.children || 0}명`;
       const roomsText = ` · 객실 ${header.rooms || 1}개`;
 
       return `${adultsText}${childrenText}${roomsText}`;
     } else {
       // 국내: 단순 인원수만 표시
-      return `인원 ${header.people || 2}명`;
+      return `인원 ${header.adults || 2}명`;
     }
   };
 

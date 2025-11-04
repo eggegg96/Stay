@@ -24,7 +24,7 @@ export default function useFilterParams() {
     const keyword = currentParams.get("keyword");
     const checkIn = currentParams.get("checkIn");
     const checkOut = currentParams.get("checkOut");
-    const people = currentParams.get("people");
+    const adults = currentParams.get("adults");
     const children = currentParams.get("children");
     const rooms = currentParams.get("rooms");
 
@@ -34,7 +34,7 @@ export default function useFilterParams() {
     if (keyword) p.set("keyword", keyword);
     if (checkIn) p.set("checkIn", checkIn);
     if (checkOut) p.set("checkOut", checkOut);
-    if (people) p.set("people", people);
+    if (adults) p.set("adults", adults);
     if (children) p.set("children", children);
     if (rooms) p.set("rooms", rooms);
 

@@ -13,7 +13,7 @@ export default function useResultsHeader(type, locationLabel) {
     let keywordParam = params.get("keyword") || params.get("city");
     let checkInParam = params.get("checkIn");
     let checkOutParam = params.get("checkOut");
-    let peopleParam = params.get("people");
+    let adultsParam = params.get("adults");
     let childrenParam = params.get("children");
     let roomsParam = params.get("rooms");
 
@@ -23,7 +23,7 @@ export default function useResultsHeader(type, locationLabel) {
       keywordParam = urlParams.get("keyword");
       checkInParam = urlParams.get("checkIn");
       checkOutParam = urlParams.get("checkOut");
-      peopleParam = urlParams.get("people");
+      adultsParam = urlParams.get("adults");
       childrenParam = urlParams.get("children");
       roomsParam = urlParams.get("rooms");
     }
@@ -49,7 +49,7 @@ export default function useResultsHeader(type, locationLabel) {
         keyword: keywordParam,
         checkIn: checkInParam,
         checkOut: checkOutParam || "2025-10-15",
-        people: Number(peopleParam || 2),
+        adults: Number(adultsParam || 2),
         children: childrenCount,
         childrenAges: childrenAges,
         rooms: Number(roomsParam || 1),
@@ -63,7 +63,7 @@ export default function useResultsHeader(type, locationLabel) {
   const keywordParam = urlParams.get("keyword");
   const checkInParam = urlParams.get("checkIn") || "2025-10-14";
   const checkOutParam = urlParams.get("checkOut") || "2025-10-15";
-  const peopleParam = Number(urlParams.get("people") || 2);
+  const adultsParam = Number(urlParams.get("adults") || 2);
   const roomsParam = Number(urlParams.get("rooms") || 1);
 
   // 아동 정보 처리
@@ -80,7 +80,7 @@ export default function useResultsHeader(type, locationLabel) {
   const keyword = keywordParam || (type === "overseas" ? "도쿄" : "서울");
   const checkIn = checkInParam;
   const checkOut = checkOutParam;
-  const people = peopleParam;
+  const adults = adultsParam;
   const children = childrenCount;
   const rooms = roomsParam;
 
@@ -99,7 +99,7 @@ export default function useResultsHeader(type, locationLabel) {
     keywordSlug,
     checkIn,
     checkOut,
-    people,
+    adults,
     childrenAges,
     rooms,
     nights,

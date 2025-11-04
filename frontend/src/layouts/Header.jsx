@@ -50,7 +50,7 @@ export default function Header() {
     if (header.keyword) {
       state.updateState({
         keyword: header.keyword,
-        people: String(header.people || 2),
+        adults: String(header.adults || 2),
         children: String(header.children || 0),
         rooms: String(header.rooms || 1),
         startDate: header.checkIn ? new Date(header.checkIn) : new Date(),
@@ -69,7 +69,7 @@ export default function Header() {
       keyword: payload.keyword,
       checkIn: payload.checkIn,
       checkOut: payload.checkOut,
-      people: String(payload.people),
+      adults: String(payload.adults),
       rooms: String(payload.rooms),
     });
 
