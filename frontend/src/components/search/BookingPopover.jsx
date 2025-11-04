@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 
 const LIMITS = {
   domestic: {
-    maxPeople: 9,
+    maxAdults: 9,
     maxRooms: 1, // 국내는 객실 선택 불가
     maxChildren: 0, // 국내는 아동 선택 불가
   },
   overseas: {
-    maxPeople: 36,
+    maxAdults: 36,
     maxRooms: 9,
     maxChildren: 10, // 해외는 아동 최대 10명
   },
@@ -35,8 +35,8 @@ const AGE_OPTIONS = [
 export default function BookingPopover({
   open,
   onClose,
-  people,
-  setPeople,
+  adults,
+  setAdults,
   rooms = 1,
   setRooms,
   children = 0,
@@ -60,18 +60,18 @@ export default function BookingPopover({
   if (!open) return null;
 
   // 인원 수 조정 + 객실 수 자동 조정
-  const decreasePeople = () => {
-    const newPeopleCount = Math.max(1, Number(people) - 1);
-    setPeople(String(newPeopleCount));
+  const decreaseAdults = () => {
+    const newAdultsCount = Math.max(1, Number(adults) - 1);
+    setAdults(String(newAdultsCount));
 
     // 성인 수가 줄어들면 객실 수도 그에 맞게 조정
-    if (isOverseas && Number(rooms) > newPeopleCount) {
-      setRooms(String(newPeopleCount));
+    if (isOverseas && Number(rooms) > newAdultsCount) {
+      setRooms(String(newAdultsCount));
     }
   };
 
-  const increasePeople = () =>
-    setPeople(String(Math.min(limits.maxPeople, Number(people) + 1)));
+  const increaseAdults = () =>
+    setAdults(String(Math.min(limits.maxAdults, Number(adults) + 1)));
 
   // 아동 수 조정 (해외만)
   const decreaseChildren = () =>
@@ -81,7 +81,7 @@ export default function BookingPopover({
 
   // 객실 수 조정 (해외만)
   // 중요: 객실 수는 성인 수를 초과할 수 없음 (아동 보호 규정)
-  const maxAllowedRooms = Math.min(limits.maxRooms, Number(people));
+  const maxAllowedRooms = Math.min(limits.maxRooms, Number(adults));
 
   const decreaseRooms = () => setRooms(String(Math.max(1, Number(rooms) - 1)));
   const increaseRooms = () =>
@@ -99,7 +99,7 @@ export default function BookingPopover({
             <div className="text-md font-semibold leading-5">
               {isOverseas ? "성인" : "인원"}
             </div>
-            <p className="mt-1 text-xs text-slate-500 leading-4">
+            <p className="mt-1 text-xs text-slate-500 leading-4 w-max">
               {isOverseas
                 ? "만 18세 이상"
                 : "유아 및 아동도 인원수에 포함해주세요."}
@@ -108,20 +108,20 @@ export default function BookingPopover({
           <div className="flex items-center gap-3 whitespace-nowrap">
             <button
               type="button"
-              onClick={decreasePeople}
-              disabled={Number(people) <= 1}
+              onClick={decreaseAdults}
+              disabled={Number(adults) <= 1}
               className="w-8 h-8 rounded-full border border-slate-200 text-lg leading-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:border-slate-400"
               aria-label={`${isOverseas ? "성인" : "인원"} 인원 감소`}
             >
               −
             </button>
             <span className="w-6 text-center font-bold cursor-default">
-              {people}
+              {adults}
             </span>
             <button
               type="button"
-              onClick={increasePeople}
-              disabled={Number(people) >= limits.maxPeople}
+              onClick={increaseAdults}
+              disabled={Number(adults) >= limits.maxAdults}
               className="w-8 h-8 rounded-full border border-slate-200 text-lg leading-none cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:border-slate-400"
               aria-label={`${isOverseas ? "성인" : "인원"} 인원 증가`}
             >
@@ -242,7 +242,7 @@ export default function BookingPopover({
           <p className="text-xs text-slate-400 leading-relaxed">
             {isOverseas ? (
               <>
-                • 최대 성인 {limits.maxPeople}명, 아동 {limits.maxChildren}명,
+                • 최대 성인 {limits.maxAdults}명, 아동 {limits.maxChildren}명,
                 객실 {limits.maxRooms}개까지 선택 가능
                 <br />• 객실 수는 성인 수를 초과할 수 없습니다 (아동 보호 규정)
                 <br />• 각 객실마다 만 18세 이상 성인 1명 이상 필수
@@ -250,7 +250,7 @@ export default function BookingPopover({
               </>
             ) : (
               <>
-                • 최대 {limits.maxPeople}명까지 선택 가능
+                • 최대 {limits.maxAdults}명까지 선택 가능
                 <br />• 객실별 최대 인원은 숙소 정보를 확인해주세요
               </>
             )}
@@ -263,8 +263,8 @@ export default function BookingPopover({
                 현재 예약 구성
               </div>
               <div className="text-xs text-blue-600 mt-1">
-                성인 {people}명 + 아동 {children}명 = 총{" "}
-                {Number(people) + Number(children)}명
+                성인 {adults}명 + 아동 {children}명 = 총{" "}
+                {Number(adults) + Number(children)}명
                 <br />
                 객실 {rooms}개 (각 객실마다 성인 보호자 배정)
               </div>

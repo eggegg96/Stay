@@ -10,7 +10,7 @@ export function useAccommodationParams() {
   // 기본 파라미터
   const checkIn = params.get("checkIn") || header.checkIn || "2025-10-14";
   const checkOut = params.get("checkOut") || header.checkOut || "2025-10-15";
-  const people = Number(params.get("people") || header.people || 2);
+  const adults = Number(params.get("adults") || header.adults || 2);
   const rooms = Number(params.get("rooms") || header.rooms || 1);
 
   // 아동 정보 파싱
@@ -26,7 +26,7 @@ export function useAccommodationParams() {
   return {
     checkIn,
     checkOut,
-    people,
+    adults,
     children,
     childrenAges,
     rooms,

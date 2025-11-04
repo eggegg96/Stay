@@ -3,7 +3,7 @@ import { DATE_CONSTANTS } from "@/constants/common";
 
 export default function useHomeSearchState(init = {}) {
   const [keyword, setKeyword] = useState(init.keyword ?? "");
-  const [people, setPeople] = useState(init.people ?? "2");
+  const [adults, setAdults] = useState(init.adults ?? "2");
   const [children, setChildren] = useState(init.children ?? "0");
   const [childrenAges, setChildrenAges] = useState(init.childrenAges ?? []);
   const [rooms, setRooms] = useState(init.rooms ?? "1");
@@ -49,7 +49,7 @@ export default function useHomeSearchState(init = {}) {
   const updateState = useCallback(
     (newState) => {
       if (newState.keyword !== undefined) setKeyword(newState.keyword);
-      if (newState.people !== undefined) setPeople(newState.people);
+      if (newState.adults !== undefined) setAdults(newState.adults);
       if (newState.children !== undefined) setChildren(newState.children);
       if (newState.childrenAges !== undefined)
         setChildrenAges(newState.childrenAges);
@@ -80,8 +80,8 @@ export default function useHomeSearchState(init = {}) {
   return {
     keyword,
     setKeyword,
-    people,
-    setPeople,
+    adults,
+    setAdults,
     children,
     setChildren,
     childrenAges,

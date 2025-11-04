@@ -20,7 +20,7 @@ export default function Home() {
       keyword: p.keyword,
       checkIn: p.checkIn,
       checkOut: p.checkOut,
-      people: p.people,
+      adults: p.adults,
       children: p.children || 0,
       rooms: p.rooms || 1,
     }).toString();
