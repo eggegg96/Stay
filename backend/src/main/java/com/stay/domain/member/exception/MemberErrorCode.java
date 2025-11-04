@@ -112,6 +112,9 @@ public enum MemberErrorCode {
     VERIFICATION_TOKEN_EXPIRED("MEMBER_803", "인증 토큰이 만료되었습니다."),
     VERIFICATION_TOKEN_ALREADY_USED("MEMBER_804", "이미 사용된 인증 토큰입니다."),
     EMAIL_RESEND_TOO_SOON("MEMBER_805", "인증 메일은 3분 후에 재발송할 수 있습니다."),
+    EMAIL_SEND_FAILED("MEMBER_806", "이메일 발송에 실패했습니다."),
+    VERIFICATION_TOKEN_NOT_FOUND("MEMBER_807", "인증 토큰을 찾을 수 없습니다."),
+    EMAIL_VERIFICATION_REQUIRED("MEMBER_808", "이메일 인증이 필요합니다."),
 
     // 기타 (999)
     INTERNAL_ERROR("MEMBER_999", "회원 처리 중 오류가 발생했습니다.");

@@ -43,6 +43,12 @@ dependencies {
     // WebClient (OAuth API 호출용)
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    // 이메일 발송 (JavaMailSender)
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // 이메일 템플릿 (Thymeleaf)
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
