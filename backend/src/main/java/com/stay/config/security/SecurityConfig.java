@@ -53,9 +53,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 URL (Public)
                         .requestMatchers(
-                                "/api/auth/**",           // 로그인, OAuth 등
+                                "/api/auth/**", // 로그인, OAuth 등
                                 "/api/test/**",
                                 "api/members/check-nickname", // 테스트 API
+                                "/api/email-verification/**", // 이메일 인증 API
                                 "/health",
                                 "/error"
                         ).permitAll()
