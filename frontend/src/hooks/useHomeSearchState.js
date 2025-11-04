@@ -26,7 +26,7 @@ export default function useHomeSearchState(init = {}) {
       // 아동 수 증가: 새로운 아동 연령 추가 (기본값: 빈 문자열)
       const newAges = [...childrenAges];
       while (newAges.length < childCount) {
-        newAges.push("");
+        newAges.push("12");
       }
       setChildrenAges(newAges);
     } else if (childCount < childrenAges.length) {
