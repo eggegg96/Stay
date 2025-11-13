@@ -178,6 +178,26 @@ public class MemberService {
         return memberRepository.findActiveByEmail(email)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
+
+    /**
+     * 이메일 사용 가능 여부 체크
+     *
+     * 왜 필요한가?
+     * - 회원가입 폼에서 실시간으로 이메일 중복 체크
+     * - 중복 이메일로 가입 시도 방지
+     *
+     * @param email 체크할 이메일
+     * @return true: 사용 가능, false: 이미 사용 중
+     */
+    public boolean isEmailAvailable(String email) {
+        boolean exists = memberRepository.existsByEmail(email);
+        log.info("이메일 중복 체크 - email: {}, available: {}", email, !exists);
+        return !exists;
+    }
+
+// ==================== 사용 예시 ====================
+// BusinessMemberController의 checkEmail 메서드에서:
+// boolean isAvailable = memberService.isEmailAvailable(email);
 // ==================== 닉네임 관리 ====================
 
     /**
