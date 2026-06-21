@@ -100,7 +100,7 @@ export default function OAuthCallback() {
 
         setTimeout(() => {
           navigate("/login", { replace: true });
-        }, UI_DELAY);
+        }, UI_DELAY.REDIRECT);
       } finally {
         setIsProcessing(false);
       }
