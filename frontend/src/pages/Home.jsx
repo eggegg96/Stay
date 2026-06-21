@@ -7,6 +7,7 @@ import useHomeSearchState from "@hooks/useHomeSearchState";
 import SearchForm from "@search/SearchForm";
 
 export default function Home() {
+  // nav→navigate, s→searchState, go→handleSearchSubmit, p→payload
   const categories = ["국내 숙소", "해외 숙소"];
   const [active, setActive] = useState("국내 숙소");
   const nav = useNavigate();
@@ -46,7 +47,8 @@ export default function Home() {
                 {/* 국내 해외 선택 */}
                 <div className="mb-3 flex flex-wrap">
                   {categories.map((cat) => (
-                    <span
+                    <button
+                      type="button"
                       key={cat}
                       onClick={() => setActive(cat)}
                       className={`text-base md:text-lg p-2 cursor-pointer mb-1 ${
@@ -56,7 +58,7 @@ export default function Home() {
                       }`}
                     >
                       {cat}
-                    </span>
+                    </button>
                   ))}
                 </div>
                 <SearchForm
