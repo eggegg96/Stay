@@ -44,7 +44,8 @@ export default function UserInfoStep({ onNext }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isNicknameValid, setIsNicknameValid] = useState(false);
 
-  const years = Array.from({ length: 100 }, (_, i) => 2025 - i);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
