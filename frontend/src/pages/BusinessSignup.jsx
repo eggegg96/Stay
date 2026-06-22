@@ -2,6 +2,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
+import useBusinessSignupStore from "@/store/useBusinessSignupStore";
 import BusinessEmailVerification from "@/components/auth/BusinessEmailVerification";
 import BusinessEmailSent from "@/components/auth/BusinessEmailSent";
 import BusinessCompanySelect from "@/components/auth/BusinessCompanySelect";
@@ -32,29 +33,12 @@ export default function BusinessSignup() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const step = parseInt(searchParams.get("step") || "1");
-
-  // 검증 중 상태
   const [isValidating, setIsValidating] = useState(true);
   const [isValid, setIsValid] = useState(false);
 
-  // 전체 회원가입 데이터
-  const [formData, setFormData] = useState({
-    email: "",
-    emailVerified: false,
-    companyType: "",
-    companyName: "",
-    businessNumber: "",
-    termsAgreed: false,
-    phoneNumber: "",
-    phoneVerified: false,
-    name: "",
-    password: "",
-    passwordConfirm: "",
-    birthYear: "",
-    birthMonth: "",
-    birthDay: "",
-    gender: "",
-  });
+  const { formData, updateFormData, resetFormData } = useBusinessSignupStore();
+
+  useEffect(() => {}, [formData]);
 
   /**
    * 로그인 상태 확인 + Step 검증
@@ -89,6 +73,7 @@ export default function BusinessSignup() {
         sessionStorage.removeItem("businessSignupStep5Completed");
         sessionStorage.removeItem("businessSignupStep6Completed");
         sessionStorage.removeItem("businessSignupStep7Completed");
+        resetFormData();
         console.log("🔄 Business Step 1 - 진행 상태 초기화");
         setIsValid(true);
         setIsValidating(false);
@@ -98,7 +83,7 @@ export default function BusinessSignup() {
       // Step 2: 이메일 입력 완료 여부 확인
       if (step === 2) {
         const step1Completed = sessionStorage.getItem(
-          "businessSignupStep1Completed"
+          "businessSignupStep1Completed",
         );
         if (!step1Completed) {
           console.warn("⚠️ Business Step 1 미완료 - Step 1로 리다이렉트");
@@ -117,7 +102,7 @@ export default function BusinessSignup() {
       // Step 4: 이메일 발송 확인 완료 여부
       if (step === 4) {
         const step2Completed = sessionStorage.getItem(
-          "businessSignupStep2Completed"
+          "businessSignupStep2Completed",
         );
         if (!step2Completed) {
           console.warn("⚠️ Business Step 2 미완료 - Step 1로 리다이렉트");
@@ -134,7 +119,7 @@ export default function BusinessSignup() {
       // Step 5: 소속 선택 완료 여부 확인 (Step 4에서 모달로 확인하므로 Step 4 체크)
       if (step === 5) {
         const step4Completed = sessionStorage.getItem(
-          "businessSignupStep4Completed"
+          "businessSignupStep4Completed",
         );
         if (!step4Completed) {
           console.warn("⚠️ Business Step 4 미완료 - Step 1로 리다이렉트");
@@ -151,7 +136,7 @@ export default function BusinessSignup() {
       // Step 6: 약관 동의 완료 여부 확인
       if (step === 6) {
         const step5Completed = sessionStorage.getItem(
-          "businessSignupStep5Completed"
+          "businessSignupStep5Completed",
         );
         if (!step5Completed) {
           console.warn("⚠️ Business Step 5 미완료 - Step 1로 리다이렉트");
@@ -168,7 +153,7 @@ export default function BusinessSignup() {
       // Step 7: 휴대폰 인증 완료 여부 확인
       if (step === 7) {
         const step6Completed = sessionStorage.getItem(
-          "businessSignupStep6Completed"
+          "businessSignupStep6Completed",
         );
         if (!step6Completed) {
           console.warn("⚠️ Business Step 6 미완료 - Step 1로 리다이렉트");
@@ -185,7 +170,7 @@ export default function BusinessSignup() {
       // Step 8: 기본정보 입력 완료 여부 확인
       if (step === 8) {
         const step7Completed = sessionStorage.getItem(
-          "businessSignupStep7Completed"
+          "businessSignupStep7Completed",
         );
         if (!step7Completed) {
           console.warn("⚠️ Business Step 7 미완료 - Step 1로 리다이렉트");
@@ -217,17 +202,19 @@ export default function BusinessSignup() {
    * - Step별 진행 상태를 추적해서 사용자가 순서대로 진행하도록 강제
    */
   const goToStep = (nextStep, data = {}) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-
-    // 현재 step 완료 표시 (step 3은 제외 - 백엔드 처리)
-    if (step !== 3) {
-      sessionStorage.setItem(`businessSignupStep${step}Completed`, "true");
-      console.log(`✅ Business Step ${step} 완료`);
+    if (data && Object.keys(data).length > 0) {
+      updateFormData(data);
     }
 
-    navigate(`/business/signup?step=${nextStep}`, {
-      replace: true,
-    });
+    if (step !== 3) {
+      sessionStorage.setItem(`businessSignupStep${step}Completed`, "true");
+    }
+
+    if (nextStep === 8) {
+      resetFormData();
+    }
+
+    navigate(`/business/signup?step=${nextStep}`, { replace: true });
   };
 
   /**
@@ -298,7 +285,7 @@ export default function BusinessSignup() {
         />
       )}
 
-      {/* Step 8: 가입 완료 */}
+      {/* Step 8: 가입 완료 Store 초기화 */}
       {step === 8 && <SignupCompleteStep />}
     </section>
   );
