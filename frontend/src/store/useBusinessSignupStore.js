@@ -3,7 +3,6 @@ import { create } from "zustand";
 const initialFormData = {
   email: "",
   emailVerified: false,
-  companyType: "",
   companyName: "",
   businessNumber: "",
   termsAgreed: false,
