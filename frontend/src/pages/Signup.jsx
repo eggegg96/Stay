@@ -78,20 +78,6 @@ export default function Signup() {
         return;
       }
 
-      // 2순위: Step 검증 (비로그인 사용자만)
-      console.log(`🔍 Step ${step} 검증 시작...`);
-
-      // Step 1은 항상 접근 가능
-      if (step === 1) {
-        sessionStorage.removeItem("signupStep1Completed");
-        sessionStorage.removeItem("signupStep2Completed");
-        sessionStorage.removeItem("signupStep3Completed");
-        console.log("🔄 Step 1 - 진행 상태 초기화");
-        setIsValid(true);
-        setIsValidating(false);
-        return;
-      }
-
       // Step 2: 약관 동의 완료 여부 확인
       if (step === 2) {
         const step1Completed = sessionStorage.getItem("signupStep1Completed");
