@@ -15,7 +15,8 @@ export default function GoogleMap({
   type = null,
 }) {
   const mapRef = useRef(null);
-  const isInitialized = useRef(false);
+  const mapInstanceRef = useRef(null);
+  const markerRef = useRef(null);
 
   /**
    * 구글맵 API로 장소 검색
@@ -68,8 +69,6 @@ export default function GoogleMap({
   };
 
   useEffect(() => {
-    if (isInitialized.current) return;
-
     const initMap = async () => {
       try {
         await importLibrary("maps");
@@ -98,25 +97,35 @@ export default function GoogleMap({
           return; // 지도 생성 중단
         }
 
-        // 지도 생성 - 깔끔한 옵션만
-        const map = new window.google.maps.Map(mapRef.current, {
-          center: { lat: centerLat, lng: centerLng },
-          zoom: level,
-          mapTypeControl: false, // 지도/위성 토글 제거
-          streetViewControl: false, // 스트리트뷰 제거
-          fullscreenControl: false, // 전체화면 제거
-          zoomControl: false, // 줌 컨트롤만 유지
-          gestureHandling: "cooperative",
-        });
+        const center = { lat: centerLat, lng: centerLng };
 
-        // 마커 추가
-        new window.google.maps.Marker({
-          position: { lat: centerLat, lng: centerLng },
-          map: map,
-          title: query || "위치",
-        });
+        // 지도: 있으면 이동, 없으면 새로 생성
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setCenter(center);
+          mapInstanceRef.current.setZoom(level);
+        } else {
+          mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+            center: { lat: centerLat, lng: centerLng },
+            zoom: level,
+            mapTypeControl: false, // 지도/위성 토글 제거
+            streetViewControl: false, // 스트리트뷰 제거
+            fullscreenControl: false, // 전체화면 제거
+            zoomControl: false, // 줌 컨트롤만 유지
+            gestureHandling: "cooperative",
+          });
+        }
 
-        isInitialized.current = true;
+        // 마커: 있으면 이동, 없으면 새로 생성
+        if (markerRef.current) {
+          markerRef.current.setPosition(center);
+          markerRef.current.setTitle(query || "위치");
+        } else {
+          markerRef.current = new window.google.maps.Marker({
+            position: center,
+            map: mapInstanceRef.current,
+            title: query || "위치",
+          });
+        }
       } catch (error) {
         console.error("구글맵 초기화 오류:", error);
       }
