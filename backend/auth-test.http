@@ -68,4 +68,18 @@ Content-Type: application/json
   "profileImageUrl": "https://example.com/profile.jpg"
 }
 
-###
+### 사업자 회원가입 테스트
+POST http://localhost:8080/api/business/register
+Content-Type: application/json
+
+{
+  "email": "test-business@test.com",
+  "password": "test1234",
+  "name": "홍길동",
+  "phoneNumber": "010-1234-5678",
+  "businessNumber": "123-45-67890",
+  "companyName": "테스트 회사",
+  "nickname": "테스트닉",
+  "birthDate": "1996-05-15",
+  "gender": "male"
+}
