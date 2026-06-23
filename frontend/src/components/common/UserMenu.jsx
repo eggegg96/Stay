@@ -93,9 +93,7 @@ export default function UserMenu() {
             >
               <div className="text-sm font-semibold text-gray-900 flex items-center justify-between">
                 {/* 닉네임 표시 (없으면 이메일 앞부분) */}
-                <span>
-                  {user?.nickname || user?.email?.split("@")[0] || "사용자"}
-                </span>
+                <span>{getUserDisplayName()}</span>
                 <span className="text-gray-400">&gt;</span>
               </div>
             </button>
