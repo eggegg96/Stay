@@ -1,4 +1,9 @@
 import { useEffect, useRef } from "react";
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
+
+setOptions({
+  key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+});
 
 export default function GoogleMap({
   query,
@@ -37,7 +42,7 @@ export default function GoogleMap({
       // Places API 시도
       if (window.google.maps.places) {
         const service = new window.google.maps.places.PlacesService(
-          document.createElement("div")
+          document.createElement("div"),
         );
         const placesResult = await new Promise((resolve) => {
           service.textSearch({ query: searchQuery }, (results, status) => {
@@ -66,52 +71,58 @@ export default function GoogleMap({
     if (isInitialized.current) return;
 
     const initMap = async () => {
-      if (!window.google?.maps || !mapRef.current) return;
+      try {
+        await importLibrary("maps");
+        await importLibrary("places");
+        if (!mapRef.current) return;
 
-      // 좌표 결정
-      let centerLat, centerLng;
+        // 좌표 결정
+        let centerLat, centerLng;
 
-      if (typeof lat === "number" && typeof lng === "number") {
-        // 1순위: 전달받은 좌표
-        centerLat = lat;
-        centerLng = lng;
-      } else if (query) {
-        // API 검색
-        const searchResult = await searchWithGoogleAPI(query);
-        if (searchResult) {
-          centerLat = searchResult.lat;
-          centerLng = searchResult.lng;
+        if (typeof lat === "number" && typeof lng === "number") {
+          // 1순위: 전달받은 좌표
+          centerLat = lat;
+          centerLng = lng;
+        } else if (query) {
+          // API 검색
+          const searchResult = await searchWithGoogleAPI(query);
+          if (searchResult) {
+            centerLat = searchResult.lat;
+            centerLng = searchResult.lng;
+          } else {
+            console.error(`"${query}" 검색 결과를 찾을 수 없습니다`);
+            return; // 지도 생성 중단
+          }
         } else {
-          console.error(`"${query}" 검색 결과를 찾을 수 없습니다`);
+          console.error("검색어나 좌표가 필요합니다");
           return; // 지도 생성 중단
         }
-      } else {
-        console.error("검색어나 좌표가 필요합니다");
-        return; // 지도 생성 중단
+
+        // 지도 생성 - 깔끔한 옵션만
+        const map = new window.google.maps.Map(mapRef.current, {
+          center: { lat: centerLat, lng: centerLng },
+          zoom: level,
+          mapTypeControl: false, // 지도/위성 토글 제거
+          streetViewControl: false, // 스트리트뷰 제거
+          fullscreenControl: false, // 전체화면 제거
+          zoomControl: false, // 줌 컨트롤만 유지
+          gestureHandling: "cooperative",
+        });
+
+        // 마커 추가
+        new window.google.maps.Marker({
+          position: { lat: centerLat, lng: centerLng },
+          map: map,
+          title: query || "위치",
+        });
+
+        isInitialized.current = true;
+      } catch (error) {
+        console.error("구글맵 초기화 오류:", error);
       }
-
-      // 지도 생성 - 깔끔한 옵션만
-      const map = new window.google.maps.Map(mapRef.current, {
-        center: { lat: centerLat, lng: centerLng },
-        zoom: level,
-        mapTypeControl: false, // 지도/위성 토글 제거
-        streetViewControl: false, // 스트리트뷰 제거
-        fullscreenControl: false, // 전체화면 제거
-        zoomControl: false, // 줌 컨트롤만 유지
-        gestureHandling: "cooperative",
-      });
-
-      // 마커 추가
-      new window.google.maps.Marker({
-        position: { lat: centerLat, lng: centerLng },
-        map: map,
-        title: query || "위치",
-      });
-
-      isInitialized.current = true;
     };
 
-    setTimeout(initMap, 100);
+    initMap();
   }, [query, lat, lng, level, type]);
 
   return <div ref={mapRef} className={className} style={{ minHeight }} />;
