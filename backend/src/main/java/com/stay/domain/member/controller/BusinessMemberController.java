@@ -165,53 +165,6 @@ public class BusinessMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // ==================== 이메일 인증 ====================
-
-    /**
-     * 이메일 인증 처리 API
-     *
-     * 왜 필요한가?
-     * - 이메일 링크 클릭 시 인증 완료 처리
-     * - BusinessInfo의 emailVerified를 true로 변경
-     *
-     * 엔드포인트:
-     * GET /api/business/verify-email?token={token}
-     *
-     * 플로우:
-     * 1. 이메일 인증 링크 클릭
-     * 2. 프론트엔드가 이 API 호출
-     * 3. 백엔드에서 토큰 검증 및 인증 처리
-     * 4. 성공 → 로그인 페이지로 리다이렉트
-     *
-     * @param token 이메일 인증 토큰 (JWT 또는 UUID)
-     * @return 인증 결과
-     */
-    @GetMapping("/verify-email")
-    public ResponseEntity<Map<String, Object>> verifyEmail(
-            @RequestParam String token
-    ) {
-        log.info("========================================");
-        log.info("이메일 인증 요청 - token: {}", token);
-
-        // TODO: 토큰 검증 로직 추가 필요
-        // 1. 토큰에서 memberId 추출
-        // 2. 토큰 유효성 검증 (만료 시간 체크)
-        // 3. 이미 인증된 이메일인지 체크
-
-        // 임시: 토큰을 memberId로 가정
-        Long memberId = Long.parseLong(token);
-
-        businessMemberService.verifyBusinessEmail(memberId);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "이메일 인증이 완료되었습니다. 로그인해주세요.");
-
-        log.info("이메일 인증 완료 - memberId: {}", memberId);
-        log.info("========================================");
-
-        return ResponseEntity.ok(response);
-    }
 
     // ==================== 회원가입 헬퍼 메서드 ====================
 
@@ -231,9 +184,7 @@ public class BusinessMemberController {
     ) {
         log.info("이메일 중복 체크 요청 - email: {}", email);
 
-        // TODO: MemberService에 이메일 중복 체크 메서드 추가 필요
-        // boolean isAvailable = memberService.isEmailAvailable(email);
-        boolean isAvailable = true; // 임시
+        boolean isAvailable = memberService.isEmailAvailable(email);
 
         Map<String, Object> response = new HashMap<>();
         response.put("available", isAvailable);
