@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
 
 /**
  * 사업자 회원가입 요청 DTO
@@ -128,4 +129,29 @@ public class BusinessMemberRegisterRequest {
     @NotBlank(message = "회사명은 필수 입력입니다")
     @Size(min = 2, max = 100, message = "회사명은 2~100자이어야 합니다")
     private String companyName;
+
+    /**
+     * 닉네임
+     * - 2~8자
+     * - 한글, 영문, 숫자, 언더스코어만 허용
+     */
+    @NotBlank(message = "닉네임은 필수 입력입니다")
+    @Size(min = 2, max = 8, message = "닉네임은 2~8자이어야 합니다")
+    @Pattern(
+            regexp = "^[가-힣a-zA-Z0-9_]+$",
+            message = "닉네임은 한글, 영문, 숫자, 언더스코어만 사용 가능합니다"
+    )
+    private String nickname;
+
+    /**
+     * 생년월일
+     * - YYYY-MM-DD 형식
+     */
+    private LocalDate birthDate;
+
+    /**
+     * 성별
+     * - MALE / FEMALE
+     */
+    private String gender;
 }

@@ -8,7 +8,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +47,17 @@ public class Member extends BaseEntity {
 
     @Column(name = "nickname", length = 8, unique = true)
     private String nickname;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    public enum Gender {
+        MALE, FEMALE
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", length = 10)
+    private Gender gender;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -95,7 +106,7 @@ public class Member extends BaseEntity {
 
     @Builder
     private Member(String email, String password, String phoneNumber, String name, String nickname,
-                   MemberRole role, String profileImageUrl) {
+                   MemberRole role, String profileImageUrl, LocalDate birthDate, Gender gender) {
         validateEmail(email);
         validateName(name);
         // 닉네임은 나중에 설정할 수도 있으므로 null 허용
@@ -108,12 +119,9 @@ public class Member extends BaseEntity {
         this.role = role != null ? role : MemberRole.CUSTOMER;
         this.grade = MemberGrade.BASIC;
         this.profileImageUrl = profileImageUrl;
+        this.birthDate = birthDate;
+        this.gender = gender;
         this.lastGradeUpdatedAt = LocalDateTime.now();
-
-        // 필드 초기화로 처리되므로 제거
-        // this.reservationCount = 0;
-        // this.points = 0;
-        // this.isActive = true;
     }
 
     // ==================== 닉네임 관리 ====================

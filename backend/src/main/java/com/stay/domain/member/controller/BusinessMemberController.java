@@ -2,6 +2,7 @@ package com.stay.domain.member.controller;
 
 import com.stay.domain.member.dto.BusinessMemberRegisterRequest;
 import com.stay.domain.member.entity.Member;
+import com.stay.domain.member.entity.MemberRole;
 import com.stay.domain.member.service.BusinessMemberService;
 import com.stay.domain.member.service.EmailVerificationService;
 import com.stay.domain.member.service.MemberService;
@@ -146,7 +147,12 @@ public class BusinessMemberController {
                 request.getName(),
                 request.getPhoneNumber(),
                 request.getBusinessNumber(),
-                request.getCompanyName()
+                request.getCompanyName(),
+                request.getNickname(),
+                request.getBirthDate(),
+                request.getGender() != null
+                        ? Member.Gender.valueOf(request.getGender().toUpperCase())
+                        : null
         );
 
         // 이메일 인증 토큰 생성 및 발송

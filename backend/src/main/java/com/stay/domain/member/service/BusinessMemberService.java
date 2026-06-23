@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDate;
 
 /**
  * 사업자 회원 Service
@@ -64,13 +65,10 @@ public class BusinessMemberService {
      */
     @Transactional
     public Member registerBusinessMember(
-            String email,
-            String password,
-            String name,
-            String phoneNumber,
-            String businessNumber,
-            String companyName
-    ) {
+            String email, String password, String name,
+            String phoneNumber, String businessNumber, String companyName,
+            String nickname, LocalDate birthDate, Member.Gender gender)
+        {
         log.info("========================================");
         log.info("사업자 회원가입 시작 - email: {}, businessNumber: {}", email, businessNumber);
 
@@ -90,6 +88,9 @@ public class BusinessMemberService {
                 .password(password)
                 .name(name)
                 .phoneNumber(phoneNumber)
+                .nickname(nickname)
+                .birthDate(birthDate)
+                .gender(gender)
                 .role(MemberRole.BUSINESS_OWNER)
                 .build();
 
