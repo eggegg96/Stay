@@ -62,7 +62,7 @@ export default function SearchForm({
       checkIn: format(range[0].startDate, "yyyy-MM-dd"),
       checkOut: format(range[0].endDate, "yyyy-MM-dd"),
       adults: Number(adults),
-      children: area === "overseas" ? validChildrenAges.join(",") : undefined, // 🔥 이 부분이 핵심!
+      children: area === "overseas" ? validChildrenAges.join(",") : undefined,
       rooms: Number(rooms),
     };
 
@@ -93,11 +93,14 @@ export default function SearchForm({
           isDetailPage
             ? "다른 숙소 검색하기"
             : area === "overseas"
-            ? "도시를 입력하세요 예) 도쿄 오사카 후쿠오카"
-            : "도시를 입력하세요 예) 서울 제주도 부산"
+              ? "도시를 입력하세요 예) 도쿄 오사카 후쿠오카"
+              : "도시를 입력하세요 예) 서울 제주도 부산"
         }
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") submit();
+        }}
       />
 
       {/* 날짜 선택 */}
