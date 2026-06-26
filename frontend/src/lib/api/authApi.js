@@ -1,4 +1,5 @@
 import apiClient from "./client";
+import { format } from "date-fns";
 
 /**
  * 인증 API 모듈
@@ -67,7 +68,7 @@ const authApi = {
     } catch (error) {
       console.error("닉네임 중복 체크 실패:", error);
       throw new Error(
-        error.response?.data?.message || "닉네임 중복 체크에 실패했습니다."
+        error.response?.data?.message || "닉네임 중복 체크에 실패했습니다.",
       );
     }
   },
@@ -116,7 +117,7 @@ const authApi = {
     } catch (error) {
       console.error("회원 정보 조회 실패:", error);
       throw new Error(
-        error.response?.data?.message || "회원 정보 조회에 실패했습니다."
+        error.response?.data?.message || "회원 정보 조회에 실패했습니다.",
       );
     }
   },
@@ -164,7 +165,7 @@ const authApi = {
 
       const response = await apiClient.post(
         "/auth/oauth/register",
-        requestData
+        requestData,
       );
 
       console.log("OAuth 최종 회원가입 API 응답:", response.data);
@@ -182,6 +183,46 @@ const authApi = {
       }
 
       throw new Error("회원가입 처리 중 오류가 발생했습니다");
+    }
+  },
+
+  /**
+   * 사업자 회원가입 API
+   *
+   * 왜 필요한가?
+   * - Step 1(이메일/사업자 정보)과 Step 2(비밀번호/개인정보)를 합쳐
+   *   백엔드 POST /api/business/register 를 호출함
+   * - 이 함수가 없으면 회원가입 버튼을 눌러도 아무것도 안 됨
+   *
+   * @param {Object} data - 전체 회원가입 데이터
+   * @returns {Promise<{success: boolean, memberId: number, email: string, message: string}>}
+   */
+  registerBusiness: async (data) => {
+    try {
+      const response = await apiClient.post("/business/register", {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        phoneNumber: data.phoneNumber,
+        businessNumber: data.businessNumber,
+        companyName: data.companyName,
+        nickname: data.nickname,
+        birthDate: data.birthDate
+          ? format(new Date(data.birthDate), "yyyy-MM-dd")
+          : null,
+        gender: data.gender || null, // "male" → 백엔드에서 toUpperCase() 처리
+      });
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || "회원가입에 실패했습니다.");
+      }
+
+      return response.data;
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "회원가입 처리 중 오류가 발생했습니다.";
+      throw new Error(errorMessage);
     }
   },
 };

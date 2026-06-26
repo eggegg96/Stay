@@ -1,6 +1,7 @@
 import { useState } from "react";
 import NicknameInput from "./NicknameInput";
 import BirthDatePicker from "@/components/auth/BirthDatePicker";
+import authApi from "@/lib/api/authApi";
 
 /**
  * Props:
@@ -153,23 +154,12 @@ export default function BusinessBasicInfo({ initialData, onNext }) {
     setIsSubmitting(true);
 
     try {
-      console.log("========================================");
-      console.log("사업자 회원가입 완료 데이터:");
-      console.log("이전 단계 데이터:", initialData);
-      console.log("현재 단계 데이터:", formData);
-      console.log("========================================");
+      const response = await authApi.registerBusiness({
+        ...initialData,
+        ...formData,
+      });
 
-      // TODO: 백엔드 API 호출
-      // const response = await authApi.registerBusiness({
-      //   ...initialData,  // 이메일, 소속 정보 등
-      //   ...formData,     // 비밀번호, 개인정보 등
-      // });
-
-      // 임시: 성공으로 간주
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // 다음 단계로 이동 (완료 페이지)
-      onNext(formData);
+      onNext({ ...formData, memberId: response.memberId });
     } catch (err) {
       console.error("회원가입 실패:", err);
       setErrors({
@@ -249,8 +239,8 @@ export default function BusinessBasicInfo({ initialData, onNext }) {
                       passwordStrength.level === 1
                         ? "w-1/3 bg-red-500"
                         : passwordStrength.level === 2
-                        ? "w-2/3 bg-yellow-500"
-                        : "w-full bg-green-500"
+                          ? "w-2/3 bg-yellow-500"
+                          : "w-full bg-green-500"
                     }`}
                   />
                 </div>
