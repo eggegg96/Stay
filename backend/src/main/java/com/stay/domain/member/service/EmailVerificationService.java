@@ -9,11 +9,14 @@ import com.stay.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import org.springframework.data.redis.core.RedisTemplate;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 이메일 인증 Service
@@ -32,6 +35,11 @@ public class EmailVerificationService {
     private final EmailVerificationTokenRepository tokenRepository;
     private final MemberRepository memberRepository;
     private final EmailService emailService;
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String EMAIL_TOKEN_PREFIX = "email:verify:token:";
+    private static final String EMAIL_VERIFIED_PREFIX = "email:verify:done:";
 
     // application.yml에서 설정값 가져오기
     @Value("${app.email.verification.expiration-hours:24}")
@@ -90,6 +98,19 @@ public class EmailVerificationService {
     public void verifyEmailByToken(String token) {
         log.info("이메일 인증 처리 시작 - token: {}", token);
 
+        // Redis 토큰 먼저 확인 (Step 1에서 발급한 토큰)
+        String email = redisTemplate.opsForValue().get(EMAIL_TOKEN_PREFIX + token);
+        if (email != null) {
+            redisTemplate.delete(EMAIL_TOKEN_PREFIX + token);
+            redisTemplate.opsForValue().set(
+                    EMAIL_VERIFIED_PREFIX + email,
+                    "true",
+                    24,
+                    TimeUnit.HOURS
+            );
+            log.info("Redis 이메일 인증 완료 - email: {}", email);
+            return;
+        }
         // 1. 토큰으로 EmailVerificationToken 조회
         EmailVerificationToken verificationToken = tokenRepository
                 .findByToken(token)
@@ -181,6 +202,49 @@ public class EmailVerificationService {
         int deletedCount = tokenRepository.deleteExpiredTokens(LocalDateTime.now());
         log.info("만료된 토큰 정리 완료 - 삭제된 개수: {}", deletedCount);
         return deletedCount;
+    }
+
+    /**
+     * Step 1: Member 없이 이메일만으로 인증 메일 발송
+     *
+     * 왜 필요한가?
+     * - 회원가입 전 이메일 선인증 플로우 지원
+     * - Redis에 토큰 저장 (TTL 24시간 자동 만료)
+     * - Member가 없어도 토큰 생성 가능
+     *
+     * @param email 인증할 이메일
+     */
+    @Transactional
+    public void sendVerificationEmailByEmail(String email) {
+        log.info("이메일 인증 메일 발송 요청 - email: {}", email);
+
+        String token = UUID.randomUUID().toString();
+
+        // Redis에 저장 (key: email:verify:token:{token}, value: email, TTL: 24시간)
+        redisTemplate.opsForValue().set(
+                EMAIL_TOKEN_PREFIX + token,
+                email,
+                expirationHours,
+                TimeUnit.HOURS
+        );
+
+        emailService.sendVerificationEmail(email, token);
+        log.info("이메일 인증 메일 발송 완료 - email: {}", email);
+    }
+
+    /**
+     * Step 7 회원가입 시 이메일 인증 완료 여부 확인
+     *
+     * 왜 필요한가?
+     * - 이메일 인증을 완료하지 않은 사용자가 회원가입 완료 API를 직접 호출하는 것을 방지
+     *
+     * @param email 확인할 이메일
+     * @return true: 인증 완료, false: 미인증
+     */
+    public boolean isEmailVerified(String email) {
+        return Boolean.TRUE.equals(
+                redisTemplate.hasKey(EMAIL_VERIFIED_PREFIX + email)
+        );
     }
 
     public EmailVerificationToken getLatestToken(Long memberId) {

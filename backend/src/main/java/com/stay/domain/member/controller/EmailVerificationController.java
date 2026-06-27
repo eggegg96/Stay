@@ -54,6 +54,34 @@ public class EmailVerificationController {
     }
 
     /**
+     * 인증 메일 최초 발송
+     *
+     * POST /api/email-verification/send
+     * Body: { "email": "user@example.com" }
+     */
+    @PostMapping("/send")
+    public ResponseEntity<EmailVerificationDto.SendResponse> sendEmail(
+            @RequestBody EmailVerificationDto.SendRequest request) {
+
+        log.info("인증 메일 발송 요청 - email: {}", request.getEmail());
+
+        try {
+            emailVerificationService.sendVerificationEmailByEmail(request.getEmail());
+
+            return ResponseEntity.ok(
+                    EmailVerificationDto.SendResponse.success(request.getEmail())
+            );
+        } catch (Exception e) {
+            log.error("인증 메일 발송 실패 - email: {}", request.getEmail(), e);
+
+            return ResponseEntity.badRequest()
+                    .body(EmailVerificationDto.SendResponse.failure(
+                            request.getEmail(), e.getMessage()
+                    ));
+        }
+    }
+
+    /**
      * 인증 메일 재발송
      *
      * POST /api/email-verification/resend

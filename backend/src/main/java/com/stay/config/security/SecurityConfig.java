@@ -56,7 +56,7 @@ public class SecurityConfig {
                                 "/api/auth/**", // 로그인, OAuth 등
                                 "/api/business/**", // 비즈니스 회원가입
                                 "/api/test/**", // 테스트 API
-                                "api/members/check-nickname", // 닉네임 중복 체크
+                                "/api/members/check-nickname", // 닉네임 중복 체크
                                 "/api/email-verification/**", // 이메일 인증 API
                                 "/health",
                                 "/error"

@@ -10,6 +10,17 @@ import lombok.NoArgsConstructor;
 public class EmailVerificationDto {
 
     /**
+     * 인증 메일 최초 발송 요청 DTO
+     */
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SendRequest {
+        private String email;
+    }
+
+
+    /**
      * 인증 메일 재발송 요청 DTO
      */
     @Getter

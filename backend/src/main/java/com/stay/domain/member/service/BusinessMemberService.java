@@ -32,6 +32,7 @@ public class BusinessMemberService {
 
     private final MemberRepository memberRepository;
     private final BusinessInfoRepository businessInfoRepository;
+    private final EmailVerificationService emailVerificationService;
 
     // ==================== 사업자 등록번호 검증 ====================
 
@@ -77,12 +78,17 @@ public class BusinessMemberService {
             throw new MemberException(MemberErrorCode.DUPLICATE_EMAIL);
         }
 
-        // 2. 사업자 등록번호 중복 체크
+        // 2. 이메일 인증 완료 여부 확인
+        if (!emailVerificationService.isEmailVerified(email)) {
+            throw new MemberException(MemberErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        // 3. 사업자 등록번호 중복 체크
         if (businessInfoRepository.existsByBusinessNumber(businessNumber)) {
             throw new MemberException(MemberErrorCode.DUPLICATE_BUSINESS_NUMBER);
         }
 
-        // 3. Member 생성
+        // 4. Member 생성
         Member member = Member.builder()
                 .email(email)
                 .password(password)
@@ -94,10 +100,10 @@ public class BusinessMemberService {
                 .role(MemberRole.BUSINESS_OWNER)
                 .build();
 
-        // 4. Member 저장
+        // 5. Member 저장
         Member savedMember = memberRepository.save(member);
 
-        // 5. BusinessInfo 생성 및 저장
+        // 6. BusinessInfo 생성 및 저장
         BusinessInfo businessInfo = BusinessInfo.builder()
                 .member(savedMember)
                 .businessNumber(businessNumber)
@@ -105,7 +111,7 @@ public class BusinessMemberService {
                 .emailVerified(false)
                 .build();
 
-        // 6. BusinessInfo 저장
+        // 7. BusinessInfo 저장
         businessInfoRepository.save(businessInfo);
 
         log.info("사업자 회원가입 완료 - memberId: {}", savedMember.getId());
